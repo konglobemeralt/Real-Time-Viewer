@@ -1,0 +1,31 @@
+﻿Build started 10/22/2015 12:25:44 PM.
+     1>Project "C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\MayaPlugin\MayaPlugin.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2015\include" /Zi /nologo /W3 /WX- /sdl /Od /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt Source.cpp
+         Source.cpp
+     1>Source.cpp(66): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>Source.cpp(444): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(445): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(446): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(467): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(469): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(592): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(654): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(656): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(668): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(704): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(705): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(764): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(765): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(766): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1053): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1055): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\x64\Debug\MayaPlugin.mll" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\Autodesk\Maya2015\lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\x64\Debug\MayaPlugin.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\x64\Debug\MayaPlugin.lib" /MACHINE:X64 /DLL x64\Debug\Source.obj
+            Creating library C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\x64\Debug\MayaPlugin.lib and object C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\x64\Debug\MayaPlugin.exp
+         MayaPlugin.vcxproj -> C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\x64\Debug\MayaPlugin.mll
+     1>Done Building Project "C:\Temp\WorkingUV + Almost a light\WorkingUV + Almost a light\WorkingUV\project debug - Copy\MayaPlugin\MayaPlugin.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.01

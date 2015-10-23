@@ -387,7 +387,11 @@ void ModelClass::ReleaseModel()
 	return;
 }
 
+void ModelClass::setIndexCount(int i)
+{
+	m_indexCount = i;
 
+}
 
 void ModelClass::SetPosition(float x, float y, float z)
 {

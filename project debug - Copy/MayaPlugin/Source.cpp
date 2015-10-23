@@ -55,6 +55,7 @@ void goThroughScene();
 
 void getCameraInfo(MFnCamera&);
 void getMeshInfo(MFnMesh&);
+void getVertexChangeInfo(MFnMesh&);
 void getLightInfo(MFnLight&);
 
 
@@ -318,12 +319,12 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 	}
 
 	// Vertex has changed
-	else if (strstr(plug.partialName().asChar(), "pt["))
+	if(strstr(plug.partialName().asChar(), "pt[") )
 	{
-
+		
 		MStatus res;
 		MFnMesh meshNode(plug.node(), &res);
-		getMeshInfo(meshNode);
+		getVertexChangeInfo(meshNode);
 	}
 
 
@@ -1046,6 +1047,14 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 {
 	MFnMesh mesh(object);
 
+	unsigned int *headP = (unsigned int*)controlBuf;
+	unsigned int *tailP = headP + 1;
+	unsigned int *readerAmount = headP + 2;
+	unsigned int *freeMem = headP + 3;
+	unsigned int *memSize = headP + 4;
+
+	int messageType = 5;
+
 	unsigned int meshCount = nodeNames.length();
 	int destroyMesh;
 	for (size_t i = 0; i < meshCount; i++)
@@ -1057,6 +1066,174 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 	}
 	MGlobal::displayInfo(MString(mesh.name() + " has changed been destroyed!!"));
 
+	std::memcpy((char*)pBuf + usedSpace, &messageType, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
+	
+
 
 	//Copy index, use to destroy mesh of index in RTV
 }
+
+
+void getVertexChangeInfo(MFnMesh &meshNode)
+{
+	MStatus res;
+
+	
+	//MGlobal::executeCommand("select " + meshNode.name(), false, true);
+	//MGlobal::executeCommand("polyTriangulate", false, true);
+	//
+	//MItMeshPolygon polyIt(meshNode.object());
+	//
+	//
+	////Data
+	//MPointArray verts;
+	//
+	//MFloatArray us;
+	//MFloatArray vs;
+	//MFloatVectorArray normal;
+	//
+	//int uvIndex;
+	////Data end
+	//
+	/////dataSave
+	//
+	//vector<XMFLOAT4> verticies;
+	//vector<XMFLOAT2> UV;
+	//vector<XMFLOAT3> normals;
+	//
+	//
+	//meshNode.getPoints(verts);
+	//meshNode.getUVs(us, vs);
+	//meshNode.getNormals(normal);
+	//
+	//
+	//while (!polyIt.isDone())
+	//{
+	//	int triangleCount = 0;
+	//	for (int i = 0; i < 3; i++)
+	//	{
+	//		//Vert
+	//		verticies.push_back(XMFLOAT4(verts[polyIt.vertexIndex(i)].x, verts[polyIt.vertexIndex(i)].y, verts[polyIt.vertexIndex(i)].z, 1.0f));
+	//
+	//		//UV
+	//		polyIt.getUVIndex(i, uvIndex, 0);
+	//		UV.push_back(XMFLOAT2(us[uvIndex], 1 - vs[uvIndex]));
+	//
+	//		//Normals
+	//		normals.push_back(XMFLOAT3(normal[polyIt.normalIndex(i)].x, normal[polyIt.normalIndex(i)].y, normal[polyIt.normalIndex(i)].z));
+	//
+	//	}
+	//
+	//	polyIt.next();
+	//}
+	//
+	//
+	//MGlobal::executeCommand("undo", false, true);
+	//MGlobal::executeCommand("undo", false, true);
+	//
+	//
+	//
+	//
+	//usedSpace = 0;
+	//
+	//unsigned int *headP = (unsigned int*)controlBuf;
+	//unsigned int *tailP = headP + 1;
+	//unsigned int *readerAmount = headP + 2;
+	//unsigned int *freeMem = headP + 3;
+	//unsigned int *memSize = headP + 4;
+	//
+	//
+	//
+	//
+	////MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
+	//
+	//
+	//
+	//
+	//
+	//message tMessage;
+	//
+	//tMessage.vert.resize(verticies.size());
+	//
+	//for (int i = 0; i < verticies.size(); i++)
+	//{
+	//	tMessage.vert[i].norms = XMFLOAT3(normals.at(i).x, normals.at(i).y, normals.at(i).z);
+	//	tMessage.vert[i].pos = XMFLOAT4(verticies.at(i).x, verticies.at(i).y, verticies.at(i).z, verticies.at(i).w);
+	//	tMessage.vert[i].uv = XMFLOAT2(UV.at(i).x, UV.at(i).y);
+	//}
+	//
+	//tMessage.messageType = 0;
+	//
+	//
+	//
+	//
+	//
+	//unsigned int meshCount = nodeNames.length();
+	//int meshID;
+	//
+	////MFnMesh nameNode(meshNode.child(0));
+	//
+	//
+	//
+	//
+	//std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+	//std::memcpy((char*)pBuf + usedSpace + sizeof(int), &tMessage.messageSize, sizeof(int));
+	//std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
+	//
+	//
+	//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.numMeshes, sizeof(int));
+	//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int), &tMessage.numVerts, sizeof(int));
+	//
+	//for (int i = 0; i < verticies.size(); i++)
+	//{
+	//	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+	//	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+	//	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+	//
+	//}
+	//
+	//
+	//
+	//tMessage.numVerts = verticies.size();
+	//
+	//tMessage.messageSize = 100000;
+	//tMessage.padding = 0;
+	//for (size_t i = 0; i < meshCount; i++)
+	//	{
+	//		if (nodeNames[i] == meshNode.name())
+	//		{
+	//			meshID = i;
+	//		}
+	//		else
+	//		{
+	//			meshID = 0;
+	//		}
+	//	}
+	//
+	////Give the mesh an ID
+	//tMessage.numMeshes = meshID;
+	////Mesh transformation
+	//MFnTransform meshTransform(meshNode.parent(0));
+	//MVector translation = meshTransform.getTranslation(MSpace::kObject);
+	//
+	//
+	//
+	//
+	//*headP += 100000;
+	//
+	//
+	//
+	//if (*headP > *memSize)
+	//{
+	//	*headP = 0;
+	//}
+	//
+	//
+	//
+	//
+	//
+	//delete[] vertData;
+
+}
+

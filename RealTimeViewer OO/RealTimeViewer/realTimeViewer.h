@@ -25,6 +25,7 @@ public:
 	bool frame();
 	//bool m_renterToTexture;
 
+
 private:
 	bool HandleInput(float);
 	bool Render();

@@ -210,12 +210,14 @@ bool realTimeViewer::RenderGraphics()
 	for (int i = 0; i < modelVector.size(); i++)
 	{
 
+		if (modelVector.at(i).GetIndexCount() > 0)
+		{
+		
+		
 		modelVector.at(i).Render(m_Direct3D->GetDeviceContext());
 			// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 
-
-	
-	
+			
 			//Move the model to the location it should be rendered at.
 		worldMatrix = modelVector.at(i).getWorldMatrix();
 	
@@ -237,7 +239,7 @@ bool realTimeViewer::RenderGraphics()
 				return false;
 			}
 
-
+	}
 	}
 	
 	update();
@@ -255,6 +257,8 @@ bool realTimeViewer::RenderGraphics()
 
 void realTimeViewer::update()
 {
+
+
 	int messageType = -1;
 	void* pBuf = m_fileMap->returnPbuf();
 	memcpy(&messageType, (char*)pBuf, sizeof(int));
@@ -298,10 +302,31 @@ void realTimeViewer::update()
 		}
 		
 
-
 	}
 
 
+	if (messageType == 5)
+	{
+		//ModelID
+		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
 
+
+
+		if (modelID == 0)
+		{	
+			modelVector.at(modelID).setIndexCount(-1);
+			
+		}
+
+		else
+		{
+			modelVector.at(modelID - 1).setIndexCount(-1);
+		}
+
+		
+
+
+	}
 
 }
+

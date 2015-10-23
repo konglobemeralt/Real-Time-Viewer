@@ -58,6 +58,7 @@ public:
 
 	void SetPosition(float, float, float);
 	void GetPosition(float&, float&, float&);
+	void setIndexCount(int i);
 
 	int getModelID();
 

@@ -341,13 +341,33 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 	}
 
 	// Vertex has changed
-	if(strstr(plug.partialName().asChar(), "pt[") )
+	else if(strstr(plug.partialName().asChar(), "pt[") )
 	{
 		
 		MStatus res;
 		MFnMesh meshNode(plug.node(), &res);
 		getVertexChangeInfo(meshNode);
 	}
+
+	// uv has changed
+	else if (strstr(plug.partialName().asChar(), "pv"))
+	{
+
+		MStatus res;
+		MFnMesh meshNode(plug.node(), &res);
+		getVertexChangeInfo(meshNode);
+	}
+
+
+	else if (strstr(plug2.name().asChar(), "polyExtrude"))
+	{
+		MStatus res;
+		MFnMesh meshNode(plug.node(), &res);
+		getVertexChangeInfo(meshNode);
+	}
+
+
+
 
 
 
@@ -1237,4 +1257,3 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	delete[] vertData;
 
 }
-

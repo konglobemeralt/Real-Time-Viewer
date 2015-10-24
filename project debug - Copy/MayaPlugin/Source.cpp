@@ -307,7 +307,24 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 		MStatus res;
 		MFnMesh meshNode(plug.node(), &res);
 		//Add to namelist
-		nodeNames.append(meshNode.name());
+
+		bool exist = false;
+
+		for (size_t i = 0; i < nodeNames.length(); i++)
+		{
+			if (nodeNames[i] == meshNode.name())
+			{
+				exist = true;
+			}
+
+		}
+
+		if (!exist)
+		{
+			nodeNames.append(meshNode.name());
+		}
+
+		
 
 
 		usedSpace = 0;
@@ -432,9 +449,6 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 			
 				MFnMesh meshNode(plug.node());
 
-			
-
-
 				//mesh rotation
 				double rotation[4];
 				transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
@@ -475,10 +489,7 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 						meshID = i;
 
 					}
-					else
-					{
-						meshID = 0;
-					}
+				
 						
 				}
 
@@ -645,10 +656,7 @@ void getMeshInfo(MFnMesh &meshNode)
 			{
 				meshID = i;
 			}
-			else
-			{
-				meshID = 0;
-			}
+			
 		}
 
 
@@ -687,14 +695,13 @@ void getMeshInfo(MFnMesh &meshNode)
 		meshTransform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
 
 		//mesh scale
-		//For later
-
+		double scale[4];
+		meshTransform.getScale(scale);
 		//Build matrix with xmvectors
 
 		XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
 		XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
-		//Temp scale 1 1 1 
-		XMVECTOR scaleVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+		XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], scale[3]);
 		XMVECTOR zeroVector = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 		
 		
@@ -1149,10 +1156,7 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 		{
 			meshID = i;
 		}
-		else
-		{
-			meshID = 0;
-		}
+		
 	}
 
 	
@@ -1181,31 +1185,37 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 
 	}
 
-	//Mesh transformation
-	MFnTransform meshTransform(meshNode.parent(0));
-	MVector translation = meshTransform.getTranslation(MSpace::kObject);
-
 	//mesh rotation
+	
+	MFnTransform transform(meshNode.parent(0));
+
 	double rotation[4];
-	meshTransform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+	transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
 
-	//mesh scale
-	//For later
+	double scale[3];
+	transform.getScale(scale);
 
+	MVector translation = transform.getTranslation(MSpace::kPostTransform);
 	//Build matrix with xmvectors
+	
 
 	XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
 	XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
-	//Temp scale 1 1 1 
-	XMVECTOR scaleVector = XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
-	XMVECTOR zeroVector = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
+	XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
 
 
 	DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
 
 
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+	
+	
+
+	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+
+
+
 
 	////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 

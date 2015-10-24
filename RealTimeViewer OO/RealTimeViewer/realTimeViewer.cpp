@@ -293,8 +293,12 @@ void realTimeViewer::update()
 		XMFLOAT4X4 tempMatrix;
 		memcpy(&tempMatrix, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
 		
+
+		if (modelID > 0)
 		modelVector.at(modelID-1).setWorldMatrix(tempMatrix);
-		
+
+		else
+		modelVector.at(modelID).setWorldMatrix(tempMatrix);
 		
 
 	}
@@ -307,11 +311,11 @@ void realTimeViewer::update()
 		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
 
 
-
+		if (modelID > 0)
 		modelVector.at(modelID-1).setIndexCount(-1);
 
-		
-
+		else
+		modelVector.at(modelID).setIndexCount(-1);
 		
 
 	}
@@ -323,9 +327,11 @@ void realTimeViewer::update()
 			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
 
 
-			
-				modelVector.at(modelID-1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
-			
+			if (modelID > 0)
+			modelVector.at(modelID-1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+
+			else
+			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
 			
 
 			modelID = -1;

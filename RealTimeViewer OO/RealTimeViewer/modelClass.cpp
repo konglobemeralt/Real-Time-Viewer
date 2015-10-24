@@ -221,12 +221,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 			}
 
 
-
-
-
-			//*tailPtr += 152;
-
-
+			
 
 			unsigned int tempH = *headPtr;
 

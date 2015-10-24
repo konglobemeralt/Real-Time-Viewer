@@ -265,6 +265,8 @@ void realTimeViewer::update()
 	
 	int modelID = -1;
 	
+
+	//Create mesh
 	if (messageType == 0)
 	{	
 
@@ -282,8 +284,8 @@ void realTimeViewer::update()
 		
 	}
 
-	
-	if (messageType == 2)
+	//Transform mesh
+	else if (messageType == 2)
 	{
 		//ModelID
 		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
@@ -291,40 +293,42 @@ void realTimeViewer::update()
 		XMFLOAT4X4 tempMatrix;
 		memcpy(&tempMatrix, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
 		
-		if (modelID == 0)
-		{
-			modelVector.at(modelID).setWorldMatrix(tempMatrix);
-		}
-
-		else
-		{
-			modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
-		}
+		modelVector.at(modelID-1).setWorldMatrix(tempMatrix);
+		
 		
 
 	}
 
 
-	if (messageType == 5)
+	//Delete Mesh
+	else if(messageType == 5)
 	{
 		//ModelID
 		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
 
 
 
-		if (modelID == 0)
-		{	
-			modelVector.at(modelID).setIndexCount(-1);
-			
-		}
-
-		else
-		{
-			modelVector.at(modelID - 1).setIndexCount(-1);
-		}
+		modelVector.at(modelID-1).setIndexCount(-1);
 
 		
 
+		
+
+	}
+		
+	 //vertex changed mesh
+	else if(messageType == 6)
+		{
+			//ModelID
+			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
+
+
+			
+				modelVector.at(modelID-1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+			
+			
+
+			modelID = -1;
 
 	}
 

@@ -168,7 +168,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 
 		memcpy(&messageType, (char*)pBuf, sizeof(int));
 
-		if (messageType == 0)
+		if (messageType == 0 || 6)
 		{
 
 			//ModelID

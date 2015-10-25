@@ -39,6 +39,10 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 void timerCB(float elapsedTime, float lastTime, void* clientData);
 
 
+//materials
+void shaderChangedCallback(MObject &node, void* clientData);
+void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &plug2, void *clientData);
+
 MStringArray nodeNames;
 
 enum typeOfMessage
@@ -56,10 +60,10 @@ void goThroughScene();
 void getCameraInfo(MFnCamera&);
 void getMeshInfo(MFnMesh&);
 void getVertexChangeInfo(MFnMesh&);
-void getExtrudeChangeInfo(MFnMesh&, MPlug& plug);
+void getExtrudeChangeInfo(MPlug&);
 void getLightInfo(MFnLight&);
 
-
+void getMaterialInfo(MFnMesh&);
 
 void cameraChange(MFnTransform& transform, MFnCamera& camera);
 void lightChange(MFnTransform& transform, MPlug &plug);
@@ -93,6 +97,14 @@ struct LightData
 	XMFLOAT4 color;
 };
 
+struct MaterialData
+{
+	XMFLOAT4 color;
+	XMFLOAT4 specular;
+	float reflectivity;
+	float specRolloff;
+};
+
 struct message
 {
 	//Header
@@ -111,6 +123,8 @@ struct message
 
 	//mesh transforms
 	XMFLOAT4X4 matrixData;
+
+	MaterialData matData;
 
 	//mesh
 	int numMeshes;
@@ -224,7 +238,8 @@ EXPORT MStatus initializePlugin(MObject obj)
 	unsigned int zero = 0;
 	unsigned int mem = BUF_SIZE;
 	unsigned int space = mem;
-
+	
+	goThroughScene();
 
 	std::memcpy((char*)controlBuf, &zero, sizeof(unsigned int));
 	std::memcpy((char*)controlBuf + (sizeof(unsigned int)* 1), &zero, sizeof(unsigned int));
@@ -239,13 +254,16 @@ EXPORT MStatus initializePlugin(MObject obj)
 	
 	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, meshAttributeChangedCallback, &res));
 
-	
+	//trying to figure out how to react to changes also
+	CbIds.append(MDGMessage::addNodeAddedCallback(shaderChangedCallback, "lambert", &res));
+	CbIds.append(MDGMessage::addNodeAddedCallback(shaderChangedCallback, "blinn", &res));
+	CbIds.append(MDGMessage::addNodeAddedCallback(shaderChangedCallback, "phong", &res));
 
 
 	MGlobal::displayInfo("Maya plugin loaded!!");
-	MGlobal::displayInfo("HEJ!!");
+	//MGlobal::displayInfo("HEJ!!");
 
-	goThroughScene();
+	
 
 	// if res == kSuccess then the plugin has been loaded,
 	// otherwise is has not.
@@ -285,7 +303,7 @@ void createdNodeCallback(MObject &node, void* clientData)
 	//append new callbacks as objects are created
 	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, meshAttributeChangedCallback));
 	CbIds.append(MNodeMessage::addNodeAboutToDeleteCallback(node, destroyedNodeCallback));
-	
+	CbIds.append(MNodeMessage::addNameChangedCallback(node, renamedNodeCallback));
 
 }
 
@@ -295,23 +313,15 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 
 	std::string plugName(plug.name().asChar());
 
-	MString thePartialName = plug.partialName();
-	MString plugStr = plug.name();
-	MString plug2Str = plug2.name();
 	
-	MGlobal::displayInfo(MString(thePartialName));
-
-	MGlobal::displayInfo(MString(plugStr));
-	MGlobal::displayInfo(MString(plug2Str));
 
 
-	if (plugName.find("doubleSided") != std::string::npos && MNodeMessage::AttributeMessage::kAttributeSet)
+	if (strstr(plug.name().asChar(), "doubleSided") != NULL && MNodeMessage::AttributeMessage::kAttributeSet)
 	{
 		
-
 		MStatus res;
 		MFnMesh meshNode(plug.node(), &res);
-		//Add to namelist
+	
 
 		bool exist = false;
 
@@ -341,7 +351,7 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 		unsigned int *memSize = headP + 4;
 
 		//Dummy check for success!
-		MGlobal::displayInfo("Mesh: " + meshNode.fullPathName() + " created!");
+		//MGlobal::displayInfo("Mesh: " + meshNode.fullPathName() + " created!");
 		getMeshInfo(meshNode);
 	}
 
@@ -368,13 +378,18 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 	else if (strstr(plug2.name().asChar(), "polyExtrude") && strstr(plug2.name().asChar(), "manipMatrix"))
 		{
 			MStatus res;
-			MFnMesh meshNode(plug.node(), &res);
-			getExtrudeChangeInfo(meshNode, plug);
 			MGlobal::displayInfo(MString("Extruude"));
+			//MFnMesh meshNode(plug.node(), &res);
+			getExtrudeChangeInfo(plug);
+			
 		}
 	
 
-
+	else if (strstr(plug.partialName().asChar(), "iog"))
+	{
+		MFnMesh mesh(plug.node());
+		getMaterialInfo(mesh);
+	}
 
 
 
@@ -403,7 +418,7 @@ void timerCB(float elapsedTime, float lastTime, void* clientData)
 	}
 }
 
-void renamedNode(MObject &node, const MString &str, void* clientData)
+void renamedNodeCallback(MObject &node, const MString &str, void* clientData)
 {
 
 
@@ -520,12 +535,14 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 						
 				}
 
+				MGlobal::displayInfo(MString("ID = " + meshID));
+
 
 				//Give the mesh an ID
 				tMessage.numMeshes = meshID;
 
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
 
 
 
@@ -586,6 +603,35 @@ void goThroughScene()
 	}
 
 
+	MItDependencyNodes itLambert(MFn::kLambert);
+	while (!itLambert.isDone())
+	{
+		MFnLambertShader lambertShader(itLambert.item());
+
+		
+		CbIds.append(MNodeMessage::addAttributeChangedCallback(lambertShader.object(), shaderAttrChangedCallback));
+		itLambert.next();
+	}
+
+	MItDependencyNodes itBlinn(MFn::kBlinn);
+	while (!itBlinn.isDone())
+	{
+		MFnBlinnShader blinnShader(itBlinn.item());
+
+		CbIds.append(MNodeMessage::addAttributeChangedCallback(blinnShader.object(), shaderAttrChangedCallback));
+		itBlinn.next();
+	}
+
+	MItDependencyNodes itPhong(MFn::kPhong);
+	while (!itPhong.isDone())
+	{
+		MFnPhongShader phongShader(itPhong.item());
+		CbIds.append(MNodeMessage::addAttributeChangedCallback(phongShader.object(), shaderAttrChangedCallback));
+		itPhong.next();
+	}
+
+
+	
 	
 
 	
@@ -701,14 +747,14 @@ void getMeshInfo(MFnMesh &meshNode)
 		std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
 
 
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.numMeshes, sizeof(int));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int), &tMessage.numVerts, sizeof(int));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int), &tMessage.numVerts, sizeof(int));
 
 		for (int i = 0; i < verticies.size(); i++)
 		{
-			std::memcpy((char*)pBuf + usedSpace +sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-			std::memcpy((char*)pBuf + usedSpace +sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-			std::memcpy((char*)pBuf + usedSpace +sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 		}
 
@@ -736,11 +782,136 @@ void getMeshInfo(MFnMesh &meshNode)
 
 
 		
-		std::memcpy((char*)pBuf + usedSpace +sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
 
 		////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
+		//GET MATERIAL
+		int instanceNumber = 0;
+		MObjectArray shaders;
+		MIntArray indices;
 
+		MaterialData matD;
+		//BlinnData blinnD;
+		//PhongData phongD;
+
+		meshNode.getConnectedShaders(instanceNumber, shaders, indices);
+
+		for (int i = 0; i < shaders.length(); i++)
+		{
+			MPlugArray connections;
+			MFnDependencyNode shaderGroup(shaders[i]);
+			MPlug shaderPlug = shaderGroup.findPlug("surfaceShader");
+			shaderPlug.connectedTo(connections, true, false);
+			for (int u = 0; u < connections.length(); u++)
+			{
+				if (connections[u].node().hasFn(MFn::kLambert))
+				{
+					MPlugArray plugs;
+					MFnLambertShader lambertShader(connections[u].node());
+					lambertShader.findPlug("color").connectedTo(plugs, true, false);
+
+					matD.color.x = lambertShader.color().r;
+					matD.color.y = lambertShader.color().g;
+					matD.color.z = lambertShader.color().b;
+					matD.color.w = lambertShader.color().a;
+
+					matD.specular.x = -1;
+					matD.specular.y = -1;
+					matD.specular.z = -1;
+					matD.specular.w = -1;
+
+					matD.reflectivity = 0;
+					matD.specRolloff = 0;
+
+					MGlobal::displayInfo(MString("LAMBERT!!"));
+
+
+
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+
+
+
+				}
+				else if (connections[u].node().hasFn(MFn::kPhong))
+				{
+					MPlugArray plugs;
+					MFnPhongShader phongShader(connections[u].node());
+					phongShader.findPlug("color").connectedTo(plugs, true, false);
+
+					matD.color.x = phongShader.color().r;
+					matD.color.y = phongShader.color().g;
+					matD.color.z = phongShader.color().b;
+					matD.color.w = phongShader.color().a;
+
+					matD.specular.x = phongShader.specularColor().r;
+					matD.specular.y = phongShader.specularColor().g;
+					matD.specular.z = phongShader.specularColor().b;
+					matD.specular.w = phongShader.specularColor().a;
+
+					matD.reflectivity = phongShader.reflectivity();
+					matD.specRolloff = 0;
+
+					//matD.cosine = phongShader.cosPower();
+					//Controls the size of shiny highlights on the surface. The valid range is 2 to infinity.
+					//The slider range is 2 (broad highlight, not very shiny surface) to 100 (small highlight, very shiny surface),
+					//though you can type in a higher value. The default value is 20. 
+
+					
+
+
+				
+
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+
+
+
+					MGlobal::displayInfo(MString("Phong!!"));
+				}
+
+				else if (connections[u].node().hasFn(MFn::kBlinn))
+				{
+					MPlugArray plugs;
+					MFnBlinnShader blinnShader(connections[u].node());
+					blinnShader.findPlug("color").connectedTo(plugs, true, false);
+
+					matD.color.x = blinnShader.color().r;
+					matD.color.y = blinnShader.color().g;
+					matD.color.z = blinnShader.color().b;
+					matD.color.w = blinnShader.color().a;
+
+					matD.specular.x = blinnShader.specularColor().r;
+					matD.specular.y = blinnShader.specularColor().g;
+					matD.specular.z = blinnShader.specularColor().b;
+					matD.specular.w = blinnShader.specularColor().a;
+
+					matD.specRolloff = blinnShader.specularRollOff();
+					matD.reflectivity = blinnShader.reflectivity();
+					//matD.eccentricity = blinnShader.eccentricity();
+
+					MGlobal::displayInfo(MString("Blinn!!"));
+
+							
+
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+				}
+
+			}
+
+
+		}
+
+
+		//END GET MATERIAL
 		*headP += 100000;
 
 
@@ -897,7 +1068,6 @@ void lightAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 
 }
 
-
 void lightChange(MFnTransform& transform, MPlug &plug)
 {
 
@@ -1016,7 +1186,7 @@ void getLightInfo(MFnLight& lightNode)
 
 		//MFnTransform lightTransform(light.parent(0));
 		MObject lightTransformNode = lightNode.parent(0);
-		
+
 		MFnTransform transform(lightTransformNode);
 		//MVector translation = lightTransform.getTranslation(MSpace::kObject);
 		MVector translation = transform.translation(MSpace::kWorld);
@@ -1088,7 +1258,7 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 		}
 	}
 	MGlobal::displayInfo(MString(mesh.name() + " has changed been destroyed!!"));
-
+	MGlobal::displayInfo(MString("ID = " + destroyMesh));
 	//destroyMesh = -1;
 
 	std::memcpy((char*)pBuf + usedSpace, &messageType, sizeof(int));
@@ -1185,7 +1355,7 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 		}
 		
 	}
-
+	MGlobal::displayInfo(MString("ID = " + meshID));
 	
 	//Give the mesh an ID
 	tMessage.numMeshes = meshID;
@@ -1201,14 +1371,14 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
 
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int), &tMessage.numVerts, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int), &tMessage.numVerts, sizeof(int));
 
 	for (int i = 0; i < verticies.size(); i++)
 	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 	}
 
@@ -1267,11 +1437,12 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 
 
 
-void getExtrudeChangeInfo(MFnMesh& meshNode, MPlug& plug)
+void getExtrudeChangeInfo(MPlug& plug)
 {
 	MStatus res;
 
-
+	MFnMesh meshNode(plug.node());
+	
 	MItMeshPolygon polyIt(meshNode.object());
 
 
@@ -1343,7 +1514,7 @@ void getExtrudeChangeInfo(MFnMesh& meshNode, MPlug& plug)
 		}
 
 	}
-
+	//MGlobal::displayInfo(MString("ID = " + meshID));
 
 	//Give the mesh an ID
 	tMessage.numMeshes = meshID;
@@ -1359,14 +1530,14 @@ void getExtrudeChangeInfo(MFnMesh& meshNode, MPlug& plug)
 	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
 
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int), &tMessage.numVerts, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int), &tMessage.numVerts, sizeof(int));
 
 	for (int i = 0; i < verticies.size(); i++)
 	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 	}
 
@@ -1410,3 +1581,266 @@ void getExtrudeChangeInfo(MFnMesh& meshNode, MPlug& plug)
 	delete[] vertData;
 
 }
+
+
+void shaderChangedCallback(MObject &node, void* clientData)
+{
+	MStatus res;
+
+	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, shaderAttrChangedCallback, &res));
+	//tMessage.messageSize = 3; ???
+
+	//Do things
+	//MFnMesh mesh(node);
+	//getMaterialInfo(mesh);
+
+}
+
+void getMaterialInfo(MFnMesh& mesh)
+{
+
+
+	int instanceNumber = 0;
+	MObjectArray shaders;
+	MIntArray indices;
+
+	MaterialData matD;
+	//BlinnData blinnD;
+	//PhongData phongD;
+
+	mesh.getConnectedShaders(instanceNumber, shaders, indices);
+
+	for (int i = 0; i < shaders.length(); i++)
+	{
+		MPlugArray connections;
+		MFnDependencyNode shaderGroup(shaders[i]);
+		MPlug shaderPlug = shaderGroup.findPlug("surfaceShader");
+		shaderPlug.connectedTo(connections, true, false);
+		for (int u = 0; u < connections.length(); u++)
+		{
+			if (connections[u].node().hasFn(MFn::kLambert))
+			{
+				MPlugArray plugs;
+				MFnLambertShader lambertShader(connections[u].node());
+				lambertShader.findPlug("color").connectedTo(plugs, true, false);
+
+				matD.color.x = lambertShader.color().r;
+				matD.color.y = lambertShader.color().g;
+				matD.color.z = lambertShader.color().b;
+				matD.color.w = lambertShader.color().a;
+
+				matD.specular.x = -1;
+				matD.specular.y = -1;
+				matD.specular.z = -1;
+				matD.specular.w = -1;
+
+				matD.reflectivity = 0;
+				matD.specRolloff = 0;
+
+				MGlobal::displayInfo(MString("LAMBERT!!"));
+
+
+				tMessage.messageType = 4;
+
+				int meshID = -1;
+				for (size_t i = 0; i < nodeNames.length(); i++)
+				{
+					if (nodeNames[i] == mesh.name())
+					{
+						meshID = i;
+
+					}
+
+
+				}
+
+				//Give the mesh an ID
+				tMessage.numMeshes = meshID;
+				//Send ID
+				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+
+
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+
+				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+
+
+			}
+			else if (connections[u].node().hasFn(MFn::kPhong))
+			{
+				MPlugArray plugs;
+				MFnPhongShader phongShader(connections[u].node());
+				phongShader.findPlug("color").connectedTo(plugs, true, false);
+
+				matD.color.x = phongShader.color().r;
+				matD.color.y = phongShader.color().g;
+				matD.color.z = phongShader.color().b;
+				matD.color.w = phongShader.color().a;
+
+				matD.specular.x = phongShader.specularColor().r;
+				matD.specular.y = phongShader.specularColor().g;
+				matD.specular.z = phongShader.specularColor().b;
+				matD.specular.w = phongShader.specularColor().a;
+
+				matD.reflectivity = phongShader.reflectivity();
+				matD.specRolloff = 0;
+
+				//matD.cosine = phongShader.cosPower();
+				//Controls the size of shiny highlights on the surface. The valid range is 2 to infinity.
+				//The slider range is 2 (broad highlight, not very shiny surface) to 100 (small highlight, very shiny surface),
+				//though you can type in a higher value. The default value is 20. 
+
+				tMessage.messageType = 4;
+
+
+				int meshID = -1;
+				for (size_t i = 0; i < nodeNames.length(); i++)
+				{
+					if (nodeNames[i] == mesh.name())
+					{
+						meshID = i;
+
+					}
+
+
+				}
+
+				//Give the mesh an ID
+				tMessage.numMeshes = meshID;
+
+				//Send ID
+				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+
+
+
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+
+				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+
+				MGlobal::displayInfo(MString("Phong!!"));
+			}
+
+			else if (connections[u].node().hasFn(MFn::kBlinn))
+			{
+				MPlugArray plugs;
+				MFnBlinnShader blinnShader(connections[u].node());
+				blinnShader.findPlug("color").connectedTo(plugs, true, false);
+
+				matD.color.x = blinnShader.color().r;
+				matD.color.y = blinnShader.color().g;
+				matD.color.z = blinnShader.color().b;
+				matD.color.w = blinnShader.color().a;
+
+				matD.specular.x = blinnShader.specularColor().r;
+				matD.specular.y = blinnShader.specularColor().g;
+				matD.specular.z = blinnShader.specularColor().b;
+				matD.specular.w = blinnShader.specularColor().a;
+
+				matD.specRolloff = blinnShader.specularRollOff();
+				matD.reflectivity = blinnShader.reflectivity();
+				//matD.eccentricity = blinnShader.eccentricity();
+
+				MGlobal::displayInfo(MString("Blinn!!"));
+
+				tMessage.messageType = 4;
+
+				int meshID = nodeNames.length();
+				for (size_t i = 0; i < nodeNames.length(); i++)
+				{
+					if (nodeNames[i] == mesh.name())
+					{
+						meshID = i;
+
+					}
+
+
+				}
+
+				//Give the mesh an ID
+				tMessage.numMeshes = meshID;
+
+				//Send ID
+				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+
+
+
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+			
+				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+			}
+
+		}
+
+
+	}
+
+
+}
+
+void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &plug2, void *clientData)
+{
+	MGlobal::displayInfo(MString("LAMBERT HAS CHANGED..."));
+	MGlobal::displayInfo(MString("ayo"));
+	
+	if (msg & MNodeMessage::kAttributeSet)
+	{
+		//meshNames.append(mesh.name());
+		MFnLambertShader lambertShader;
+		
+		MColor color;
+		
+	
+		if (plug.node().hasFn(MFn::kLambert))
+		{
+			lambertShader.setObject(plug.node());
+			MGlobal::displayInfo(lambertShader.name());
+			color = lambertShader.color();
+			
+		}
+		
+
+		
+		tMessage.messageType = 4;
+
+		MFnMesh mesh(plug.node());
+		int meshID = nodeNames.length();
+		for (size_t i = 0; i < nodeNames.length(); i++)
+		{
+			if (nodeNames[i] == mesh.name())
+			{
+				meshID = i;
+
+			}
+
+
+		}
+
+		//Give the mesh an ID
+		tMessage.numMeshes = meshID;
+
+		//Send ID
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+
+
+
+		memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &color, sizeof(XMFLOAT4));
+		
+
+		std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+
+
+		}
+	}
+	
+
+
+

@@ -1,11 +1,21 @@
 Texture2D shaderTexture;
 SamplerState SampleType;
 
-cbuffer LightBuffer
+cbuffer LightBuffer : register(b0)
 {
     float4 diffuseColor;
     float3 lightDirection;
 	float padding;
+};
+
+cbuffer Materialbuffer : register(b1)
+{
+	float4 materialColor;
+	float4 materialSpecular;
+	float materialReflect;
+	float materialSpecRolloff;
+	float padding2;
+	float padding3;
 };
 
 struct PixelInputType
@@ -35,6 +45,8 @@ float4 pixelShader(PixelInputType input) : SV_TARGET
     color = saturate(diffuseColor * lightIntensity);
 
     color = diffuseColor * textureColor;
+
+	color = color * materialColor;
 
     return color;
 }

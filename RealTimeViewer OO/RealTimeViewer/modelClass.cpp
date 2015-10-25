@@ -155,8 +155,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 	
 	
 
-	if (*tailPtr != *headPtr)
-	{
+	
 
 		// Create the vertex array.
 
@@ -166,15 +165,14 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 
 
 
-		memcpy(&messageType, (char*)pBuf, sizeof(int));
+		
 
-		if (messageType == 0 || 6)
-		{
+		
 
-			//ModelID
-			memcpy(&m_modelID, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
-			//vertCount
-			memcpy(&m_vertexCount, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
+		//ModelID
+		memcpy(&m_modelID, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+		//vertCount
+		memcpy(&m_vertexCount, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
 
 			//memcpy(&m_vertexCount, (char*)pBuf + (sizeof(int) *4), sizeof(int));
 
@@ -206,7 +204,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 
 			memcpy(&m_worldMatrix, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
 
-			tempBuf += (sizeof(int)* 5) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4);
+			tempBuf += (sizeof(int)* 5) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float);
 
 			// Load the vertex array and index array with data.
 			for (i = 0; i < m_vertexCount; i++)
@@ -297,7 +295,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 			delete[] indices;
 			indices = 0;
 
-		}
+			updateMaterial(cBuf, pBuf);
 
 		//MOVE HEADER TAIL STUFF TO RTV update:
 
@@ -322,7 +320,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 	//	}
 
 
-	}
+	
 
 	return true;
 }
@@ -459,4 +457,38 @@ void ModelClass::setWorldMatrix(DirectX::XMFLOAT4X4& tempMatrix)
 
 	m_worldMatrix = XMLoadFloat4x4(&tempMatrix);
 
+}
+
+bool ModelClass::updateMaterial(void* cBuf, void* pBuf)
+{
+
+
+	int usedSpace = 0;
+	//finding material values
+	memcpy(&m_matColor, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(XMFLOAT4));
+	memcpy(&m_matSpecColor, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4), sizeof(XMFLOAT4));
+	memcpy(&m_matReflectivity, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4), sizeof(float));
+	memcpy(&m_matSpecRolloff, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), sizeof(float));
+
+	return true;
+}
+
+XMFLOAT4 ModelClass::getMatColor()
+{
+	return m_matColor;
+}
+
+XMFLOAT4 ModelClass::getMatSpecColor()
+{
+	return m_matSpecColor;
+}
+
+float ModelClass::getMatReflectivity()
+{
+	return m_matReflectivity;
+}
+
+float ModelClass::getMatSpecRolloff()
+{
+	return m_matSpecRolloff;
 }

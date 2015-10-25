@@ -24,7 +24,7 @@ public:
 		float x, y, z;
 	};
 
-	
+
 
 	struct VertexType
 	{
@@ -48,13 +48,17 @@ public:
 	void Render(ID3D11DeviceContext*);
 
 
-	bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf, WCHAR*);
+	bool UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf, WCHAR*);
+	bool updateMaterial(void* cBuf, void* pBuf);
 
 	int GetIndexCount();
 
 	ID3D11ShaderResourceView* GetTexture();
 
-	
+	XMFLOAT4 getMatColor();
+	XMFLOAT4 getMatSpecColor();
+	float getMatReflectivity();
+	float getMatSpecRolloff();
 
 	void SetPosition(float, float, float);
 	void GetPosition(float&, float&, float&);
@@ -75,10 +79,10 @@ private:
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
 
-	
 
 
-	
+
+
 
 	void ReleaseModel();
 
@@ -95,13 +99,17 @@ private:
 	int m_modelID;
 
 	DirectX::XMMATRIX m_worldMatrix;
-	
+
 
 	//material values
 	bool m_HasMaterial;
 	float m_diffuseR, m_diffuseG, m_diffuseB;
 	char m_diffuseTexturePath[50];
 
+	XMFLOAT4 m_matColor;
+	XMFLOAT4 m_matSpecColor;
+	float m_matReflectivity;
+	float m_matSpecRolloff;
 
 };
 

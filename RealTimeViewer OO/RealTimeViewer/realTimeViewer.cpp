@@ -231,6 +231,10 @@ bool realTimeViewer::RenderGraphics()
 				viewMatrix,
 				projectionMatrix,
 				modelVector.at(i).GetTexture(),
+				modelVector.at(i).getMatColor(), 
+				modelVector.at(i).getMatSpecColor(), 
+				modelVector.at(i).getMatReflectivity(), 
+				modelVector.at(i).getMatSpecRolloff(),
 				m_Light->GetDirection(), 
 				m_Light->GetDiffuseColor());
 
@@ -261,107 +265,164 @@ void realTimeViewer::update()
 
 	int messageType = -1;
 	void* pBuf = m_fileMap->returnPbuf();
-	memcpy(&messageType, (char*)pBuf, sizeof(int));
-	
-	int modelID = -1;
-	
+	void* cBuf = m_fileMap->returnControlbuf();
 
-	//Create mesh
-	if (messageType == 0)
-	{	
+	unsigned int *headP = (unsigned int*)cBuf;
+	unsigned int *tailP = headP + 1;
+	unsigned int *readerAmount = headP + 2;
+	unsigned int *freeMem = headP + 3;
+	unsigned int *memSize = headP + 4;
 
-		//ModelID
-		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
-
-		
-		if (modelID > modelVector.size())
-		{
-			m_model.Initialize(m_Direct3D->GetDevice(), L"missy.dds", m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-			modelVector.push_back(m_model);
-
-		}
-	
-		modelID = -1;
-		
-	}
-
-	//Transform mesh
-	if (messageType == 2)
+	if (*tailP != *headP)
 	{
-		//ModelID
-		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
 
-		XMFLOAT4X4 tempMatrix;
-		memcpy(&tempMatrix, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
+		memcpy(&messageType, (char*)pBuf, sizeof(int));
+
+
+
+
+		int modelID = -1;
+
+
 		
 
-		if (modelID > 0)
-		modelVector.at(modelID-1).setWorldMatrix(tempMatrix);
-
-		else
-		modelVector.at(modelID).setWorldMatrix(tempMatrix);
-		
-
-	}
 
 
-	//Delete Mesh
-	if(messageType == 5)
-	{
-		//ModelID
-		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
-
-
-		if (modelID > 0)
-		modelVector.at(modelID-1).setIndexCount(-1);
-
-		else
-		modelVector.at(modelID).setIndexCount(-1);
-		
-
-	}
-		
-	 //vertex changed mesh
-	if(messageType == 6)
+		//Create mesh
+		if (messageType == 0)
 		{
+
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
 
 
-			if (modelID > 0)
-			modelVector.at(modelID-1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+			if (modelID > modelVector.size())
+			{
+				m_model.Initialize(m_Direct3D->GetDevice(), L"missy.dds", m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+				modelVector.push_back(m_model);
 
-			else
-			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
-			
+			}
 
 			modelID = -1;
 
-	}
+		}
+
+		//Transform mesh
+		if (messageType == 2)
+		{
+			//ModelID
+			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+
+			XMFLOAT4X4 tempMatrix;
+			memcpy(&tempMatrix, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
 
 
-	//extrude changed mesh
-	if (messageType == 7)
-	{
-		
+			if (modelID > 0)
+				modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
+
+			else
+				modelVector.at(modelID).setWorldMatrix(tempMatrix);
+
+
+		}
+
+
+		//Transform material
+		if (messageType == 4)
+		{
+			//ModelID
+			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+
+			
 						
-		//ModelID
-		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
+			if (modelID > 0)
+				modelVector.at(modelID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+			else
+				modelVector.at(modelID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+			
+
+
+		}
+
+
+
+
+		//Delete Mesh
+		if (messageType == 5)
+		{
+			//ModelID
+			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+
+
+			if (modelID > 0)
+				modelVector.at(modelID - 1).setIndexCount(-1);
+
+			else
+				modelVector.at(modelID).setIndexCount(-1);
+
+
+		}
+
+		//vertex changed mesh
+		if (messageType == 6)
+		{
+			//ModelID
+			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+
+
+			if (modelID > 0)
+				modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+
+			else
+				modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+
+
+			modelID = -1;
+
+		}
+
 		
+
+
+		//extrude changed mesh
+		if (messageType == 7)
+		{
+
+
 		
-		if (modelID > 0)
-			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
-
-		else
-			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+			//ModelID
+			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
 
 
-		modelID = -1;
+			if (modelID > 0)
+				modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+
+			else
+				modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+
+
+			modelID = -1;
+
+		}
+
+unsigned int tempH = *headP;
+
+		if (*tailP < *memSize) // read == *readerAmount) &&
+		{
+			*tailP += 100000;
+			//*readP = 1;
+		}
+		if (*tailP >= *memSize) //(read == *readerAmount) &&
+		{
+			*tailP = 0;
+		}
+
 
 	}
 
-
-
+	
 
 }
 

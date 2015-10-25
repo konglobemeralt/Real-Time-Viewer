@@ -56,6 +56,7 @@ void goThroughScene();
 void getCameraInfo(MFnCamera&);
 void getMeshInfo(MFnMesh&);
 void getVertexChangeInfo(MFnMesh&);
+void getExtrudeChangeInfo(MFnMesh&, MPlug& plug);
 void getLightInfo(MFnLight&);
 
 
@@ -295,9 +296,13 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 	std::string plugName(plug.name().asChar());
 
 	MString thePartialName = plug.partialName();
+	MString plugStr = plug.name();
+	MString plug2Str = plug2.name();
+	
 	MGlobal::displayInfo(MString(thePartialName));
 
-
+	MGlobal::displayInfo(MString(plugStr));
+	MGlobal::displayInfo(MString(plug2Str));
 
 
 	if (plugName.find("doubleSided") != std::string::npos && MNodeMessage::AttributeMessage::kAttributeSet)
@@ -340,6 +345,8 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 		getMeshInfo(meshNode);
 	}
 
+	
+
 	// Vertex has changed
 	else if(strstr(plug.partialName().asChar(), "pt[") )
 	{
@@ -358,14 +365,14 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 		getVertexChangeInfo(meshNode);
 	}
 
-
-	else if (strstr(plug2.name().asChar(), "polyExtrude"))
-	{
-		MStatus res;
-		MFnMesh meshNode(plug.node(), &res);
-		getVertexChangeInfo(meshNode);
-	}
-
+	else if (strstr(plug2.name().asChar(), "polyExtrude") && strstr(plug2.name().asChar(), "manipMatrix"))
+		{
+			MStatus res;
+			MFnMesh meshNode(plug.node(), &res);
+			getExtrudeChangeInfo(meshNode, plug);
+			MGlobal::displayInfo(MString("Extruude"));
+		}
+	
 
 
 
@@ -1251,6 +1258,152 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	}
 
 
+
+
+
+	delete[] vertData;
+
+}
+
+
+
+void getExtrudeChangeInfo(MFnMesh& meshNode, MPlug& plug)
+{
+	MStatus res;
+
+
+	MItMeshPolygon polyIt(meshNode.object());
+
+
+	//Data
+	MPointArray vert;
+	MIntArray vertex;
+	float2 uv;
+	MVector normal;
+
+	///dataSave
+	vector<XMFLOAT4> verticies;
+	vector<XMFLOAT2> UV;
+	vector<XMFLOAT3> normals;
+
+
+
+	while (!polyIt.isDone())
+	{
+		polyIt.getTriangles(vert, vertex);
+
+		for (size_t i = 0; i < vert.length(); i++)
+		{
+
+			polyIt.getUVAtPoint(vert[i], uv);
+			polyIt.getNormal(normal);
+
+			verticies.push_back(XMFLOAT4(vert[i].x, vert[i].y, vert[i].z, 1.0f));
+			UV.push_back(XMFLOAT2(uv[0], 1 - uv[1]));
+			normals.push_back(XMFLOAT3(normal.x, normal.y, normal.z));
+		}
+		polyIt.next();
+	}
+
+	usedSpace = 0;
+
+	unsigned int *headP = (unsigned int*)controlBuf;
+	unsigned int *tailP = headP + 1;
+	unsigned int *readerAmount = headP + 2;
+	unsigned int *freeMem = headP + 3;
+	unsigned int *memSize = headP + 4;
+
+
+	//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
+	message tMessage;
+
+	tMessage.vert.resize(verticies.size());
+
+	for (int i = 0; i < verticies.size(); i++)
+	{
+		tMessage.vert[i].norms = XMFLOAT3(normals.at(i).x, normals.at(i).y, normals.at(i).z);
+		tMessage.vert[i].pos = XMFLOAT4(verticies.at(i).x, verticies.at(i).y, verticies.at(i).z, verticies.at(i).w);
+		tMessage.vert[i].uv = XMFLOAT2(UV.at(i).x, UV.at(i).y);
+	}
+
+	tMessage.messageType = 7;
+
+
+
+	unsigned int meshCount = nodeNames.length();
+	int meshID = meshCount;
+
+	
+	
+	for (size_t i = 0; i < meshCount; i++)
+	{
+		if (nodeNames[i] == meshNode.name())
+		{
+			meshID = i;
+		}
+
+	}
+
+
+	//Give the mesh an ID
+	tMessage.numMeshes = meshID;
+
+	tMessage.numVerts = verticies.size();
+
+	tMessage.messageSize = 100000;
+	tMessage.padding = 0;
+
+
+	std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(int), &tMessage.messageSize, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
+
+
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.numMeshes, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int), &tMessage.numVerts, sizeof(int));
+
+	for (int i = 0; i < verticies.size(); i++)
+	{
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+
+	}
+
+	//mesh rotation
+
+	MFnTransform transform(meshNode.parent(0));
+
+	double rotation[4];
+	transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+
+	double scale[3];
+	transform.getScale(scale);
+
+	MVector translation = transform.getTranslation(MSpace::kPostTransform);
+	//Build matrix with xmvectors
+
+
+	XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
+	XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
+	XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
+	XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
+
+
+	DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
+
+	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+
+	////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
+
+	
+	*headP += 100000;
+
+	
+	if (*headP > *memSize)
+	{
+		*headP = 0;
+	}
 
 
 

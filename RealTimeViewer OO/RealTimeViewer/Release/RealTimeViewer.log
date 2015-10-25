@@ -1,8 +1,24 @@
-﻿Build started 10/24/2015 5:43:58 PM.
+﻿Build started 10/25/2015 12:27:23 PM.
      1>Project "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/include/" /Zi /nologo /W3 /WX- /Od /Oi /Oy- /GL /D HAS_DIRECTXTK /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt modelClass.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/include/" /Zi /nologo /W3 /WX- /Od /Oi /Oy- /GL /D HAS_DIRECTXTK /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt modelClass.cpp realTimeViewer.cpp
          modelClass.cpp
+         realTimeViewer.cpp
+     1>realTimeViewer.cpp(28): warning C4316: 'fileMapping' : object allocated on the heap may not be aligned 16
+     1>realTimeViewer.cpp(25): warning C4101: 'videoMemory' : unreferenced local variable
+     1>realTimeViewer.cpp(24): warning C4101: 'videoCard' : unreferenced local variable
+     1>realTimeViewer.cpp(169): warning C4101: 'foundHeight' : unreferenced local variable
+     1>realTimeViewer.cpp(172): warning C4101: 'radians' : unreferenced local variable
+     1>realTimeViewer.cpp(171): warning C4101: 'height' : unreferenced local variable
+     1>realTimeViewer.cpp(210): warning C4018: '<' : signed/unsigned mismatch
+     1>realTimeViewer.cpp(192): warning C4101: 'modelCount' : unreferenced local variable
+     1>realTimeViewer.cpp(192): warning C4101: 'index' : unreferenced local variable
+     1>realTimeViewer.cpp(193): warning C4101: 'positionX' : unreferenced local variable
+     1>realTimeViewer.cpp(193): warning C4101: 'radius' : unreferenced local variable
+     1>realTimeViewer.cpp(193): warning C4101: 'positionY' : unreferenced local variable
+     1>realTimeViewer.cpp(192): warning C4101: 'renderCount' : unreferenced local variable
+     1>realTimeViewer.cpp(193): warning C4101: 'positionZ' : unreferenced local variable
+     1>realTimeViewer.cpp(277): warning C4018: '>' : signed/unsigned mismatch
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.exe" /INCREMENTAL:NO /NOLOGO "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/lib/Win32/Release/DirectXTKAudioDX.lib" "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/lib/Win32/Release/DirectXTK.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.lib" /MACHINE:X86 /SAFESEH Release\cameraClass.obj
          Release\d3dclass.obj
@@ -20,4 +36,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.12
+Time Elapsed 00:00:01.80

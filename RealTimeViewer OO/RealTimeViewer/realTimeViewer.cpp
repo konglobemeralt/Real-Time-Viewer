@@ -273,6 +273,7 @@ void realTimeViewer::update()
 		//ModelID
 		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
 
+		
 		if (modelID > modelVector.size())
 		{
 			m_model.Initialize(m_Direct3D->GetDevice(), L"missy.dds", m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
@@ -285,7 +286,7 @@ void realTimeViewer::update()
 	}
 
 	//Transform mesh
-	else if (messageType == 2)
+	if (messageType == 2)
 	{
 		//ModelID
 		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
@@ -305,7 +306,7 @@ void realTimeViewer::update()
 
 
 	//Delete Mesh
-	else if(messageType == 5)
+	if(messageType == 5)
 	{
 		//ModelID
 		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
@@ -321,7 +322,7 @@ void realTimeViewer::update()
 	}
 		
 	 //vertex changed mesh
-	else if(messageType == 6)
+	if(messageType == 6)
 		{
 			//ModelID
 			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
@@ -335,6 +336,27 @@ void realTimeViewer::update()
 			
 
 			modelID = -1;
+
+	}
+
+
+	//extrude changed mesh
+	if (messageType == 7)
+	{
+		
+						
+		//ModelID
+		memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(int));
+		
+		
+		if (modelID > 0)
+			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+
+		else
+			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf(), L"missy.dds");
+
+
+		modelID = -1;
 
 	}
 

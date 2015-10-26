@@ -55,14 +55,11 @@ void LightClass::Render(void* cBuf, void* pBuf)
 
 
 
-	memcpy(&messageType, (char*)pBuf + usedSpace, sizeof(int));
 
 
-	if (messageType == 3)
-	{
 
-		if (*tailP != *headP)
-		{
+
+
 
 			memcpy(&lightData.position, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), sizeof(XMFLOAT4));
 			memcpy(&lightData.color, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), sizeof(XMFLOAT4));
@@ -90,9 +87,24 @@ void LightClass::Render(void* cBuf, void* pBuf)
 
 			//XMStoreFloat3(&m_position, lightData.position);
 			SetDiffuseColor(lightData.color.x, lightData.color.y, lightData.color.z, lightData.color.w);
+			SetPosition(lightData.position.x, lightData.position.y, lightData.position.z, lightData.position.w);
 
-		}
-	}
+		
+	
 
 	return;
+}
+
+void LightClass::SetPosition(float x, float y, float z, float w)
+{
+	m_position.x = x;
+	m_position.y = y;
+	m_position.z = z;
+	m_position.w = w;
+	return;
+}
+
+XMFLOAT4 LightClass::GetPosition()
+{
+	return m_position;
 }

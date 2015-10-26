@@ -204,7 +204,7 @@ bool realTimeViewer::RenderGraphics()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
-	m_Light->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	
 
 	//update model if necessary
 	for (int i = 0; i < modelVector.size(); i++)
@@ -235,7 +235,7 @@ bool realTimeViewer::RenderGraphics()
 				modelVector.at(i).getMatSpecColor(), 
 				modelVector.at(i).getMatReflectivity(), 
 				modelVector.at(i).getMatSpecRolloff(),
-				m_Light->GetDirection(), 
+				XMFLOAT3(m_Light->GetPosition().x, m_Light->GetPosition().y, m_Light->GetPosition().z),
 				m_Light->GetDiffuseColor());
 
 			if (!result)
@@ -273,8 +273,8 @@ void realTimeViewer::update()
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
-	if (*tailP != *headP)
-	{
+	//if (*tailP != *headP)
+	//{
 
 		memcpy(&messageType, (char*)pBuf, sizeof(int));
 
@@ -326,6 +326,11 @@ void realTimeViewer::update()
 
 		}
 
+		//find light
+		if (messageType == 3)
+		{
+			m_Light->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+		}
 
 		//Transform material
 		if (messageType == 4)
@@ -337,9 +342,18 @@ void realTimeViewer::update()
 						
 			if (modelID > 0)
 				modelVector.at(modelID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-
+		
 			else
 				modelVector.at(modelID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+	//for (int i = 0; i < modelVector.size(); i++)
+	//{
+	//	if (i > 0)
+	//	modelVector.at(i - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//
+	//	else
+	//	modelVector.at(i).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//}
 
 			
 
@@ -407,6 +421,8 @@ void realTimeViewer::update()
 
 		}
 
+
+
 unsigned int tempH = *headP;
 
 		if (*tailP < *memSize) // read == *readerAmount) &&
@@ -420,7 +436,7 @@ unsigned int tempH = *headP;
 		}
 
 
-	}
+	//}
 
 	
 

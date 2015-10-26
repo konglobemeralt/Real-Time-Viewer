@@ -195,6 +195,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 	if (hMapFile == NULL)
 	{
 		MGlobal::displayInfo("hmapfile Could not create file mapping object.");
+		return MS::kFailure;
 	}
 
 	//calling api to create a view to ALL the memory of the file map (memory being specified in command/bash)
@@ -205,6 +206,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 	{
 		MGlobal::displayInfo("pbuf Could not create map view of file.");
 		CloseHandle(hMapFile);
+		return MS::kFailure;
 	}
 
 	//File mapping
@@ -222,6 +224,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 	if (controlFile == NULL)
 	{
 		MGlobal::displayInfo("controlfile Could not create file mapping object.");
+		return MS::kFailure;
 
 	}
 
@@ -231,6 +234,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 	if (controlBuf == NULL)
 	{
 		MGlobal::displayInfo("controlbuf Could not create map view of file.");
+		return MS::kFailure;
 		CloseHandle(controlFile);
 
 	}
@@ -477,7 +481,6 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 		else if (strstr(name.asChar(), "Light"))
 		{
 			lightChange(transform, plug.parent());
-			tMessage.messageSize = 3;
 		}
 
 
@@ -1009,62 +1012,57 @@ void lightAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
-	if (*headP != *tailP)
+
+	if (msg& MNodeMessage::kAttributeSet)
 	{
-		if (msg& MNodeMessage::kAttributeSet)
+
+
+		message tMessage;
+		tMessage.messageType = 3;
+
+
+		MGlobal::displayInfo(MString("A light ahoy!!"));
+		MFnLight light(plug.node(0));
+
+		MFnTransform lightTransform(light.parent(0));
+
+		//MVector translation = lightTransform.getTranslation(MSpace::kObject);
+		MVector translation = lightTransform.translation(MSpace::kWorld);
+		//double rotation[4];
+		//lightTransform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+
+		//MColor color = light.color();
+		MColor colore = light.activeColor();
+		XMFLOAT4 asColorVec;
+		asColorVec.x = colore.r;
+		asColorVec.y = colore.g;
+		asColorVec.z = colore.b;
+		asColorVec.w = colore.a;
+
+
+
+		XMFLOAT4 colorVec;
+		colorVec.x = light.color().r;
+		colorVec.y = light.color().g;
+		colorVec.z = light.color().b;
+		colorVec.w = light.color().a;
+
+
+
+		memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+		//
+		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
+		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
+
+		*headP += 100000;
+
+		if (*headP > *memSize)
 		{
-
-
-			message tMessage;
-			tMessage.messageType = 3;
-
-
-			MGlobal::displayInfo(MString("A light ahoy!!"));
-			MFnLight light(plug.node(0));
-
-			MFnTransform lightTransform(light.parent(0));
-
-			//MVector translation = lightTransform.getTranslation(MSpace::kObject);
-			MVector translation = lightTransform.translation(MSpace::kWorld);
-			//double rotation[4];
-			//lightTransform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
-
-			//MColor color = light.color();
-			MColor colore = light.activeColor();
-			XMFLOAT4 asColorVec;
-			asColorVec.x = colore.r;
-			asColorVec.y = colore.g;
-			asColorVec.z = colore.b;
-			asColorVec.w = colore.a;
-
-
-
-			XMFLOAT4 colorVec;
-			colorVec.x = light.color().r;
-			colorVec.y = light.color().g;
-			colorVec.z = light.color().b;
-			colorVec.w = light.color().a;
-
-
-
-			memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-			//
-			memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
-			memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
-
-			*headP += 100000;
-
-			if (*headP > *memSize)
-			{
-				*headP = 0;
-			}
-
-
+			*headP = 0;
 		}
-		tMessage.messageSize = 3;
 
 	}
-	tMessage.messageSize = 3;
+
 
 }
 
@@ -1078,8 +1076,7 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 	unsigned int *memSize = headP + 4;
 
 
-	if (*headP != *tailP)
-	{
+
 		message tMessage;
 
 		tMessage.messageType = 3;
@@ -1108,26 +1105,26 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 
 		//MColor color = light.color();
 
-		XMFLOAT4 colorVec;
+	/*	XMFLOAT4 colorVec;
 		colorVec.x = light.color().r;
 		colorVec.y = light.color().g;
 		colorVec.z = light.color().b;
-		colorVec.w = light.color().a;
+		colorVec.w = light.color().a;*/
 
-		//MColor color = light.color();
-		MColor colore = light.activeColor();
-		XMFLOAT4 asColorVec;
-		asColorVec.x = colore.r;
-		asColorVec.y = colore.g;
-		asColorVec.z = colore.b;
-		asColorVec.w = colore.a;
+	
+
+
+		//colorVec.x = 0;
+		//colorVec.y = 1;
+		//colorVec.z = 0;
+		//colorVec.w = 1;
 
 
 
 		memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
 		//
 		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
-		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
+	//	memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
 
 
 
@@ -1145,8 +1142,7 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 
 
 		MGlobal::displayInfo(MString("Light has changed!!"));
-	}
-	tMessage.messageSize = 3;
+	
 
 }
 
@@ -1159,8 +1155,7 @@ void getLightInfo(MFnLight& lightNode)
 	unsigned int *memSize = headP + 4;
 
 
-	if (*headP != *tailP)
-	{
+	
 		message tMessage;
 
 		tMessage.messageType = 3;
@@ -1199,15 +1194,12 @@ void getLightInfo(MFnLight& lightNode)
 		colorVec.z = lightNode.color().b;
 		colorVec.w = lightNode.color().a;
 
-		//MColor color = light.color();
-		MColor colore = lightNode.activeColor();
-		XMFLOAT4 asColorVec;
-		asColorVec.x = colore.r;
-		asColorVec.y = colore.g;
-		asColorVec.z = colore.b;
-		asColorVec.w = colore.a;
 
 
+		//colorVec.x = 1;
+		//colorVec.y = 0;
+		//colorVec.z = 0;
+		//colorVec.w = 1;
 
 		memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
 		//
@@ -1229,8 +1221,8 @@ void getLightInfo(MFnLight& lightNode)
 		}
 
 
-		MGlobal::displayInfo(MString("Light has changed!!"));
-	}
+		MGlobal::displayInfo(MString("Light created!!"));
+
 	tMessage.messageSize = 3;
 
 
@@ -1797,16 +1789,21 @@ void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, 
 		MFnLambertShader lambertShader;
 		
 		MColor color;
-		
+		XMFLOAT4 col;
 	
 		if (plug.node().hasFn(MFn::kLambert))
 		{
 			lambertShader.setObject(plug.node());
 			MGlobal::displayInfo(lambertShader.name());
 			color = lambertShader.color();
+			col.x = color.r;
+			col.y = color.g;
+			col.z = color.b;
+			col.w = color.a;
 			
 		}
 		
+
 
 		
 		tMessage.messageType = 4;
@@ -1832,11 +1829,12 @@ void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, 
 
 
 
-		memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &color, sizeof(XMFLOAT4));
+		memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &col, sizeof(XMFLOAT4));
 		
 
 		std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
 
+		int po = 0;
 
 		}
 	}

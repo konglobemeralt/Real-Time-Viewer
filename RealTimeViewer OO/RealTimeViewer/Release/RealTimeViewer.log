@@ -1,5 +1,5 @@
-﻿Build started 10/25/2015 6:43:09 PM.
-     1>Project "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" on node 2 (Rebuild target(s)).
+﻿Build started 10/26/2015 9:15:29 PM.
+     1>Project "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/include/" /Zi /nologo /W3 /WX- /Od /Oi /Oy- /GL /D HAS_DIRECTXTK /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt cameraClass.cpp d3dclass.cpp fileMapping.cpp lightClass.cpp modelClass.cpp realTimeViewer.cpp ShaderShader.cpp Source.cpp textureClass.cpp
          cameraClass.cpp
@@ -40,8 +40,8 @@
          Generating code
          Finished generating code
          RealTimeViewer.vcxproj -> C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.exe
-     1>Done Building Project "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" (Rebuild target(s)).
+     1>Done Building Project "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:05.10
+Time Elapsed 00:00:06.42

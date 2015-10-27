@@ -64,6 +64,8 @@ public:
 	void GetPosition(float&, float&, float&);
 	void setIndexCount(int i);
 
+	void setMaterialID(int ID);
+	int getMatID();
 	int getModelID();
 
 	DirectX::XMMATRIX getWorldMatrix();
@@ -98,6 +100,8 @@ private:
 	int m_indexCount;
 	int m_modelID;
 
+	int matID;
+
 	DirectX::XMMATRIX m_worldMatrix;
 
 
@@ -110,6 +114,8 @@ private:
 	XMFLOAT4 m_matSpecColor;
 	float m_matReflectivity;
 	float m_matSpecRolloff;
+
+
 
 };
 

@@ -1,67 +1,69 @@
-﻿Build started 2015-10-26 13:11:41.
-     1>Project "C:\temp\Real-Time-Viewer\project debug - Copy - Copy\MayaPlugin\MayaPlugin.vcxproj" on node 2 (Build target(s)).
+﻿Build started 10/27/2015 1:50:42 PM.
+     1>Project "C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\MayaPlugin\MayaPlugin.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2016\include" /Zi /nologo /W3 /WX- /sdl /Od /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt Source.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2015\include" /Zi /nologo /W3 /WX- /sdl /Od /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt Source.cpp
          Source.cpp
-     1>Source.cpp(72): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>Source.cpp(334): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(509): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(73): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>Source.cpp(335): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
      1>Source.cpp(510): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
      1>Source.cpp(511): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(532): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(534): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(675): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(678): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(678): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(680): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(731): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(733): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(742): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(778): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(512): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(533): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(535): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(676): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(679): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(679): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(681): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(732): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(734): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(743): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
      1>Source.cpp(779): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
      1>Source.cpp(780): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(803): warning C4018: '<' : signed/unsigned mismatch
-     1>Source.cpp(809): warning C4018: '<' : signed/unsigned mismatch
-     1>Source.cpp(962): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(963): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(964): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1247): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1249): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1296): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1299): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1299): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1301): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1344): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1346): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1355): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1391): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1392): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1393): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1461): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1464): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1464): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1466): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1503): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1505): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1514): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1550): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1551): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1552): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Source.cpp(1605): warning C4018: '<' : signed/unsigned mismatch
-     1>Source.cpp(1611): warning C4018: '<' : signed/unsigned mismatch
-     1>Source.cpp(1640): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1642): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1694): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1696): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1748): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1750): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Source.cpp(1815): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
-     1>Source.cpp(1817): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(781): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(804): warning C4018: '<' : signed/unsigned mismatch
+     1>Source.cpp(810): warning C4018: '<' : signed/unsigned mismatch
+     1>Source.cpp(967): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(968): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(969): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1252): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1254): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1301): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1304): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1304): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1306): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1349): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1351): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1360): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1396): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1397): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1398): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1466): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1469): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1469): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1471): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1508): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1510): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1519): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1555): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1556): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1557): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source.cpp(1616): warning C4018: '<' : signed/unsigned mismatch
+     1>Source.cpp(1622): warning C4018: '<' : signed/unsigned mismatch
+     1>Source.cpp(1651): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1653): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1671): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1673): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1729): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1731): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1788): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1790): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>Source.cpp(1859): warning C4267: 'argument' : conversion from 'size_t' to 'unsigned int', possible loss of data
+     1>Source.cpp(1861): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\temp\Real-Time-Viewer\project debug - Copy - Copy\x64\Debug\MayaPlugin.mll" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\Autodesk\Maya2016\lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\temp\Real-Time-Viewer\project debug - Copy - Copy\x64\Debug\MayaPlugin.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\temp\Real-Time-Viewer\project debug - Copy - Copy\x64\Debug\MayaPlugin.lib" /MACHINE:X64 /DLL x64\Debug\Source.obj
-         MayaPlugin.vcxproj -> C:\temp\Real-Time-Viewer\project debug - Copy - Copy\x64\Debug\MayaPlugin.mll
-     1>Done Building Project "C:\temp\Real-Time-Viewer\project debug - Copy - Copy\MayaPlugin\MayaPlugin.vcxproj" (Build target(s)).
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.mll" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\Autodesk\Maya2015\lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.lib" /MACHINE:X64 /DLL x64\Debug\Source.obj
+         MayaPlugin.vcxproj -> C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.mll
+     1>Done Building Project "C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\MayaPlugin\MayaPlugin.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:03.03
+Time Elapsed 00:00:01.06

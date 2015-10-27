@@ -27,7 +27,7 @@ ModelClass::ModelClass()
 , m_pModel(nullptr)
 , m_vertexCount(0)
 , m_indexCount(0)
-
+, matID(0)
 {}
 
 ModelClass::~ModelClass()
@@ -295,7 +295,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 			delete[] indices;
 			indices = 0;
 
-			updateMaterial(cBuf, pBuf);
+			//updateMaterial(cBuf, pBuf);
 
 		//MOVE HEADER TAIL STUFF TO RTV update:
 
@@ -459,36 +459,15 @@ void ModelClass::setWorldMatrix(DirectX::XMFLOAT4X4& tempMatrix)
 
 }
 
-bool ModelClass::updateMaterial(void* cBuf, void* pBuf)
+int ModelClass::getMatID()
 {
 
+	return matID;
 
-	int usedSpace = 0;
-	//finding material values
-	memcpy(&m_matColor, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4), sizeof(XMFLOAT4));
-	memcpy(&m_matSpecColor, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4), sizeof(XMFLOAT4));
-	memcpy(&m_matReflectivity, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4), sizeof(float));
-	memcpy(&m_matSpecRolloff, (char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), sizeof(float));
-
-	return true;
 }
 
-XMFLOAT4 ModelClass::getMatColor()
+void ModelClass::setMaterialID(int ID)
 {
-	return m_matColor;
-}
+	matID = ID;
 
-XMFLOAT4 ModelClass::getMatSpecColor()
-{
-	return m_matSpecColor;
-}
-
-float ModelClass::getMatReflectivity()
-{
-	return m_matReflectivity;
-}
-
-float ModelClass::getMatSpecRolloff()
-{
-	return m_matSpecRolloff;
 }

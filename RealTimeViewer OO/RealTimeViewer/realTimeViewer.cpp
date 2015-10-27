@@ -105,6 +105,15 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 	}
 
 
+
+	//create shader object
+	MaterialClass DefaultMaterial;
+	
+	materialVector.push_back(DefaultMaterial);
+
+
+
+
 	return true;
 }
 
@@ -224,17 +233,18 @@ bool realTimeViewer::RenderGraphics()
 	
 		
 			//Put the model vertex and index buffers on the graphics pipeline to prepare for drawing.
-	
+			int matID = modelVector.at(i).getMatID();
+
 			result = m_ShaderShader->Render(m_Direct3D->GetDeviceContext(),
 				modelVector.at(i).GetIndexCount(),
 				worldMatrix,
 				viewMatrix,
 				projectionMatrix,
 				modelVector.at(i).GetTexture(),
-				modelVector.at(i).getMatColor(), 
-				modelVector.at(i).getMatSpecColor(), 
-				modelVector.at(i).getMatReflectivity(), 
-				modelVector.at(i).getMatSpecRolloff(),
+				materialVector.at(matID).getMatColor(), 
+				materialVector.at(matID).getMatSpecColor(),
+				materialVector.at(matID).getMatReflectivity(),
+				materialVector.at(matID).getMatSpecRolloff(),
 				XMFLOAT3(m_Light->GetPosition().x, m_Light->GetPosition().y, m_Light->GetPosition().z),
 				m_Light->GetDiffuseColor());
 
@@ -335,31 +345,26 @@ void realTimeViewer::update()
 		//Transform material
 		if (messageType == 4)
 		{
+			int matID = -1;
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+			memcpy(&matID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
 
-			
-						
-			if (modelID > 0)
-				modelVector.at(modelID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-		
-			else
-				modelVector.at(modelID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+			memcpy(&modelID, (char*)pBuf + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), sizeof(float));
 
-	//for (int i = 0; i < modelVector.size(); i++)
-	//{
-	//	if (i > 0)
-	//	modelVector.at(i - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-	//
-	//	else
-	//	modelVector.at(i).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-	//}
+			if (matID != -1)
+			{
+
+				if (matID > 0)
+					materialVector.at(matID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+				else
+					materialVector.at(matID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+			}
 
 			
 
-
+			modelID = -1;
 		}
-
 
 
 
@@ -420,6 +425,25 @@ void realTimeViewer::update()
 			modelID = -1;
 
 		}
+
+
+		//New MAterial
+		if (messageType == 8)
+		{
+
+			if (modelID > modelVector.size())
+			{
+				m_material.updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+				materialVector.push_back(m_material);
+
+			}
+
+			modelID = -1;
+
+		}
+
+
+
 
 
 

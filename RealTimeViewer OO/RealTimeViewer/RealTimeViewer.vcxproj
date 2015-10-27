@@ -95,6 +95,7 @@
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="fileMapping.cpp" />
     <ClCompile Include="lightClass.cpp" />
+    <ClCompile Include="materialClass.cpp" />
     <ClCompile Include="modelClass.cpp" />
     <ClCompile Include="realTimeViewer.cpp" />
     <ClCompile Include="ShaderShader.cpp" />
@@ -112,6 +113,7 @@
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="fileMapping.h" />
     <ClInclude Include="lightClass.h" />
+    <ClInclude Include="materialClass.h" />
     <ClInclude Include="modelClass.h" />
     <ClInclude Include="realTimeViewer.h" />
     <ClInclude Include="ShaderShader.h" />

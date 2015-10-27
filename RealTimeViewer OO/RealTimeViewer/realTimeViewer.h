@@ -7,6 +7,7 @@
 #include "modelClass.h"
 #include "lightClass.h"
 #include "fileMapping.h"
+#include "materialClass.h"
 
 
 const bool FULL_SCREEN = false;
@@ -35,11 +36,13 @@ private:
 
 	int numberOfModels;
 	vector<ModelClass> modelVector;
+	vector<MaterialClass> materialVector;
 
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
 	ShaderShaderClass* m_ShaderShader;
 	ModelClass  m_model;
+	MaterialClass m_material;
 	LightClass *m_Light;
 	fileMapping *m_fileMap;
 };

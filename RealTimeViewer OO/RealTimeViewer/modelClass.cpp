@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <wchar.h>
 #include "ModelClass.h"
-#include "textureClass.h"
 
 
 //Temp placement
@@ -34,7 +33,7 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* pDevice, WCHAR* textureFilename, void* cBuf, void* pBuf)
+bool ModelClass::Initialize(ID3D11Device* pDevice, void* cBuf, void* pBuf)
 {
 	bool result;
 
@@ -47,17 +46,12 @@ bool ModelClass::Initialize(ID3D11Device* pDevice, WCHAR* textureFilename, void*
 		return false;
 	}
 
-	//Load the texture for this model.
-	result = LoadTexture(pDevice, textureFilename);
-	if (!result)
-	{
-		return false;
-	}
+
 
 	return true;
 }
 
-bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf, WCHAR* textureFilename)
+bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf)
 {
 	bool result;
 
@@ -75,12 +69,13 @@ bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf, WC
 
 	return true;
 
-	//Load the texture for this model.
-	result = LoadTexture(pDevice, textureFilename);
-	if (!result)
-	{
-		return false;
-	}
+// no longer loading textures from model
+//	//Load the texture for this model.
+//	result = LoadTexture(pDevice, textureFilename);
+//	if (!result)
+//	{
+//		return false;
+//	}
 
 	return true;
 
@@ -91,9 +86,7 @@ bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf, WC
 
 void ModelClass::Shutdown()
 {
-	// Release the model texture.
-	ReleaseTexture();
-
+	
 	// Shutdown the vertex and index buffers.
 	ShutdownBuffers();
 
@@ -104,18 +97,7 @@ void ModelClass::Shutdown()
 }
 
 
-void ModelClass::ReleaseTexture()
-{
-	// Release the texture object.
-	if (m_pTexture)
-	{
-		m_pTexture->Shutdown();
-		delete m_pTexture;
-		m_pTexture = 0;
-	}
 
-	return;
-}
 
 void ModelClass::Render(ID3D11DeviceContext* pContext)
 {
@@ -170,9 +152,9 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 		
 
 		//ModelID
-		memcpy(&m_modelID, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+		//memcpy(&m_modelID, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
 		//vertCount
-		memcpy(&m_vertexCount, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+		memcpy(&m_vertexCount, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 			//memcpy(&m_vertexCount, (char*)pBuf + (sizeof(int) *4), sizeof(int));
 
@@ -204,7 +186,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 
 			memcpy(&m_worldMatrix, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
 
-			tempBuf += (sizeof(int)* 5) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float);
+			tempBuf += (sizeof(int)* 5) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500);
 
 			// Load the vertex array and index array with data.
 			for (i = 0; i < m_vertexCount; i++)
@@ -404,41 +386,6 @@ void ModelClass::GetPosition(float& x, float& y, float& z)
 }
 
 
-
-bool ModelClass::LoadTexture(ID3D11Device* pDevice, WCHAR* filename)
-{
-	bool result;
-
-
-	// Create the texture object.
-	m_pTexture = new TextureClass;
-	if (!m_pTexture)
-	{
-		return false;
-	}
-
-
-
-	// Initialize the texture object.
-	result = m_pTexture->Initialize(pDevice, filename);
-	if (!result)
-	{
-		return false;
-	}
-
-
-
-
-	return true;
-}
-
-
-
-
-ID3D11ShaderResourceView* ModelClass::GetTexture()
-{
-	return m_pTexture->GetTexture();
-}
 
 
 DirectX::XMMATRIX ModelClass::getWorldMatrix()

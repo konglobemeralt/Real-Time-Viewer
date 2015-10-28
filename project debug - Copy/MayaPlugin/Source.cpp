@@ -126,6 +126,7 @@ struct message
 	XMFLOAT4X4 matrixData;
 
 	MaterialData matData;
+	char textureAddress[500];
 
 	//mesh
 	int numMeshes;
@@ -546,7 +547,7 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 				tMessage.numMeshes = meshID;
 
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
 
 
 
@@ -751,14 +752,14 @@ void getMeshInfo(MFnMesh &meshNode)
 		
 
 
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int), &tMessage.numVerts, sizeof(int));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500) +sizeof(int), &tMessage.numVerts, sizeof(int));
 
 		for (int i = 0; i < verticies.size(); i++)
 		{
-			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 		}
 
@@ -1259,8 +1260,9 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 	//destroyMesh = -1;
 
 	std::memcpy((char*)pBuf + usedSpace, &messageType, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
-	
+	//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &destroyMesh, sizeof(int));
+
 
 
 	//Copy index, use to destroy mesh of index in RTV
@@ -1368,14 +1370,14 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
 
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int), &tMessage.numVerts, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500) +sizeof(int), &tMessage.numVerts, sizeof(int));
 
 	for (int i = 0; i < verticies.size(); i++)
 	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 	}
 
@@ -1527,14 +1529,14 @@ void getExtrudeChangeInfo(MPlug& plug)
 	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
 
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int), &tMessage.numVerts, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int), &tMessage.numVerts, sizeof(int));
 
 	for (int i = 0; i < verticies.size(); i++)
 	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 	}
 
@@ -1611,6 +1613,11 @@ void getMaterialInfo(MFnMesh& mesh)
 	//BlinnData blinnD;
 	//PhongData phongD;
 
+	MStatus status;
+
+	const MString TEXTURE_NAME("fileTextureName");
+
+
 	mesh.getConnectedShaders(instanceNumber, shaders, indices);
 
 	for (int i = 0; i < shaders.length(); i++)
@@ -1680,7 +1687,7 @@ void getMaterialInfo(MFnMesh& mesh)
 				//Give the material an ID
 				tMessage.numMeshes = materialID;
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
 
 
 				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
@@ -1815,7 +1822,103 @@ void getMaterialInfo(MFnMesh& mesh)
 				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
 			}
 
-		}
+		
+		//look for all the file textures that are upstream from the shader node
+		MItDependencyGraph shaderTextureIter(connections[u].node(), MFn::kFileTexture, MItDependencyGraph::kUpstream,
+			MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel,
+			&status);
+		if (status != MS::kFailure)
+		{
+			shaderTextureIter.disablePruningOnFilter(); //don't prune the iter path for nodes that don't match the filter
+
+			if (!shaderTextureIter.isDone())//did we find any file texture nodes?
+			{
+				MObject textureNode; //current texture node being processed
+
+				for (; !shaderTextureIter.isDone(); shaderTextureIter.next())
+				{
+					textureNode = shaderTextureIter.thisNode(&status);
+					if (status != MS::kFailure)
+					{
+						//attach a node function set so we can get attribute info
+						MFnDependencyNode textureNodeFn(textureNode, &status);
+						if (status != MS::kFailure)
+						{
+							//MPlug attribPlug;
+							//
+							//attribPlug = textureNodeFn.findPlug(MString("fileTextureName"), &status);
+							//int howmany = attribPlug.numChildren();
+							//MString name = attribPlug.name();
+
+
+							MPlug ftnPlug = textureNodeFn.findPlug("ftn");
+							MString fileName;
+							ftnPlug.getValue(fileName);
+							//attribPlug = textureNodeFn.findPlug(MString("imageName"), &status);
+							MGlobal::displayInfo(MString("Texture name is: " + fileName));
+							MGlobal::displayInfo(MString("it somethn"));
+							
+							const char* charname = fileName.asChar();
+
+							int addressMax = sizeof(tMessage.textureAddress);
+
+							if (fileName.length() < addressMax)
+							{
+								for (int i = 0; i < addressMax; i++)
+								{
+									tMessage.textureAddress[i] = charname[i];
+								}
+
+							}
+							else
+								MGlobal::displayInfo(MString("Address contains way many chars."));
+
+							
+
+							memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float)+ sizeof(float),&tMessage.textureAddress,(sizeof(char) * 500));
+
+							
+
+							//if (status != MS::kFailure)
+							//{
+							//	MGlobal::displayInfo(MString("Texture name is: " + textureNodeFn.name()));
+							//	MGlobal::displayInfo(MString("nice"));
+							//
+							//
+							//	//cout << "Texture name: " << textureNodeFn.name().asChar() << endl;
+							//
+							//}//end if, got file name plug
+
+						}//end if, made fn set
+
+					}//end if, made texture object
+
+				}//end for, texture iter
+
+			}//end if, have textures
+
+		}//end if, made texture iter
+
+}
+	
+
+
+		/*if (connections.length() > 0)
+		{
+			MObject src = connections[0];
+
+			if (src.hasFn(MFn::kFileTexture))
+			{
+
+				MFnDependencyNode fnFile(src);
+				MPlug ftnPlug = fnFile.findPlug(TEXTURE_NAME, &status);
+				if (status = MS::kSuccess)
+				{
+					MString fileTextureName;
+					ftnPlug.getValue(fileTextureName);
+				}
+			}
+		}*/
 
 
 	}
@@ -1877,7 +1980,7 @@ void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, 
 		tMessage.numMeshes = materialID;
 
 		//Send ID
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
 
 
 

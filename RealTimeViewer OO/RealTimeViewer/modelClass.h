@@ -5,7 +5,6 @@
 #include <DirectXMath.h>
 #include <fstream>
 
-#include "textureClass.h"
 
 
 using namespace std;
@@ -43,23 +42,19 @@ public:
 	ModelClass();
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, WCHAR*, void* cBuf, void* pBuf);
+	bool Initialize(ID3D11Device*, void* cBuf, void* pBuf);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 
-	bool UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf, WCHAR*);
-	bool updateMaterial(void* cBuf, void* pBuf);
+	bool UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void*);
+	
+	//bool updateMaterial(void* cBuf, void* pBuf);
 
 	int GetIndexCount();
 
-	ID3D11ShaderResourceView* GetTexture();
-
-	XMFLOAT4 getMatColor();
-	XMFLOAT4 getMatSpecColor();
-	float getMatReflectivity();
-	float getMatSpecRolloff();
-
+	
+	
 	void SetPosition(float, float, float);
 	void GetPosition(float&, float&, float&);
 	void setIndexCount(int i);
@@ -78,20 +73,13 @@ private:
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 
-	bool LoadTexture(ID3D11Device*, WCHAR*);
-	void ReleaseTexture();
-
-
-
-
-
+	
 
 	void ReleaseModel();
 
 	ID3D11Buffer* m_pVertexBuffer;
 	ID3D11Buffer* m_pIndexBuffer;
 
-	TextureClass* m_pTexture;
 	ModelType* m_pModel;
 
 	float m_positionX, m_positionY, m_positionZ;
@@ -105,15 +93,6 @@ private:
 	DirectX::XMMATRIX m_worldMatrix;
 
 
-	//material values
-	bool m_HasMaterial;
-	float m_diffuseR, m_diffuseG, m_diffuseB;
-	char m_diffuseTexturePath[50];
-
-	XMFLOAT4 m_matColor;
-	XMFLOAT4 m_matSpecColor;
-	float m_matReflectivity;
-	float m_matSpecRolloff;
 
 
 

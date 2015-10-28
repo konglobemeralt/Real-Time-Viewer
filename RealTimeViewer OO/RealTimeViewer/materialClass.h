@@ -1,9 +1,11 @@
 #ifndef _MATERIALCLASS_H_
 #define _MATERIALCLASS_H_
 
-
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <d3d11.h>
+#include "textureClass.h"
+
 
 class MaterialClass
 {
@@ -27,16 +29,28 @@ public:
 	
 
 	float MaterialClass::getMatSpecRolloff();
+
+	WCHAR* MaterialClass::getTexturePath();
+
+	ID3D11ShaderResourceView* GetTexture();
+	bool LoadTexture(ID3D11Device*);
+	void ReleaseTexture();
+
 	
 
 private:
 	ID3D11ShaderResourceView* m_texture;
 	
 	//material values
+TextureClass* m_pTexture;
+
 bool m_HasMaterial;
 float m_diffuseR, m_diffuseG, m_diffuseB;
-char m_diffuseTexturePath[50];
 
+WCHAR* m_diffuseTexturePath;
+
+
+WCHAR* m_texturePath;
 DirectX::XMFLOAT4 m_matColor;
 DirectX::XMFLOAT4 m_matSpecColor;
 float m_matReflectivity;

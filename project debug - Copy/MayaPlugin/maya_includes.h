@@ -31,6 +31,8 @@
 #include <maya/MItMeshVertex.h>
 #include <maya/MPxPolyTrg.h>
 #include <maya/MDGModifier.h>
+
+#include <maya/MItDependencyGraph.h>
 // Wrappers
 #include <maya/MGlobal.h>
 #include <maya/MCallbackIdArray.h>

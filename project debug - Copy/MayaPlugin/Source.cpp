@@ -1,15 +1,9 @@
 // UD1414_Plugin.cpp : Defines the exported functions for the DLL application.
 
-//Js. To add:
+//Js. Comments:
 /*
-- Free memory check to compare to BUF_SIZE in order to know if new information is sent to realtimeviewer
-- We also need that in RTV.
-
-- upvector, view matrices etc from camera
-
-- ??????
-
-- profit
+Currently using headP/tailP instead of usedSpace. It works with the same stopping issue, and much more delay.
+(though that might be my computer because it is simultaneously making so much noise right now...)
 
 */
 
@@ -473,27 +467,44 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 		unsigned int *freeMem = headP + 3;
 		unsigned int *memSize = headP + 4;
 
-		MFnTransform transform(plug.node());
 
-		if (transform.isParentOf(camera.object()))
+		unsigned int tempT = *tailP;
+		unsigned int distance = 0;
+
+		if (tempT >= *headP)
 		{
-			cameraChange(transform, camera);
+			distance = unsigned int(tempT - *headP);
+		}
+		else if (tempT < *headP)
+		{
+			distance = unsigned int((memSize - *headP) + tempT);
 		}
 
-		else if (strstr(name.asChar(), "Light"))
-		{
-			lightChange(transform, plug.parent());
-		}
 
-
-		else
+		if (10000 < distance || *headP == tempT)
 		{
 
-			
-			
-			
-			MGlobal::displayInfo(MString("Mesh Transformed!!! "));
-			
+			MFnTransform transform(plug.node());
+
+			if (transform.isParentOf(camera.object()))
+			{
+				cameraChange(transform, camera);
+			}
+
+			else if (strstr(name.asChar(), "Light"))
+			{
+				lightChange(transform, plug.parent());
+			}
+
+
+			else
+			{
+
+
+
+
+				MGlobal::displayInfo(MString("Mesh Transformed!!! "));
+
 				MFnMesh meshNode(plug.node());
 
 				//mesh rotation
@@ -506,7 +517,7 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 				MVector translation = transform.getTranslation(MSpace::kPostTransform);
 				//Build matrix with xmvectors
 				MGlobal::displayInfo(MString() + "Color: " + translation.x + " " + translation.y + " " + translation.z + " ");
-				
+
 
 				XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
 				XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
@@ -519,12 +530,12 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 
 
 				tMessage.messageType = 2;
-			
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
 
-				std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+				std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
 
-				
+				std::memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+
+
 				int meshCount = nodeNames.length();
 				int meshID = -1;
 
@@ -536,8 +547,8 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 						meshID = i;
 
 					}
-				
-						
+
+
 				}
 
 				MGlobal::displayInfo(MString("ID = " + meshID));
@@ -547,12 +558,12 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 				tMessage.numMeshes = meshID;
 
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
 
 
 
 
-				*headP += 100000;
+				*headP += 10000;
 
 
 
@@ -562,10 +573,10 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 				}
 
 
-			
 
+
+			}
 		}
-			
 
 		
 	}
@@ -698,12 +709,26 @@ void getMeshInfo(MFnMesh &meshNode)
 	unsigned int *memSize = headP + 4;
 
 	
-	
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
+
+	if (tempT >= *headP)
+	{
+		distance = unsigned int(tempT - *headP);
+	}
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
+	}
+
+
+	if (10000 < distance || *headP == tempT)
+	{
 
 		//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
 
 
-	
+
 
 
 		message tMessage;
@@ -719,9 +744,9 @@ void getMeshInfo(MFnMesh &meshNode)
 
 		tMessage.messageType = 0;
 
-		
 
-		
+
+
 
 		unsigned int meshCount = nodeNames.length();
 		int meshID;
@@ -734,7 +759,7 @@ void getMeshInfo(MFnMesh &meshNode)
 			{
 				meshID = i;
 			}
-			
+
 		}
 
 
@@ -743,23 +768,23 @@ void getMeshInfo(MFnMesh &meshNode)
 
 		tMessage.numVerts = verticies.size();
 
-		tMessage.messageSize = 100000;
+		tMessage.messageSize = 10000;
 		tMessage.padding = 0;
 
 
-		std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(int), &tMessage.messageSize, sizeof(int));
-		
+		std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(int), &tMessage.messageSize, sizeof(int));
 
 
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500) +sizeof(int), &tMessage.numVerts, sizeof(int));
+
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int), &tMessage.numVerts, sizeof(int));
 
 		for (int i = 0; i < verticies.size(); i++)
 		{
-			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-			std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4) + sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 		}
 
@@ -767,7 +792,7 @@ void getMeshInfo(MFnMesh &meshNode)
 		//Mesh transformation
 		MFnTransform meshTransform(meshNode.parent(0));
 		MVector translation = meshTransform.getTranslation(MSpace::kObject);
-		
+
 		//mesh rotation
 		double rotation[4];
 		meshTransform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
@@ -781,13 +806,13 @@ void getMeshInfo(MFnMesh &meshNode)
 		XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
 		XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], scale[3]);
 		XMVECTOR zeroVector = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-		
-		
+
+
 		DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
 
 
-		
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
 
 		////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
@@ -835,11 +860,11 @@ void getMeshInfo(MFnMesh &meshNode)
 
 
 
-				/*	memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
-					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
-					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
-					memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
-*/
+					/*	memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+						memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+						memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+						memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+						*/
 					materialNames.append(lambertShader.name());
 
 				}
@@ -867,10 +892,10 @@ void getMeshInfo(MFnMesh &meshNode)
 					//The slider range is 2 (broad highlight, not very shiny surface) to 100 (small highlight, very shiny surface),
 					//though you can type in a higher value. The default value is 20. 
 
-					
 
 
-				
+
+
 
 					//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
 					//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
@@ -904,14 +929,14 @@ void getMeshInfo(MFnMesh &meshNode)
 
 					MGlobal::displayInfo(MString("Blinn!!"));
 
-							
+
 					materialNames.append(blinnShader.name());
 
 					//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
 					//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
 					//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
 					//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
-				
+
 				}
 
 			}
@@ -921,15 +946,15 @@ void getMeshInfo(MFnMesh &meshNode)
 
 
 		//END GET MATERIAL
-		*headP += 100000;
+		*headP += 10000;
 
 
 
-			if (*headP > *memSize)
-			{
-				*headP = 0;
-			}
-
+		if (*headP > *memSize)
+		{
+			*headP = 0;
+		}
+	}
 
 
 		
@@ -958,35 +983,54 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
-	message tMessage;
 
-	tMessage.messageType = 1;
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
 
-
-	XMFLOAT4X4 viewMatrix;
-	DirectX::XMStoreFloat4x4(&viewMatrix, (DirectX::XMMatrixLookAtRH(
-	XMVectorSet(eye.x, eye.y, eye.z, 1.0f),
-	XMVectorSet(viewDirection.x, viewDirection.y, viewDirection.z, 0.0f),
-	XMVectorSet(upDirection.x, upDirection.y, upDirection.z, 0.0f))));
-
-
-	std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &viewMatrix, sizeof(XMFLOAT4X4));
-	
+	if (tempT >= *headP)
+	{
+		distance = unsigned int(tempT - *headP);
+	}
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
+	}
 
 
-			*headP += 100000;
-
-			if (*headP > *memSize)
-			{
-				*headP = 0;
-			}
+	if (10000 < distance || *headP == tempT)
+	{
 
 
 
-			MGlobal::displayInfo(MString("Camera Change!!!! "));
+		message tMessage;
 
+		tMessage.messageType = 1;
+
+
+		XMFLOAT4X4 viewMatrix;
+		DirectX::XMStoreFloat4x4(&viewMatrix, (DirectX::XMMatrixLookAtRH(
+			XMVectorSet(eye.x, eye.y, eye.z, 1.0f),
+			XMVectorSet(viewDirection.x, viewDirection.y, viewDirection.z, 0.0f),
+			XMVectorSet(upDirection.x, upDirection.y, upDirection.z, 0.0f))));
+
+
+		std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
+
+		std::memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4), &viewMatrix, sizeof(XMFLOAT4X4));
+
+
+
+		*headP += 10000;
+
+		if (*headP > *memSize)
+		{
+			*headP = 0;
+		}
+
+
+
+		MGlobal::displayInfo(MString("Camera Change!!!! "));
+	}
 
 
 }
@@ -1021,52 +1065,67 @@ void lightAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 
 	if (msg& MNodeMessage::kAttributeSet)
 	{
+		unsigned int tempT = *tailP;
+		unsigned int distance = 0;
 
-
-		message tMessage;
-		tMessage.messageType = 3;
-
-
-		MGlobal::displayInfo(MString("A light ahoy!!"));
-		MFnLight light(plug.node(0));
-
-		MFnTransform lightTransform(light.parent(0));
-
-		//MVector translation = lightTransform.getTranslation(MSpace::kObject);
-		MVector translation = lightTransform.translation(MSpace::kWorld);
-		//double rotation[4];
-		//lightTransform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
-
-		//MColor color = light.color();
-		MColor colore = light.activeColor();
-		XMFLOAT4 asColorVec;
-		asColorVec.x = colore.r;
-		asColorVec.y = colore.g;
-		asColorVec.z = colore.b;
-		asColorVec.w = colore.a;
-
-
-
-		XMFLOAT4 colorVec;
-		colorVec.x = light.color().r;
-		colorVec.y = light.color().g;
-		colorVec.z = light.color().b;
-		colorVec.w = light.color().a;
-
-
-
-		memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-		//
-		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
-		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
-
-		*headP += 100000;
-
-		if (*headP > *memSize)
+		if (tempT >= *headP)
 		{
-			*headP = 0;
+			distance = unsigned int(tempT - *headP);
+		}
+		else if (tempT < *headP)
+		{
+			distance = unsigned int((memSize - *headP) + tempT);
 		}
 
+
+		if (10000 < distance || *headP == tempT)
+		{
+
+
+			message tMessage;
+			tMessage.messageType = 3;
+
+
+			MGlobal::displayInfo(MString("A light ahoy!!"));
+			MFnLight light(plug.node(0));
+
+			MFnTransform lightTransform(light.parent(0));
+
+			//MVector translation = lightTransform.getTranslation(MSpace::kObject);
+			MVector translation = lightTransform.translation(MSpace::kWorld);
+			//double rotation[4];
+			//lightTransform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+
+			//MColor color = light.color();
+			MColor colore = light.activeColor();
+			XMFLOAT4 asColorVec;
+			asColorVec.x = colore.r;
+			asColorVec.y = colore.g;
+			asColorVec.z = colore.b;
+			asColorVec.w = colore.a;
+
+
+
+			XMFLOAT4 colorVec;
+			colorVec.x = light.color().r;
+			colorVec.y = light.color().g;
+			colorVec.z = light.color().b;
+			colorVec.w = light.color().a;
+
+
+
+			memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
+			//
+			memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int), &translation, sizeof(XMFLOAT4));
+			memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
+
+			*headP += 10000;
+
+			if (*headP > *memSize)
+			{
+				*headP = 0;
+			}
+		}
 	}
 
 
@@ -1081,6 +1140,21 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
+
+	if (tempT >= *headP)
+	{
+		distance = unsigned int(tempT - *headP);
+	}
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
+	}
+
+
+	if (10000 < distance || *headP == tempT)
+	{
 
 
 		message tMessage;
@@ -1111,13 +1185,13 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 
 		//MColor color = light.color();
 
-	/*	XMFLOAT4 colorVec;
-		colorVec.x = light.color().r;
-		colorVec.y = light.color().g;
-		colorVec.z = light.color().b;
-		colorVec.w = light.color().a;*/
+		/*	XMFLOAT4 colorVec;
+			colorVec.x = light.color().r;
+			colorVec.y = light.color().g;
+			colorVec.z = light.color().b;
+			colorVec.w = light.color().a;*/
 
-	
+
 
 
 		//colorVec.x = 0;
@@ -1127,10 +1201,10 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 
 
 
-		memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+		memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
 		//
-		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
-	//	memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
+		memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int), &translation, sizeof(XMFLOAT4));
+		//	memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
 
 
 
@@ -1139,7 +1213,7 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 
 
 
-		*headP += 100000;
+		*headP += 10000;
 
 		if (*headP > *memSize)
 		{
@@ -1148,8 +1222,8 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 
 
 		MGlobal::displayInfo(MString("Light has changed!!"));
-	
 
+	}
 }
 
 void getLightInfo(MFnLight& lightNode)
@@ -1160,8 +1234,23 @@ void getLightInfo(MFnLight& lightNode)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
 
-	
+	if (tempT >= *headP)
+	{
+		distance = unsigned int(tempT - *headP);
+	}
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
+	}
+
+
+	if (10000 < distance || *headP == tempT)
+	{
+
+
 		message tMessage;
 
 		tMessage.messageType = 3;
@@ -1207,10 +1296,10 @@ void getLightInfo(MFnLight& lightNode)
 		//colorVec.z = 0;
 		//colorVec.w = 1;
 
-		memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+		memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
 		//
-		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
-		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
+		memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int), &translation, sizeof(XMFLOAT4));
+		memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
 
 
 
@@ -1219,7 +1308,7 @@ void getLightInfo(MFnLight& lightNode)
 
 
 
-		*headP += 100000;
+		*headP += 10000;
 
 		if (*headP > *memSize)
 		{
@@ -1229,8 +1318,7 @@ void getLightInfo(MFnLight& lightNode)
 
 		MGlobal::displayInfo(MString("Light created!!"));
 
-	tMessage.messageSize = 3;
-
+	}
 
 }
 
@@ -1244,27 +1332,45 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
-	int messageType = 5;
 
-	unsigned int meshCount = nodeNames.length();
-	int destroyMesh;
-	for (size_t i = 0; i < meshCount; i++)
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
+
+	if (tempT >= *headP)
 	{
-		if (nodeNames[i] == mesh.name())
-		{
-			destroyMesh = i;
-		}
+		distance = unsigned int(tempT - *headP);
 	}
-	MGlobal::displayInfo(MString(mesh.name() + " has changed been destroyed!!"));
-	MGlobal::displayInfo(MString("ID = " + destroyMesh));
-	//destroyMesh = -1;
-
-	std::memcpy((char*)pBuf + usedSpace, &messageType, sizeof(int));
-	//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &destroyMesh, sizeof(int));
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
+	}
 
 
+	if (10000 < distance || *headP == tempT)
+	{
 
+
+		int messageType = 5;
+
+		unsigned int meshCount = nodeNames.length();
+		int destroyMesh;
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			if (nodeNames[i] == mesh.name())
+			{
+				destroyMesh = i;
+			}
+		}
+		MGlobal::displayInfo(MString(mesh.name() + " has changed been destroyed!!"));
+		MGlobal::displayInfo(MString("ID = " + destroyMesh));
+		//destroyMesh = -1;
+
+		std::memcpy((char*)pBuf + *headP, &messageType, sizeof(int));
+		//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &destroyMesh, sizeof(int));
+
+
+	}
 	//Copy index, use to destroy mesh of index in RTV
 }
 
@@ -1320,116 +1426,131 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
 
-	//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
-
-	
-
-
-	message tMessage;
-
-	tMessage.vert.resize(verticies.size());
-
-	for (int i = 0; i < verticies.size(); i++)
+	if (tempT >= *headP)
 	{
-		tMessage.vert[i].norms = XMFLOAT3(normals.at(i).x, normals.at(i).y, normals.at(i).z);
-		tMessage.vert[i].pos = XMFLOAT4(verticies.at(i).x, verticies.at(i).y, verticies.at(i).z, verticies.at(i).w);
-		tMessage.vert[i].uv = XMFLOAT2(UV.at(i).x, UV.at(i).y);
+		distance = unsigned int(tempT - *headP);
+	}
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
 	}
 
-	tMessage.messageType = 6;
-	
 
-
-	unsigned int meshCount = nodeNames.length();
-	int meshID;
-
-	//MFnMesh nameNode(meshNode.child(0));
-
-	for (size_t i = 0; i < meshCount; i++)
+	if (10000 < distance || *headP == tempT)
 	{
-		if (nodeNames[i] == meshNode.name())
+
+		//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
+
+
+
+
+		message tMessage;
+
+		tMessage.vert.resize(verticies.size());
+
+		for (int i = 0; i < verticies.size(); i++)
 		{
-			meshID = i;
+			tMessage.vert[i].norms = XMFLOAT3(normals.at(i).x, normals.at(i).y, normals.at(i).z);
+			tMessage.vert[i].pos = XMFLOAT4(verticies.at(i).x, verticies.at(i).y, verticies.at(i).z, verticies.at(i).w);
+			tMessage.vert[i].uv = XMFLOAT2(UV.at(i).x, UV.at(i).y);
 		}
-		
+
+		tMessage.messageType = 6;
+
+
+
+		unsigned int meshCount = nodeNames.length();
+		int meshID;
+
+		//MFnMesh nameNode(meshNode.child(0));
+
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			if (nodeNames[i] == meshNode.name())
+			{
+				meshID = i;
+			}
+
+		}
+		MGlobal::displayInfo(MString("ID = " + meshID));
+
+		//Give the mesh an ID
+		tMessage.numMeshes = meshID;
+
+		tMessage.numVerts = verticies.size();
+
+		*headP += 10000;
+		tMessage.padding = 0;
+
+
+		std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(int), &tMessage.messageSize, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int), &tMessage.padding, sizeof(int));
+
+
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int), &tMessage.numVerts, sizeof(int));
+
+		for (int i = 0; i < verticies.size(); i++)
+		{
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4) + sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+
+		}
+
+		//mesh rotation
+
+		MFnTransform transform(meshNode.parent(0));
+
+		double rotation[4];
+		transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+
+		double scale[3];
+		transform.getScale(scale);
+
+		MVector translation = transform.getTranslation(MSpace::kPostTransform);
+		//Build matrix with xmvectors
+
+
+		XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
+		XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
+		XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
+		XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
+
+
+		DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
+
+
+
+
+
+
+		std::memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+
+
+
+
+		////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
+
+
+
+		*headP += 10000;
+
+
+
+		if (*headP > *memSize)
+		{
+			*headP = 0;
+		}
+
+
+
+
 	}
-	MGlobal::displayInfo(MString("ID = " + meshID));
-	
-	//Give the mesh an ID
-	tMessage.numMeshes = meshID;
-
-	tMessage.numVerts = verticies.size();
-
-	tMessage.messageSize = 100000;
-	tMessage.padding = 0;
-
-
-	std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int), &tMessage.messageSize, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
-
-
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500) +sizeof(int), &tMessage.numVerts, sizeof(int));
-
-	for (int i = 0; i < verticies.size(); i++)
-	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
-
-	}
-
-	//mesh rotation
-	
-	MFnTransform transform(meshNode.parent(0));
-
-	double rotation[4];
-	transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
-
-	double scale[3];
-	transform.getScale(scale);
-
-	MVector translation = transform.getTranslation(MSpace::kPostTransform);
-	//Build matrix with xmvectors
-	
-
-	XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
-	XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
-	XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
-	XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
-
-
-	DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
-
-
-
-	
-	
-
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
-
-
-
-
-	////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
-
-
-
-	*headP += 100000;
-
-
-
-	if (*headP > *memSize)
-	{
-		*headP = 0;
-	}
-
-
-
-
-
 	delete[] vertData;
 
 }
@@ -1483,100 +1604,116 @@ void getExtrudeChangeInfo(MPlug& plug)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
 
-	//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
-	message tMessage;
-
-	tMessage.vert.resize(verticies.size());
-
-	for (int i = 0; i < verticies.size(); i++)
+	if (tempT >= *headP)
 	{
-		tMessage.vert[i].norms = XMFLOAT3(normals.at(i).x, normals.at(i).y, normals.at(i).z);
-		tMessage.vert[i].pos = XMFLOAT4(verticies.at(i).x, verticies.at(i).y, verticies.at(i).z, verticies.at(i).w);
-		tMessage.vert[i].uv = XMFLOAT2(UV.at(i).x, UV.at(i).y);
+		distance = unsigned int(tempT - *headP);
+	}
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
 	}
 
-	tMessage.messageType = 7;
 
-
-
-	unsigned int meshCount = nodeNames.length();
-	int meshID = meshCount;
-
-	
-	
-	for (size_t i = 0; i < meshCount; i++)
+	if (10000 < distance || *headP == tempT)
 	{
-		if (nodeNames[i] == meshNode.name())
+
+
+		//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
+		message tMessage;
+
+		tMessage.vert.resize(verticies.size());
+
+		for (int i = 0; i < verticies.size(); i++)
 		{
-			meshID = i;
+			tMessage.vert[i].norms = XMFLOAT3(normals.at(i).x, normals.at(i).y, normals.at(i).z);
+			tMessage.vert[i].pos = XMFLOAT4(verticies.at(i).x, verticies.at(i).y, verticies.at(i).z, verticies.at(i).w);
+			tMessage.vert[i].uv = XMFLOAT2(UV.at(i).x, UV.at(i).y);
 		}
 
+		tMessage.messageType = 7;
+
+
+
+		unsigned int meshCount = nodeNames.length();
+		int meshID = meshCount;
+
+
+
+		for (size_t i = 0; i < meshCount; i++)
+		{
+			if (nodeNames[i] == meshNode.name())
+			{
+				meshID = i;
+			}
+
+		}
+		//MGlobal::displayInfo(MString("ID = " + meshID));
+
+		//Give the mesh an ID
+		tMessage.numMeshes = meshID;
+
+		tMessage.numVerts = verticies.size();
+
+		tMessage.messageSize = 10000;
+		tMessage.padding = 0;
+
+
+		std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(int), &tMessage.messageSize, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int), &tMessage.padding, sizeof(int));
+
+
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+		std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int), &tMessage.numVerts, sizeof(int));
+
+		for (int i = 0; i < verticies.size(); i++)
+		{
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4) + sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+
+		}
+
+		//mesh rotation
+
+		MFnTransform transform(meshNode.parent(0));
+
+		double rotation[4];
+		transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+
+		double scale[3];
+		transform.getScale(scale);
+
+		MVector translation = transform.getTranslation(MSpace::kPostTransform);
+		//Build matrix with xmvectors
+
+
+		XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
+		XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
+		XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
+		XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
+
+
+		DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
+
+		std::memcpy((char*)pBuf + *headP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+
+		////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
+
+
+		*headP += 10000;
+
+
+		if (*headP > *memSize)
+		{
+			*headP = 0;
+		}
+
+
 	}
-	//MGlobal::displayInfo(MString("ID = " + meshID));
-
-	//Give the mesh an ID
-	tMessage.numMeshes = meshID;
-
-	tMessage.numVerts = verticies.size();
-
-	tMessage.messageSize = 100000;
-	tMessage.padding = 0;
-
-
-	std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int), &tMessage.messageSize, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
-
-
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int), &tMessage.numVerts, sizeof(int));
-
-	for (int i = 0; i < verticies.size(); i++)
-	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
-
-	}
-
-	//mesh rotation
-
-	MFnTransform transform(meshNode.parent(0));
-
-	double rotation[4];
-	transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
-
-	double scale[3];
-	transform.getScale(scale);
-
-	MVector translation = transform.getTranslation(MSpace::kPostTransform);
-	//Build matrix with xmvectors
-
-
-	XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
-	XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
-	XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
-	XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
-
-
-	DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
-
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
-
-	////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
-
-	
-	*headP += 100000;
-
-	
-	if (*headP > *memSize)
-	{
-		*headP = 0;
-	}
-
-
-
 	delete[] vertData;
 
 }
@@ -1612,6 +1749,31 @@ void getMaterialInfo(MFnMesh& mesh)
 	MaterialData matD;
 	//BlinnData blinnD;
 	//PhongData phongD;
+
+
+	unsigned int *headP = (unsigned int*)controlBuf;
+	unsigned int *tailP = headP + 1;
+	unsigned int *readerAmount = headP + 2;
+	unsigned int *freeMem = headP + 3;
+	unsigned int *memSize = headP + 4;
+
+	unsigned int tempT = *tailP;
+	unsigned int distance = 0;
+
+	if (tempT >= *headP)
+	{
+		distance = unsigned int(tempT - *headP);
+	}
+	else if (tempT < *headP)
+	{
+		distance = unsigned int((memSize - *headP) + tempT);
+	}
+
+
+	if (10000 < distance || *headP == tempT)
+	{
+
+
 
 	MStatus status;
 
@@ -1661,15 +1823,29 @@ void getMaterialInfo(MFnMesh& mesh)
 
 					}
 
+				}
+
+				//if the material has not been added to the list before it is done so now
+				if (materialID == -1)
+				{
+					tMessage.messageType = 8;
+					materialNames.append(lambertShader.name());
+
+					for (size_t i = 0; i < materialNames.length(); i++)
+
+						if (materialNames[i] == lambertShader.name())
+						{
+							materialID = i;
+
+						}
+
+				}
+
 				//	if (materialID = -1)
 				//	{
 				//		tMessage.messageType = 8;
 				//
 				//	}
-
-
-
-				}
 
 
 				int meshID = -1;
@@ -1681,25 +1857,25 @@ void getMaterialInfo(MFnMesh& mesh)
 
 					}
 
-		
+
 				}
 
 				//Give the material an ID
 				tMessage.numMeshes = materialID;
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
 
 
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
 				//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
-				
+
 				//TEMP MESH ID TRANSFER
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &meshID, sizeof(int));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4), &meshID, sizeof(int));
 
 				//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
 
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+				std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
 
 
 			}
@@ -1751,16 +1927,16 @@ void getMaterialInfo(MFnMesh& mesh)
 				tMessage.numMeshes = materialID;
 
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float), &tMessage.numMeshes, sizeof(int));
 
 
 
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float), &matD.specRolloff, sizeof(float));
 
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+				std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
 
 				MGlobal::displayInfo(MString("Phong!!"));
 			}
@@ -1810,116 +1986,123 @@ void getMaterialInfo(MFnMesh& mesh)
 				tMessage.numMeshes = materialID;
 
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float), &tMessage.numMeshes, sizeof(int));
 
 
 
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
-			
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+				memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float), &matD.specRolloff, sizeof(float));
+
+				std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
 			}
 
-		
-		//look for all the file textures that are upstream from the shader node
-		MItDependencyGraph shaderTextureIter(connections[u].node(), MFn::kFileTexture, MItDependencyGraph::kUpstream,
-			MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel,
-			&status);
-		if (status != MS::kFailure)
-		{
-			shaderTextureIter.disablePruningOnFilter(); //don't prune the iter path for nodes that don't match the filter
 
-			if (!shaderTextureIter.isDone())//did we find any file texture nodes?
+			//look for all the file textures that are upstream from the shader node
+			MItDependencyGraph shaderTextureIter(connections[u].node(), MFn::kFileTexture, MItDependencyGraph::kUpstream,
+				MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel,
+				&status);
+			if (status != MS::kFailure)
 			{
-				MObject textureNode; //current texture node being processed
+				shaderTextureIter.disablePruningOnFilter(); //don't prune the iter path for nodes that don't match the filter
 
-				for (; !shaderTextureIter.isDone(); shaderTextureIter.next())
+				if (!shaderTextureIter.isDone())//did we find any file texture nodes?
 				{
-					textureNode = shaderTextureIter.thisNode(&status);
-					if (status != MS::kFailure)
+					MObject textureNode; //current texture node being processed
+
+					for (; !shaderTextureIter.isDone(); shaderTextureIter.next())
 					{
-						//attach a node function set so we can get attribute info
-						MFnDependencyNode textureNodeFn(textureNode, &status);
+						textureNode = shaderTextureIter.thisNode(&status);
 						if (status != MS::kFailure)
 						{
-							//MPlug attribPlug;
-							//
-							//attribPlug = textureNodeFn.findPlug(MString("fileTextureName"), &status);
-							//int howmany = attribPlug.numChildren();
-							//MString name = attribPlug.name();
-
-
-							MPlug ftnPlug = textureNodeFn.findPlug("ftn");
-							MString fileName;
-							ftnPlug.getValue(fileName);
-							//attribPlug = textureNodeFn.findPlug(MString("imageName"), &status);
-							MGlobal::displayInfo(MString("Texture name is: " + fileName));
-							MGlobal::displayInfo(MString("it somethn"));
-							
-							const char* charname = fileName.asChar();
-
-							int addressMax = sizeof(tMessage.textureAddress);
-
-							if (fileName.length() < addressMax)
+							//attach a node function set so we can get attribute info
+							MFnDependencyNode textureNodeFn(textureNode, &status);
+							if (status != MS::kFailure)
 							{
-								for (int i = 0; i < addressMax; i++)
+								//MPlug attribPlug;
+								//
+								//attribPlug = textureNodeFn.findPlug(MString("fileTextureName"), &status);
+								//int howmany = attribPlug.numChildren();
+								//MString name = attribPlug.name();
+
+
+								MPlug ftnPlug = textureNodeFn.findPlug("ftn");
+								MString fileName;
+								ftnPlug.getValue(fileName);
+								//attribPlug = textureNodeFn.findPlug(MString("imageName"), &status);
+								MGlobal::displayInfo(MString("Texture name is: " + fileName));
+								MGlobal::displayInfo(MString("it somethn"));
+
+								const char* charname = fileName.asChar();
+
+								int addressMax = sizeof(tMessage.textureAddress);
+
+								if (fileName.length() < addressMax)
 								{
-									tMessage.textureAddress[i] = charname[i];
+									for (int i = 0; i < addressMax; i++)
+									{
+										tMessage.textureAddress[i] = charname[i];
+									}
+
 								}
+								else
+									MGlobal::displayInfo(MString("Address contains way many chars."));
 
-							}
-							else
-								MGlobal::displayInfo(MString("Address contains way many chars."));
 
-							
 
-							memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float)+ sizeof(float),&tMessage.textureAddress,(sizeof(char) * 500));
+								memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float), &tMessage.textureAddress, (sizeof(char) * 500));
 
-							
 
-							//if (status != MS::kFailure)
-							//{
-							//	MGlobal::displayInfo(MString("Texture name is: " + textureNodeFn.name()));
-							//	MGlobal::displayInfo(MString("nice"));
-							//
-							//
-							//	//cout << "Texture name: " << textureNodeFn.name().asChar() << endl;
-							//
-							//}//end if, got file name plug
 
-						}//end if, made fn set
+								//if (status != MS::kFailure)
+								//{
+								//	MGlobal::displayInfo(MString("Texture name is: " + textureNodeFn.name()));
+								//	MGlobal::displayInfo(MString("nice"));
+								//
+								//
+								//	//cout << "Texture name: " << textureNodeFn.name().asChar() << endl;
+								//
+								//}//end if, got file name plug
 
-					}//end if, made texture object
+							}//end if, made fn set
 
-				}//end for, texture iter
+						}//end if, made texture object
 
-			}//end if, have textures
+					}//end for, texture iter
 
-		}//end if, made texture iter
+				}//end if, have textures
 
-}
-	
+			}//end if, made texture iter
 
+		}
+
+
+		*headP += 10000;
+
+
+		if (*headP > *memSize)
+		{
+			*headP = 0;
+		}
 
 		/*if (connections.length() > 0)
 		{
-			MObject src = connections[0];
+		MObject src = connections[0];
 
-			if (src.hasFn(MFn::kFileTexture))
-			{
+		if (src.hasFn(MFn::kFileTexture))
+		{
 
-				MFnDependencyNode fnFile(src);
-				MPlug ftnPlug = fnFile.findPlug(TEXTURE_NAME, &status);
-				if (status = MS::kSuccess)
-				{
-					MString fileTextureName;
-					ftnPlug.getValue(fileTextureName);
-				}
-			}
+		MFnDependencyNode fnFile(src);
+		MPlug ftnPlug = fnFile.findPlug(TEXTURE_NAME, &status);
+		if (status = MS::kSuccess)
+		{
+		MString fileTextureName;
+		ftnPlug.getValue(fileTextureName);
+		}
+		}
 		}*/
-
+	}
 
 	}
 
@@ -1930,67 +2113,124 @@ void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, 
 {
 	MGlobal::displayInfo(MString("LAMBERT HAS CHANGED..."));
 	MGlobal::displayInfo(MString("ayo"));
-	
 	if (msg & MNodeMessage::kAttributeSet)
 	{
-		//meshNames.append(mesh.name());
-		MFnLambertShader lambertShader;
-		
-		MColor color;
-		XMFLOAT4 col;
-	
-		if (plug.node().hasFn(MFn::kLambert))
+		unsigned int *headP = (unsigned int*)controlBuf;
+		unsigned int *tailP = headP + 1;
+		unsigned int *readerAmount = headP + 2;
+		unsigned int *freeMem = headP + 3;
+		unsigned int *memSize = headP + 4;
+
+		unsigned int tempT = *tailP;
+		unsigned int distance = 0;
+
+		if (tempT >= *headP)
 		{
-			lambertShader.setObject(plug.node());
-			MGlobal::displayInfo(lambertShader.name());
-			color = lambertShader.color();
-			col.x = color.r;
-			col.y = color.g;
-			col.z = color.b;
-			col.w = color.a;
-			
+			distance = unsigned int(tempT - *headP);
 		}
-		
-
-
-		
-		tMessage.messageType = 4;
-
-		int materialID = -1;
-		for (size_t i = 0; i < materialNames.length(); i++)
+		else if (tempT < *headP)
 		{
-			if (materialNames[i] == lambertShader.name())
+			distance = unsigned int((memSize - *headP) + tempT);
+		}
+
+
+		if (10000 < distance || *headP == tempT)
+		{
+
+
+			//meshNames.append(mesh.name());
+			MFnLambertShader lambertShader;
+
+			MColor color;
+			XMFLOAT4 col;
+
+			if (plug.node().hasFn(MFn::kLambert))
 			{
-				materialID = i;
+				lambertShader.setObject(plug.node());
+				MGlobal::displayInfo(lambertShader.name());
+				color = lambertShader.color();
+				col.x = color.r;
+				col.y = color.g;
+				col.z = color.b;
+				col.w = color.a;
 
 			}
-		
+			/*bool exists = false;
+			for (size_t i = 0; i < materialNames.length(); i++)
+			{
+			if (materialNames[i] == lambertShader.name())
+			{
+			exists = true;
+			}
 
+			if (exists == false)
+			{
+			materialNames.append(lambertShader.name());
+			}
+			}*/
+
+
+			//materialNames.append(lambertShader.name());
+
+			tMessage.messageType = 4;
+
+			int materialID = -1;
+			for (size_t i = 0; i < materialNames.length(); i++)
+			{
+				MGlobal::displayInfo("lambertshadername: " + lambertShader.name() + " and current materialname: " + materialNames[i]);
+
+
+				if (materialNames[i] == lambertShader.name())
+				{
+					materialID = i;
+
+				}
+
+			}
+
+
+
+			if (materialID == -1)
+			{
+				tMessage.messageType = 8;
+				materialNames.append(lambertShader.name());
+
+				for (size_t i = 0; i < materialNames.length(); i++)
+
+					if (materialNames[i] == lambertShader.name())
+					{
+						materialID = i;
+
+					}
+
+			}
+
+
+
+			//Give the mesh an ID
+			tMessage.numMeshes = materialID;
+
+			//Send ID
+			std::memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+
+
+
+			memcpy((char*)pBuf + *headP + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4), &col, sizeof(XMFLOAT4));
+
+
+			std::memcpy((char*)pBuf + *headP, &tMessage.messageType, sizeof(int));
+
+			int po = 0;
+
+			*headP += 10000;
+
+
+			if (*headP > *memSize)
+			{
+				*headP = 0;
+			}
 
 		}
-
-		if (materialID == -1)
-		{
-			tMessage.messageType = 8;
-		}
-
-
-
-		//Give the mesh an ID
-		tMessage.numMeshes = materialID;
-
-		//Send ID
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
-
-
-
-		memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &col, sizeof(XMFLOAT4));
-		
-
-		std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-
-		int po = 0;
-
 		}
 	}
 	

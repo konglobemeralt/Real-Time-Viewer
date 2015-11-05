@@ -238,8 +238,7 @@ bool realTimeViewer::RenderGraphics()
 			//Put the model vertex and index buffers on the graphics pipeline to prepare for drawing.
 			int matID = modelVector.at(i).getMatID();
 			
-			int matID = 0;
-
+			
 			materialVector.at(matID).LoadTexture(m_Direct3D->GetDevice());
 			
 
@@ -291,10 +290,10 @@ void realTimeViewer::update()
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
-	//if (*tailP != *headP)
-	//{
+	if (*tailP != *headP)
+	{
 
-		memcpy(&messageType, (char*)pBuf, sizeof(int));
+		memcpy(&messageType, (char*)pBuf + *tailP, sizeof(int));
 
 
 
@@ -311,7 +310,7 @@ void realTimeViewer::update()
 		{
 
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + *tailP + (sizeof(int) * 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 
 			if (modelID > modelVector.size())
@@ -331,10 +330,10 @@ void realTimeViewer::update()
 		if (messageType == 2)
 		{
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + *tailP + (sizeof(int) * 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 			XMFLOAT4X4 tempMatrix;
-			memcpy(&tempMatrix, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
+			memcpy(&tempMatrix, (char*)pBuf + *tailP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
 
 
 			if (modelID > 0)
@@ -359,9 +358,9 @@ void realTimeViewer::update()
 			//ModelID
 
 			//for matID we use nummeshes from the mayaplugin since that one is not used for other things
-			memcpy(&matID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
+			memcpy(&matID, (char*)pBuf + *tailP + (sizeof(int) * 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float), sizeof(int));
 
-			memcpy(&modelID, (char*)pBuf + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(char) * 500), sizeof(float));
+			memcpy(&modelID, (char*)pBuf + *tailP + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(char) * 500), sizeof(float));
 
 			if (matID != -1)
 			{
@@ -392,7 +391,7 @@ void realTimeViewer::update()
 		if (messageType == 5)
 		{
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + *tailP + (sizeof(int) * 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 
 			if (modelID > 0)
@@ -408,7 +407,7 @@ void realTimeViewer::update()
 		if (messageType == 6)
 		{
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + *tailP + (sizeof(int) * 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 
 			if (modelID > 0)
@@ -431,7 +430,7 @@ void realTimeViewer::update()
 
 		
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + *tailP + (sizeof(int) * 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 
 
@@ -471,7 +470,7 @@ unsigned int tempH = *headP;
 
 		if (*tailP < *memSize) // read == *readerAmount) &&
 		{
-			*tailP += 100000;
+			*tailP += 10000;
 			//*readP = 1;
 		}
 		if (*tailP >= *memSize) //(read == *readerAmount) &&
@@ -480,7 +479,7 @@ unsigned int tempH = *headP;
 		}
 
 
-	//}
+	}
 
 	
 

@@ -137,8 +137,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 	
 	
 
-	/*if (*tailPtr != *headPtr)
-	{*/
+	
 
 		// Create the vertex array.
 
@@ -148,79 +147,79 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 
 
 
+		
 
-
-
+		
 
 		//ModelID
 		//memcpy(&m_modelID, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
 		//vertCount
-		memcpy(&m_vertexCount, (char*)pBuf + *tailPtr + (sizeof(int) * 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), sizeof(int));
+		memcpy(&m_vertexCount, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
-		//memcpy(&m_vertexCount, (char*)pBuf + (sizeof(int) *4), sizeof(int));
-
-
-		vertices = new VertexType[m_vertexCount];
-		if (!vertices)
-		{
-			return false;
-		}
+			//memcpy(&m_vertexCount, (char*)pBuf + (sizeof(int) *4), sizeof(int));
 
 
-		m_indexCount = m_vertexCount;
-		// Create the index array.
-		indices = new unsigned long[m_indexCount];
-		if (!indices)
-		{
-			return false;
-		}
+			vertices = new VertexType[m_vertexCount];
+			if (!vertices)
+			{
+				return false;
+			}
 
 
-		struct VertexData
-		{
-			XMFLOAT4 pos;
-			XMFLOAT2 uv;
-			XMFLOAT3 norms;
-		};
+			m_indexCount = m_vertexCount;
+			// Create the index array.
+			indices = new unsigned long[m_indexCount];
+			if (!indices)
+			{
+				return false;
+			}
 
-		char* tempBuf = (char*)pBuf;
+			
+			struct VertexData
+			{
+				XMFLOAT4 pos;
+				XMFLOAT2 uv;
+				XMFLOAT3 norms;
+			};
 
-		memcpy(&m_worldMatrix, (char*)pBuf + *tailPtr + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
+			char* tempBuf = (char*)pBuf;
 
-		tempBuf += *tailPtr + (sizeof(int) * 5) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500);
+			memcpy(&m_worldMatrix, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
 
-		// Load the vertex array and index array with data.
-		for (i = 0; i < m_vertexCount; i++)
-		{
-			indices[i] = i;
-			memcpy(&vertices[i].position, (char*)tempBuf + (sizeof(VertexData)*i), sizeof(XMFLOAT4));
-			memcpy(&vertices[i].texture, (char*)tempBuf + (sizeof(VertexData)*i) + sizeof(XMFLOAT4), sizeof(XMFLOAT2));
-			memcpy(&vertices[i].normal, (char*)tempBuf + (sizeof(VertexData)*i) + sizeof(XMFLOAT4) + sizeof(XMFLOAT2), sizeof(XMFLOAT3));
+			tempBuf += (sizeof(int)* 5) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500);
 
-			//usedSpace += sizeof(XMFLOAT4)+sizeof(XMFLOAT2)+sizeof(XMFLOAT3);
+			// Load the vertex array and index array with data.
+			for (i = 0; i < m_vertexCount; i++)
+			{
+				indices[i] = i;
+				memcpy(&vertices[i].position, (char*)tempBuf  + (sizeof(VertexData)*i), sizeof(XMFLOAT4));
+				memcpy(&vertices[i].texture, (char*)tempBuf  + (sizeof(VertexData)*i) + sizeof(XMFLOAT4), sizeof(XMFLOAT2));
+				memcpy(&vertices[i].normal, (char*)tempBuf  + (sizeof(VertexData)*i) + sizeof(XMFLOAT4)+sizeof(XMFLOAT2), sizeof(XMFLOAT3));
 
-		}
+				//usedSpace += sizeof(XMFLOAT4)+sizeof(XMFLOAT2)+sizeof(XMFLOAT3);
 
-
-
-
-		//unsigned int tempH = *headPtr;
-
-		//if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
-		//{
-		//	*tailPtr += 100000;
-		//	*readPtr = 1;
-		//}
-		//if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
-		//{
-		//	*tailPtr = 0;
-		//}
+			}
 
 
+			
 
-		//	fileMap.closeFileMap();
+			unsigned int tempH = *headPtr;
+
+			if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
+			{
+				*tailPtr += 100000;
+				*readPtr = 1;
+			}
+			if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
+			{
+				*tailPtr = 0;
+			}
+
+
+
+			//	fileMap.closeFileMap();
 		//	m_vertexCount = 3;
-		// Load the vertex array with data.
+			// Load the vertex array with data.
 		//	vertices[0].position = XMFLOAT4(-1.0f, -1.0f, 0.0f, 0.0f);  // Bottom left.
 		//	vertices[0].texture = XMFLOAT2(0.0f, 1.0f);
 		//
@@ -229,81 +228,81 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 		//
 		//	vertices[2].position = XMFLOAT4(1.0f, -1.0f, 0.0f, 0.0f);  // Bottom right.
 		//	vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
+			
+			// Set up the description of the static vertex buffer.
+			// vertex Buffer
+			vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_vertexCount;
+			vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			vertexBufferDesc.CPUAccessFlags = 0;
+			vertexBufferDesc.MiscFlags = 0;
+			vertexBufferDesc.StructureByteStride = 0;
 
-		// Set up the description of the static vertex buffer.
-		// vertex Buffer
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(VertexType)* m_vertexCount;
-		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
-		vertexBufferDesc.MiscFlags = 0;
-		vertexBufferDesc.StructureByteStride = 0;
+			// Give the subresource structure a pointer to the vertex data.
+			vertexData.pSysMem = vertices;
+			vertexData.SysMemPitch = 0;
+			vertexData.SysMemSlicePitch = 0;
 
-		// Give the subresource structure a pointer to the vertex data.
-		vertexData.pSysMem = vertices;
-		vertexData.SysMemPitch = 0;
-		vertexData.SysMemSlicePitch = 0;
+			// Now create the vertex buffer.
+			result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_pVertexBuffer);
+			if (FAILED(result))
+			{
+				return false;
+			}
 
-		// Now create the vertex buffer.
-		result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_pVertexBuffer);
-		if (FAILED(result))
-		{
-			return false;
-		}
+			// Set up the description of the static index buffer.
+			indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			indexBufferDesc.ByteWidth = sizeof(unsigned long)* m_indexCount;
+			indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			indexBufferDesc.CPUAccessFlags = 0;
+			indexBufferDesc.MiscFlags = 0;
+			indexBufferDesc.StructureByteStride = 0;
 
-		// Set up the description of the static index buffer.
-		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof(unsigned long)* m_indexCount;
-		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		indexBufferDesc.CPUAccessFlags = 0;
-		indexBufferDesc.MiscFlags = 0;
-		indexBufferDesc.StructureByteStride = 0;
+			// Give the subresource structure a pointer to the index data.
+			indexData.pSysMem = indices;
+			indexData.SysMemPitch = 0;
+			indexData.SysMemSlicePitch = 0;
 
-		// Give the subresource structure a pointer to the index data.
-		indexData.pSysMem = indices;
-		indexData.SysMemPitch = 0;
-		indexData.SysMemSlicePitch = 0;
+			// Create the index buffer.
+			result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_pIndexBuffer);
+			if (FAILED(result))
+			{
+				return false;
+			}
 
-		// Create the index buffer.
-		result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_pIndexBuffer);
-		if (FAILED(result))
-		{
-			return false;
-		}
+			// Release the arrays now that the vertex and index buffers have been created and loaded.
+			delete[] vertices;
+			vertices = 0;
 
-		// Release the arrays now that the vertex and index buffers have been created and loaded.
-		delete[] vertices;
-		vertices = 0;
+			delete[] indices;
+			indices = 0;
 
-		delete[] indices;
-		indices = 0;
-
-		//updateMaterial(cBuf, pBuf);
+			//updateMaterial(cBuf, pBuf);
 
 		//MOVE HEADER TAIL STUFF TO RTV update:
 
-		//	if (messageType == 2)
-		//	{
-		//
-		//
-		//		memcpy(&m_worldMatrix, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
-		//
-		//
-		//		unsigned int tempH = *headPtr;
-		//
-		//		if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
-		//		{
-		//			*tailPtr += 100000;
-		//			*readPtr = 1;
-		//		}
-		//		if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
-		//		{
-		//			*tailPtr = 0;
-		//		}
-		//	}
+	//	if (messageType == 2)
+	//	{
+	//
+	//
+	//		memcpy(&m_worldMatrix, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
+	//
+	//
+	//		unsigned int tempH = *headPtr;
+	//
+	//		if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
+	//		{
+	//			*tailPtr += 100000;
+	//			*readPtr = 1;
+	//		}
+	//		if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
+	//		{
+	//			*tailPtr = 0;
+	//		}
+	//	}
 
 
-//	}
+	
 
 	return true;
 }

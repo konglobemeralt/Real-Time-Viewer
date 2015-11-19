@@ -255,6 +255,8 @@ bool realTimeViewer::RenderGraphics()
 				XMFLOAT3(m_Light->GetPosition().x, m_Light->GetPosition().y, m_Light->GetPosition().z),
 				m_Light->GetDiffuseColor());
 
+			materialVector.at(matID).ReleaseTexture();
+
 			if (!result)
 			{
 				return false;

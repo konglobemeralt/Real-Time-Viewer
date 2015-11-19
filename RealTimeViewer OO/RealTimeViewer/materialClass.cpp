@@ -20,7 +20,7 @@ MaterialClass::MaterialClass()
 MaterialClass::~MaterialClass()
 {
 	
-	//ReleaseTexture();
+	ReleaseTexture();
 }
 
 

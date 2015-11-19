@@ -369,7 +369,7 @@ void realTimeViewer::update()
 
 				if (matID > 0)
 				{
-					materialVector.at(matID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+					materialVector.at(matID-1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 					
 				}
 					
@@ -380,6 +380,25 @@ void realTimeViewer::update()
 
 				}
 					
+			}
+
+
+			if (modelID != -1)
+			{
+
+				if (matID > 0)
+				{
+					modelVector.at(modelID - 1).setMaterialID(matID);
+
+				}
+
+				else
+				{
+					modelVector.at(modelID).setMaterialID(matID);
+
+
+				}
+
 			}
 
 			

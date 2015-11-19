@@ -1675,7 +1675,7 @@ void getMaterialInfo(MFnMesh& mesh)
 				int meshID = -1;
 				for (size_t i = 0; i < nodeNames.length(); i++)
 				{
-					if (materialNames[i] == mesh.name())
+					if (nodeNames[i] == mesh.name())
 					{
 						meshID = i;
 
@@ -1740,7 +1740,7 @@ void getMaterialInfo(MFnMesh& mesh)
 					}
 					if (materialID = -1)
 					{
-						tMessage.messageType = 8;
+						tMessage.messageType = 4;
 
 					}
 
@@ -1799,7 +1799,7 @@ void getMaterialInfo(MFnMesh& mesh)
 					}
 					if (materialID = -1)
 					{
-						tMessage.messageType = 8;
+						tMessage.messageType = 4;
 
 					}
 
@@ -1972,6 +1972,7 @@ void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, 
 		if (materialID == -1)
 		{
 			tMessage.messageType = 8;
+			MGlobal::displayInfo(MString("NEW LAMBERT!"));
 		}
 
 

@@ -1592,13 +1592,6 @@ void shaderChangedCallback(MObject &node, void* clientData)
 	
 	
 
-	//SEND NEW MATERIAL, MESSAGE TYPE 8, but how
-
-
-	//Do things
-	//MFnMesh mesh(node);
-	//getMaterialInfo(mesh);
-
 }
 
 void getMaterialInfo(MFnMesh& mesh)
@@ -1661,11 +1654,11 @@ void getMaterialInfo(MFnMesh& mesh)
 
 					}
 
-				//	if (materialID = -1)
-				//	{
-				//		tMessage.messageType = 8;
-				//
-				//	}
+					if (materialID = -1)
+					{
+						tMessage.messageType = 8;
+				
+					}
 
 
 

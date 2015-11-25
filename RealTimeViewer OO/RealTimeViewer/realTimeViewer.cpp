@@ -362,7 +362,7 @@ void realTimeViewer::update()
 			//for matID we use nummeshes from the mayaplugin since that one is not used for other things
 			memcpy(&matID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
 
-			memcpy(&modelID, (char*)pBuf + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(char) * 500), sizeof(float));
+			memcpy(&modelID, (char*)pBuf + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4), sizeof(int));
 
 			if (matID != -1)
 			{
@@ -470,15 +470,17 @@ void realTimeViewer::update()
 		//New MAterial
 		if (messageType == 8)
 		{
+			int matID = 0;
+			memcpy(&matID, (char*)pBuf + (sizeof(int) * 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float), sizeof(int));
 
-			if (modelID > modelVector.size())
+			if (matID > materialVector.size())
 			{
 				m_material.updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 				materialVector.push_back(m_material);
 
 			}
 
-			modelID = -1;
+			matID = -1;
 
 		}
 

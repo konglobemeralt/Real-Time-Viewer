@@ -238,8 +238,7 @@ bool realTimeViewer::RenderGraphics()
 			//Put the model vertex and index buffers on the graphics pipeline to prepare for drawing.
 			int matID = modelVector.at(i).getMatID();
 			
-			int matID = 0;
-
+			
 			materialVector.at(matID).LoadTexture(m_Direct3D->GetDevice());
 			
 

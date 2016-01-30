@@ -374,15 +374,17 @@ void realTimeViewer::update()
 				else
 				{
 					materialVector.at(matID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-					
+				
 
 				}
+
+				modelID = -1;
 					
 			}
 
 			
 
-			modelID = -1;
+			
 		}
 
 

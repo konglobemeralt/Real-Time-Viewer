@@ -165,7 +165,7 @@ void* controlBuf;
 int usedSpace = 0;
 
 
-#define BUF_SIZE 1024*1024*100
+#define BUF_SIZE 1024*1024
 TCHAR globName[] = TEXT("Global\\testMap");
 TCHAR globName2[] = TEXT("Global\\controlFileMap");
 //TCHAR globName[] = TEXT("testMap");
@@ -520,9 +520,9 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 
 				tMessage.messageType = 2;
 			
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+				std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
 
-				std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+				std::memcpy((char*)pBuf + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
 
 				
 				int meshCount = nodeNames.length();
@@ -547,12 +547,10 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 				tMessage.numMeshes = meshID;
 
 				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float)+ (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)pBuf + sizeof(XMFLOAT4X4)+sizeof(int), &tMessage.numMeshes, sizeof(int));
 
 
-
-
-				*headP += 100000;
+				*headP += 10000;
 
 
 

@@ -330,10 +330,10 @@ void realTimeViewer::update()
 		if (messageType == 2)
 		{
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + sizeof(XMFLOAT4X4)+sizeof(int), sizeof(int));
 
 			XMFLOAT4X4 tempMatrix;
-			memcpy(&tempMatrix, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(DirectX::XMFLOAT4X4)), sizeof(DirectX::XMFLOAT4X4));
+			memcpy(&tempMatrix, (char*)pBuf + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 
 			if (modelID > 0)

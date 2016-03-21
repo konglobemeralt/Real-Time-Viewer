@@ -972,11 +972,11 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 
 	std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &viewMatrix, sizeof(XMFLOAT4X4));
+	std::memcpy((char*)pBuf + sizeof(int), &viewMatrix, sizeof(XMFLOAT4X4));
 	
 
 
-			*headP += 100000;
+			*headP += 10000;
 
 			if (*headP > *memSize)
 			{
@@ -1060,7 +1060,7 @@ void lightAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
 		memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
 
-		*headP += 100000;
+		*headP += 10000;
 
 		if (*headP > *memSize)
 		{
@@ -1259,9 +1259,9 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 	MGlobal::displayInfo(MString("ID = " + destroyMesh));
 	//destroyMesh = -1;
 
-	std::memcpy((char*)pBuf + usedSpace, &messageType, sizeof(int));
+	std::memcpy((char*)pBuf, &messageType, sizeof(int));
 	//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float) + sizeof(float) + (sizeof(char) * 500), &destroyMesh, sizeof(int));
+	std::memcpy((char*)pBuf + sizeof(int), &destroyMesh, sizeof(int));
 
 
 
@@ -1361,23 +1361,23 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 
 	tMessage.numVerts = verticies.size();
 
-	tMessage.messageSize = 100000;
+	tMessage.messageSize = 10000;
 	tMessage.padding = 0;
 
 
-	std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int), &tMessage.messageSize, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
+	std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
+	std::memcpy((char*)pBuf + sizeof(int), &tMessage.messageSize, sizeof(int));
 
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500) +sizeof(int), &tMessage.numVerts, sizeof(int));
+
+	std::memcpy((char*)pBuf + sizeof(int)+sizeof(int), &tMessage.numMeshes, sizeof(int));
+	std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int), &tMessage.numVerts, sizeof(int));
 
 	for (int i = 0; i < verticies.size(); i++)
 	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+		std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+		std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+		std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 	}
 
@@ -1408,7 +1408,7 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	
 	
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+	std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
 
 
 
@@ -1417,7 +1417,7 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 
 
 
-	*headP += 100000;
+	*headP += 10000;
 
 
 
@@ -1520,23 +1520,23 @@ void getExtrudeChangeInfo(MPlug& plug)
 
 	tMessage.numVerts = verticies.size();
 
-	tMessage.messageSize = 100000;
+	tMessage.messageSize = 10000;
 	tMessage.padding = 0;
 
 
-	std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int), &tMessage.messageSize, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int), &tMessage.padding, sizeof(int));
+	std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
+	std::memcpy((char*)pBuf + sizeof(int), &tMessage.messageSize, sizeof(int));
 
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
-	std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int), &tMessage.numVerts, sizeof(int));
+
+	std::memcpy((char*)pBuf + sizeof(int)+sizeof(int), &tMessage.numMeshes, sizeof(int));
+	std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int), &tMessage.numVerts, sizeof(int));
 
 	for (int i = 0; i < verticies.size(); i++)
 	{
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+		std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+		std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+		std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+(sizeof(VertexData)*i) + sizeof(XMFLOAT4)+sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 	}
 
@@ -1562,12 +1562,12 @@ void getExtrudeChangeInfo(MPlug& plug)
 
 	DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
 
-	std::memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4X4), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+	std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
 
 	////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
 	
-	*headP += 100000;
+	*headP += 10000;
 
 	
 	if (*headP > *memSize)

@@ -310,7 +310,7 @@ void realTimeViewer::update()
 		{
 
 			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
+			memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
 
 
 			if (modelID > modelVector.size())

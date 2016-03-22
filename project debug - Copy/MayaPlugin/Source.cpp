@@ -1910,6 +1910,13 @@ void shaderChangedCallback(MObject &node, void* clientData)
 void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &plug2, void *clientData)
 {
 
+
+	unsigned int *headP = (unsigned int*)controlBuf;
+	unsigned int *tailP = headP + 1;
+	unsigned int *readerAmount = headP + 2;
+	unsigned int *freeMem = headP + 3;
+	unsigned int *memSize = headP + 4;
+
 	MaterialData matD;
 
 	if ((msg & MNodeMessage::kAttributeSet) || msg & MNodeMessage::kConnectionMade)
@@ -2000,9 +2007,11 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 				//hasTexture
 				std::memcpy((char*)pBuf + sizeof(int)+sizeof(int), &texExist, sizeof(int));
 
-				if (texExist == 1)
+				if (texExist == 1 && pathSize != 0)
 				{
-
+					std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), &pathSize, sizeof(int));
+					//const char* charname = filename.asChar();
+					std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), filename.asChar(), sizeof(char)*(pathSize + 1));
 
 				}
 
@@ -2022,10 +2031,27 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 			}
 		}
 	}
+
+	*headP += 10000;
+
+
+	if (*headP > *memSize)
+	{
+		*headP = 0;
+	}
+
 }
 	
 void matChanged(MFnMesh& mesh)
 {
+
+	unsigned int *headP = (unsigned int*)controlBuf;
+	unsigned int *tailP = headP + 1;
+	unsigned int *readerAmount = headP + 2;
+	unsigned int *freeMem = headP + 3;
+	unsigned int *memSize = headP + 4;
+
+
 	// MATERIAL:
 	unsigned int instanceNumber = 0;
 	MObjectArray shaders;
@@ -2181,6 +2207,14 @@ void matChanged(MFnMesh& mesh)
 	//			break;
 	//		}
 	//	} while (sm.cb->freeMem >!slotSize);
+	}
+
+	*headP += 10000;
+
+
+	if (*headP > *memSize)
+	{
+		*headP = 0;
 	}
 }
 

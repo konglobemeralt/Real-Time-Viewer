@@ -28,6 +28,15 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 {
 
 
+
+	//Control Buffer
+	unsigned int* headPtr = (unsigned int*)cBuf;
+	unsigned int* tailPtr = headPtr + 1;
+	unsigned int* readPtr = headPtr + 2;
+	unsigned int* freeMemPtr = headPtr + 3;
+	unsigned int* memSizePtr = headPtr + 4;
+
+
 	int usedSpace = 0;
 	
 	memcpy(&m_matColor, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int), sizeof(DirectX::XMFLOAT4));
@@ -35,8 +44,33 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 //memcpy(&m_matReflectivity, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), sizeof(float));
 //memcpy(&m_matSpecRolloff, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(float), sizeof(float));
 
-	//delete[]m_texturePath;
-	//memcpy(&m_texturePath, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char)* 500));
+	int textureChech = 0;
+	memcpy(&textureChech, (char*)pBuf + sizeof(int)+sizeof(int), sizeof(int));
+	
+	if (textureChech == 1)
+	{
+		ReleaseTexture();
+		int TextPathSize = 0;
+		memcpy(&TextPathSize, (char*)pBuf +sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(int));
+		//delete[]m_texturePath;
+		
+	//char* tempText = (char *)malloc(sizeof(char)* (TextPathSize+1));
+	//memcpy(&tempText, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(char)*(TextPathSize + 1));
+		m_texturePath = L"alpha.dds";
+		m_diffuseTexturePath = L"alpha.dds";
+	}
+	
+	unsigned int tempH = *headPtr;
+
+	if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
+	{
+		*tailPtr += 10000;
+		*readPtr = 1;
+	}
+	if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
+	{
+		*tailPtr = 0;
+	}
 
 	return true;
 }

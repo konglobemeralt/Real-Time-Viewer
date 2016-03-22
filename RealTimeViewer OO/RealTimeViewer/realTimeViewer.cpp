@@ -238,8 +238,16 @@ bool realTimeViewer::RenderGraphics()
 			//Put the model vertex and index buffers on the graphics pipeline to prepare for drawing.
 			int matID = modelVector.at(i).getMatID();
 			
+			if (matID > 0)
+			{
+
+				materialVector.at(matID - 1).LoadTexture(m_Direct3D->GetDevice());
+			}
+			else
+			{
+				materialVector.at(0).LoadTexture(m_Direct3D->GetDevice());
+			}
 			
-			materialVector.at(matID).LoadTexture(m_Direct3D->GetDevice());
 			
 
 			result = m_ShaderShader->Render(m_Direct3D->GetDeviceContext(),
@@ -365,12 +373,14 @@ void realTimeViewer::update()
 
 				if (matID > 0)
 				{
+					
 					materialVector.at(matID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 					
 				}
 					
 				else
 				{
+					
 					materialVector.at(matID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 				
 
@@ -447,20 +457,20 @@ void realTimeViewer::update()
 		}
 
 
-		//New MAterial
-		if (messageType == 8)
-		{
-
-			if (modelID > modelVector.size())
-			{
-				m_material.updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-				materialVector.push_back(m_material);
-
-			}
-
-			modelID = -1;
-
-		}
+	//	//New MAterial
+	//	if (messageType == 8)
+	//	{
+	//
+	//		if (modelID > modelVector.size())
+	//		{
+	//			m_material.updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//			materialVector.push_back(m_material);
+	//
+	//		}
+	//
+	//		modelID = -1;
+	//
+	//	}
 
 
 

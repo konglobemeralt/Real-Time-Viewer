@@ -47,18 +47,18 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 	int textureChech = 0;
 	memcpy(&textureChech, (char*)pBuf + sizeof(int)+sizeof(int), sizeof(int));
 	
-	if (textureChech == 1)
-	{
-		ReleaseTexture();
-		int TextPathSize = 0;
-		memcpy(&TextPathSize, (char*)pBuf +sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(int));
-		//delete[]m_texturePath;
+	//if (textureChech == 1)
+	//{
+	//	ReleaseTexture();
+	//	int TextPathSize = 0;
+	//	memcpy(&TextPathSize, (char*)pBuf +sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(int));
+	//	//delete[]m_texturePath;
 		
 	//char* tempText = (char *)malloc(sizeof(char)* (TextPathSize+1));
 	//memcpy(&tempText, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(char)*(TextPathSize + 1));
-		m_texturePath = L"alpha.dds";
-		m_diffuseTexturePath = L"alpha.dds";
-	}
+	//	m_texturePath = L"alpha.dds";
+	//	m_diffuseTexturePath = L"alpha.dds";
+	//}
 	
 	unsigned int tempH = *headPtr;
 

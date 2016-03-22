@@ -395,7 +395,7 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 	else if (strstr(plug.partialName().asChar(), "iog"))
 	{
 		MFnMesh mesh(plug.node());
-		//getMaterialInfo(mesh);
+		matChanged(mesh);
 	}
 
 
@@ -2026,24 +2026,26 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 				std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int), &matD.color, sizeof(DirectX::XMFLOAT4));
 
 
+				*headP += 10000;
 
+
+				if (*headP > *memSize)
+				{
+					*headP = 0;
+				}
 
 			}
 		}
 	}
 
-	*headP += 10000;
-
-
-	if (*headP > *memSize)
-	{
-		*headP = 0;
-	}
+	
 
 }
 	
 void matChanged(MFnMesh& mesh)
 {
+
+	MaterialData matD;
 
 	unsigned int *headP = (unsigned int*)controlBuf;
 	unsigned int *tailP = headP + 1;
@@ -2151,71 +2153,118 @@ void matChanged(MFnMesh& mesh)
 			texExist = 1;
 		}
 
-	//	// Send data to shared memory
-	//	do
-	//	{
-	//		if (sm.cb->freeMem >= slotSize/* && sm.cb->head < sm.memSize - sm.cb->freeMem*/)
-	//		{
-	//			// Sets head to 0 if there are no place to write
-	//			if (sm.cb->head == sm.memSize)
-	//				sm.cb->head = 0;
-	//
-	//			localHead = sm.cb->head;
-	//
-	//			// Message header
-	//			sm.msgHeader.type = TMaterialUpdate;
-	//			if (texExist == 0)
-	//			{
-	//				sm.msgHeader.byteSize = sm.msgHeaderSize + sizeof(MColor)+sizeof(int)+sizeof(int);
-	//				sm.msgHeader.byteSize += slotSize - sm.msgHeader.byteSize;
-	//			}
-	//			else
-	//			{
-	//				sm.msgHeader.byteSize = sm.msgHeaderSize + sizeof(MColor)+sizeof(int)+sizeof(int)+pathSize + sizeof(int);
-	//				sm.msgHeader.byteSize += slotSize - sm.msgHeader.byteSize;
-	//			}
-	//			memcpy((char*)sm.buffer + localHead, &sm.msgHeader, sm.msgHeaderSize);
-	//			localHead += sm.msgHeaderSize;
-	//
-	//			// Mesh ID
-	//			memcpy((char*)sm.buffer + localHead, &localMesh, sizeof(int));
-	//			localHead += sizeof(int);
-	//
-	//			// Material data
-	//			memcpy((char*)sm.buffer + localHead, &color, sizeof(MColor));
-	//			localHead += sizeof(MColor);
-	//
-	//			//Bool for Texture
-	//			XMINT4 ha = XMINT4(texExist, 0, 0, 0);
-	//			memcpy((char*)sm.buffer + localHead, &ha.x, sizeof(int));
-	//			localHead += sizeof(int);
-	//
-	//			if (texExist == 1)
-	//			{
-	//				//Texture Size
-	//				memcpy((char*)sm.buffer + localHead, &pathSize, sizeof(int));
-	//				localHead += sizeof(int);
-	//
-	//				//Texture data
-	//				memcpy((char*)sm.buffer + localHead, filename.asChar(), pathSize);
-	//				localHead += pathSize;
-	//			}
-	//
-	//			// Move header
-	//			sm.cb->freeMem -= slotSize;
-	//			sm.cb->head += slotSize;
-	//			break;
-	//		}
-	//	} while (sm.cb->freeMem >!slotSize);
-	}
+		for (int i = 0; i < materialNames.length(); i++)
+		{
+			if (materialNames[i] != shaderPlug.name())
+			{
+				tMessage.messageType = 8;
+				tMessage.messageSize = materialNames.length() + 1;
 
-	*headP += 10000;
+				std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
+				//tempMatID
+				std::memcpy((char*)pBuf + sizeof(int), &localMesh, sizeof(int));
+				//hasTexture
+				std::memcpy((char*)pBuf + sizeof(int)+sizeof(int), &texExist, sizeof(int));
+
+				if (texExist == 1 && pathSize != 0)
+				{
+					std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), &pathSize, sizeof(int));
+					//const char* charname = filename.asChar();
+					std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), filename.asChar(), sizeof(char)*(pathSize + 1));
+
+				}
+
+				matD.color.x = color.r;
+				matD.color.y = color.g;
+				matD.color.z = color.b;
+				matD.color.w = color.a;
 
 
-	if (*headP > *memSize)
-	{
-		*headP = 0;
+				/////////HÄÄÄÄÄÄR 
+
+				std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int), &matD.color, sizeof(DirectX::XMFLOAT4));
+
+
+
+
+				*headP += 10000;
+
+
+				if (*headP > *memSize)
+				{
+					*headP = 0;
+				}
+
+			}
+
+			//	// Send data to shared memory
+			//	do
+			//	{
+			//		if (sm.cb->freeMem >= slotSize/* && sm.cb->head < sm.memSize - sm.cb->freeMem*/)
+			//		{
+			//			// Sets head to 0 if there are no place to write
+			//			if (sm.cb->head == sm.memSize)
+			//				sm.cb->head = 0;
+			//
+			//			localHead = sm.cb->head;
+			//
+			//			// Message header
+			//			sm.msgHeader.type = TMaterialUpdate;
+			//			if (texExist == 0)
+			//			{
+			//				sm.msgHeader.byteSize = sm.msgHeaderSize + sizeof(MColor)+sizeof(int)+sizeof(int);
+			//				sm.msgHeader.byteSize += slotSize - sm.msgHeader.byteSize;
+			//			}
+			//			else
+			//			{
+			//				sm.msgHeader.byteSize = sm.msgHeaderSize + sizeof(MColor)+sizeof(int)+sizeof(int)+pathSize + sizeof(int);
+			//				sm.msgHeader.byteSize += slotSize - sm.msgHeader.byteSize;
+			//			}
+			//			memcpy((char*)sm.buffer + localHead, &sm.msgHeader, sm.msgHeaderSize);
+			//			localHead += sm.msgHeaderSize;
+			//
+			//			// Mesh ID
+			//			memcpy((char*)sm.buffer + localHead, &localMesh, sizeof(int));
+			//			localHead += sizeof(int);
+			//
+			//			// Material data
+			//			memcpy((char*)sm.buffer + localHead, &color, sizeof(MColor));
+			//			localHead += sizeof(MColor);
+			//
+			//			//Bool for Texture
+			//			XMINT4 ha = XMINT4(texExist, 0, 0, 0);
+			//			memcpy((char*)sm.buffer + localHead, &ha.x, sizeof(int));
+			//			localHead += sizeof(int);
+			//
+			//			if (texExist == 1)
+			//			{
+			//				//Texture Size
+			//				memcpy((char*)sm.buffer + localHead, &pathSize, sizeof(int));
+			//				localHead += sizeof(int);
+			//
+			//				//Texture data
+			//				memcpy((char*)sm.buffer + localHead, filename.asChar(), pathSize);
+			//				localHead += pathSize;
+			//			}
+			//
+			//			// Move header
+			//			sm.cb->freeMem -= slotSize;
+			//			sm.cb->head += slotSize;
+			//			break;
+			//		}
+			//	} while (sm.cb->freeMem >!slotSize);
+			//}
+
+			*headP += 10000;
+
+
+			if (*headP > *memSize)
+			{
+				*headP = 0;
+			}
+		}
 	}
 }
+
 
 

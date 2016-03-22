@@ -40,8 +40,9 @@ void timerCB(float elapsedTime, float lastTime, void* clientData);
 
 
 //materials
+void matChanged(MFnMesh& mesh);
 void shaderChangedCallback(MObject &node, void* clientData);
-void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &plug2, void *clientData);
+void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &plug2, void *clientData);
 
 MStringArray nodeNames;
 MStringArray materialNames;
@@ -64,7 +65,7 @@ void getVertexChangeInfo(MFnMesh&);
 void getExtrudeChangeInfo(MPlug&);
 void getLightInfo(MFnLight&);
 
-void getMaterialInfo(MFnMesh&);
+//void getMaterialInfo(MFnMesh&);
 
 void cameraChange(MFnTransform& transform, MFnCamera& camera);
 void lightChange(MFnTransform& transform, MPlug &plug);
@@ -394,7 +395,7 @@ void meshAttributeChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plu
 	else if (strstr(plug.partialName().asChar(), "iog"))
 	{
 		MFnMesh mesh(plug.node());
-		getMaterialInfo(mesh);
+		//getMaterialInfo(mesh);
 	}
 
 
@@ -614,7 +615,7 @@ void goThroughScene()
 		MFnLambertShader lambertShader(itLambert.item());
 
 		
-		CbIds.append(MNodeMessage::addAttributeChangedCallback(lambertShader.object(), shaderAttrChangedCallback));
+		CbIds.append(MNodeMessage::addAttributeChangedCallback(lambertShader.object(), shaderAttrChanged));
 		itLambert.next();
 	}
 
@@ -623,7 +624,7 @@ void goThroughScene()
 	{
 		MFnBlinnShader blinnShader(itBlinn.item());
 
-		CbIds.append(MNodeMessage::addAttributeChangedCallback(blinnShader.object(), shaderAttrChangedCallback));
+		CbIds.append(MNodeMessage::addAttributeChangedCallback(blinnShader.object(), shaderAttrChanged));
 		itBlinn.next();
 	}
 
@@ -631,7 +632,7 @@ void goThroughScene()
 	while (!itPhong.isDone())
 	{
 		MFnPhongShader phongShader(itPhong.item());
-		CbIds.append(MNodeMessage::addAttributeChangedCallback(phongShader.object(), shaderAttrChangedCallback));
+		CbIds.append(MNodeMessage::addAttributeChangedCallback(phongShader.object(), shaderAttrChanged));
 		itPhong.next();
 	}
 
@@ -1219,7 +1220,7 @@ void getLightInfo(MFnLight& lightNode)
 
 
 
-		*headP += 100000;
+		*headP += 10000;
 
 		if (*headP > *memSize)
 		{
@@ -1588,412 +1589,599 @@ void shaderChangedCallback(MObject &node, void* clientData)
 
 	MGlobal::displayInfo(MString("Created?"));
 
-	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, shaderAttrChangedCallback, &res));
 	
-	
-
-	//SEND NEW MATERIAL, MESSAGE TYPE 8, but how
-
-
-	//Do things
-	//MFnMesh mesh(node);
-	//getMaterialInfo(mesh);
+	MFnDependencyNode Shadername(node);
+	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, shaderAttrChanged));
 
 }
 
-void getMaterialInfo(MFnMesh& mesh)
-{
+////void getMaterialInfo(MFnMesh& mesh)
+//{
+//
+//	//RUNS WHEN CONNECTING MATERIAL TO MESH
+//	int instanceNumber = 0;
+//	MObjectArray shaders;
+//	MIntArray indices;
+//
+//	MaterialData matD;
+//	//BlinnData blinnD;
+//	//PhongData phongD;
+//
+//	MStatus status;
+//
+//	const MString TEXTURE_NAME("fileTextureName");
+//
+//
+//	mesh.getConnectedShaders(instanceNumber, shaders, indices);
+//
+//	for (int i = 0; i < shaders.length(); i++)
+//	{
+//		MPlugArray connections;
+//		MFnDependencyNode shaderGroup(shaders[i]);
+//		MPlug shaderPlug = shaderGroup.findPlug("surfaceShader");
+//		shaderPlug.connectedTo(connections, true, false);
+//		for (int u = 0; u < connections.length(); u++)
+//		{
+//			if (connections[u].node().hasFn(MFn::kLambert))
+//			{
+//				MPlugArray plugs;
+//				MFnLambertShader lambertShader(connections[u].node());
+//				lambertShader.findPlug("color").connectedTo(plugs, true, false);
+//
+//				matD.color.x = lambertShader.color().r;
+//				matD.color.y = lambertShader.color().g;
+//				matD.color.z = lambertShader.color().b;
+//				matD.color.w = lambertShader.color().a;
+//
+//				matD.specular.x = -1;
+//				matD.specular.y = -1;
+//				matD.specular.z = -1;
+//				matD.specular.w = -1;
+//
+//				matD.reflectivity = 0;
+//				matD.specRolloff = 0;
+//
+//				MGlobal::displayInfo(MString("LAMBERT!! THERE"));
+//
+//
+//				tMessage.messageType = 4;
+//
+//				int materialID = -1;
+//				for (size_t i = 0; i < materialNames.length(); i++)
+//				{
+//					if (materialNames[i] == lambertShader.name())
+//					{
+//						materialID = i;
+//
+//					}
+//
+//				//	if (materialID = -1)
+//				//	{
+//				//		tMessage.messageType = 8;
+//				//
+//				//	}
+//
+//
+//
+//				}
+//
+//
+//				int meshID = -1;
+//				for (size_t i = 0; i < nodeNames.length(); i++)
+//				{
+//					if (materialNames[i] == mesh.name())
+//					{
+//						meshID = i;
+//
+//					}
+//
+//		
+//				}
+//
+//				//Give the material an ID
+//				tMessage.numMeshes = materialID;
+//				//Send ID
+//				std::memcpy((char*)pBuf + sizeof(int), &tMessage.numMeshes, sizeof(int));
+//
+//
+//				memcpy((char*)pBuf +sizeof(int)+ sizeof(int)+sizeof(int), &matD.color, sizeof(XMFLOAT4));
+//				memcpy((char*)pBuf +sizeof(int)+ sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+//				//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+//				
+//				//TEMP MESH ID TRANSFER
+//				memcpy((char*)pBuf + sizeof(int)+sizeof(int), &meshID, sizeof(int));
+//
+//				//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+//				//message type
+//				std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
+//
+//
+//			}
+//			else if (connections[u].node().hasFn(MFn::kPhong))
+//			{
+//				MPlugArray plugs;
+//				MFnPhongShader phongShader(connections[u].node());
+//				phongShader.findPlug("color").connectedTo(plugs, true, false);
+//
+//				matD.color.x = phongShader.color().r;
+//				matD.color.y = phongShader.color().g;
+//				matD.color.z = phongShader.color().b;
+//				matD.color.w = phongShader.color().a;
+//
+//				matD.specular.x = phongShader.specularColor().r;
+//				matD.specular.y = phongShader.specularColor().g;
+//				matD.specular.z = phongShader.specularColor().b;
+//				matD.specular.w = phongShader.specularColor().a;
+//
+//				matD.reflectivity = phongShader.reflectivity();
+//				matD.specRolloff = 0;
+//
+//				//matD.cosine = phongShader.cosPower();
+//				//Controls the size of shiny highlights on the surface. The valid range is 2 to infinity.
+//				//The slider range is 2 (broad highlight, not very shiny surface) to 100 (small highlight, very shiny surface),
+//				//though you can type in a higher value. The default value is 20. 
+//
+//				tMessage.messageType = 4;
+//
+//
+//				int materialID = -1;
+//				for (size_t i = 0; i < nodeNames.length(); i++)
+//				{
+//					if (materialNames[i] == phongShader.name())
+//					{
+//						materialID = i;
+//
+//					}
+//					if (materialID = -1)
+//					{
+//						tMessage.messageType = 8;
+//
+//					}
+//
+//
+//				}
+//
+//				
+//
+//				MGlobal::displayInfo(MString("Phong!!"));
+//			}
+//
+//			else if (connections[u].node().hasFn(MFn::kBlinn))
+//			{
+//				MPlugArray plugs;
+//				MFnBlinnShader blinnShader(connections[u].node());
+//				blinnShader.findPlug("color").connectedTo(plugs, true, false);
+//
+//				matD.color.x = blinnShader.color().r;
+//				matD.color.y = blinnShader.color().g;
+//				matD.color.z = blinnShader.color().b;
+//				matD.color.w = blinnShader.color().a;
+//
+//				matD.specular.x = blinnShader.specularColor().r;
+//				matD.specular.y = blinnShader.specularColor().g;
+//				matD.specular.z = blinnShader.specularColor().b;
+//				matD.specular.w = blinnShader.specularColor().a;
+//
+//				matD.specRolloff = blinnShader.specularRollOff();
+//				matD.reflectivity = blinnShader.reflectivity();
+//				//matD.eccentricity = blinnShader.eccentricity();
+//
+//				MGlobal::displayInfo(MString("Blinn!!"));
+//
+//				tMessage.messageType = 4;
+//
+//				int materialID = -1;
+//				for (size_t i = 0; i < nodeNames.length(); i++)
+//				{
+//					if (materialNames[i] == blinnShader.name())
+//					{
+//						materialID = i;
+//
+//					}
+//					if (materialID = -1)
+//					{
+//						tMessage.messageType = 8;
+//
+//					}
+//
+//
+//				}
+//
+//				//Give the mesh an ID
+//				tMessage.numMeshes = materialID;
+//
+//				//Send ID
+//				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
+//
+//
+//
+//				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
+//				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+//				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
+//				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
+//			
+//				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
+//			}
+//
+//		
+//		//look for all the file textures that are upstream from the shader node
+//		MItDependencyGraph shaderTextureIter(connections[u].node(), MFn::kFileTexture, MItDependencyGraph::kUpstream,
+//			MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel,
+//			&status);
+//		if (status != MS::kFailure)
+//		{
+//			shaderTextureIter.disablePruningOnFilter(); //don't prune the iter path for nodes that don't match the filter
+//
+//			if (!shaderTextureIter.isDone())//did we find any file texture nodes?
+//			{
+//				MObject textureNode; //current texture node being processed
+//
+//				for (; !shaderTextureIter.isDone(); shaderTextureIter.next())
+//				{
+//					textureNode = shaderTextureIter.thisNode(&status);
+//					if (status != MS::kFailure)
+//					{
+//						//attach a node function set so we can get attribute info
+//						MFnDependencyNode textureNodeFn(textureNode, &status);
+//						if (status != MS::kFailure)
+//						{
+//							//MPlug attribPlug;
+//							//
+//							//attribPlug = textureNodeFn.findPlug(MString("fileTextureName"), &status);
+//							//int howmany = attribPlug.numChildren();
+//							//MString name = attribPlug.name();
+//
+//
+//							MPlug ftnPlug = textureNodeFn.findPlug("ftn");
+//							MString fileName;
+//							ftnPlug.getValue(fileName);
+//							//attribPlug = textureNodeFn.findPlug(MString("imageName"), &status);
+//							MGlobal::displayInfo(MString("Texture name is: " + fileName));
+//							MGlobal::displayInfo(MString("it somethn"));
+//							
+//							const char* charname = fileName.asChar();
+//
+//							int addressMax = sizeof(tMessage.textureAddress);
+//
+//							if (fileName.length() < addressMax)
+//							{
+//								for (int i = 0; i < addressMax; i++)
+//								{
+//									tMessage.textureAddress[i] = charname[i];
+//								}
+//
+//							}
+//							else
+//								MGlobal::displayInfo(MString("Address contains way many chars."));
+//
+//							
+//							//memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
+//							memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &tMessage.textureAddress, (sizeof(char)* 500));
+//
+//							
+//
+//							//if (status != MS::kFailure)
+//							//{
+//							//	MGlobal::displayInfo(MString("Texture name is: " + textureNodeFn.name()));
+//							//	MGlobal::displayInfo(MString("nice"));
+//							//
+//							//
+//							//	//cout << "Texture name: " << textureNodeFn.name().asChar() << endl;
+//							//
+//							//}//end if, got file name plug
+//
+//						}//end if, made fn set
+//
+//					}//end if, made texture object
+//
+//				}//end for, texture iter
+//
+//			}//end if, have textures
+//
+//		}//end if, made texture iter
+//
+//}
+//	
+//
+//
+//		/*if (connections.length() > 0)
+//		{
+//			MObject src = connections[0];
+//
+//			if (src.hasFn(MFn::kFileTexture))
+//			{
+//
+//				MFnDependencyNode fnFile(src);
+//				MPlug ftnPlug = fnFile.findPlug(TEXTURE_NAME, &status);
+//				if (status = MS::kSuccess)
+//				{
+//					MString fileTextureName;
+//					ftnPlug.getValue(fileTextureName);
+//				}
+//			}
+//		}*/
+//
+//
+//	}
+//
+//
+//}
 
-	//RUNS WHEN CONNECTING MATERIAL TO MESH
-	int instanceNumber = 0;
-	MObjectArray shaders;
-	MIntArray indices;
+void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &plug2, void *clientData)
+{
 
 	MaterialData matD;
-	//BlinnData blinnD;
-	//PhongData phongD;
 
-	MStatus status;
-
-	const MString TEXTURE_NAME("fileTextureName");
-
-
-	mesh.getConnectedShaders(instanceNumber, shaders, indices);
-
-	for (int i = 0; i < shaders.length(); i++)
-	{
-		MPlugArray connections;
-		MFnDependencyNode shaderGroup(shaders[i]);
-		MPlug shaderPlug = shaderGroup.findPlug("surfaceShader");
-		shaderPlug.connectedTo(connections, true, false);
-		for (int u = 0; u < connections.length(); u++)
-		{
-			if (connections[u].node().hasFn(MFn::kLambert))
-			{
-				MPlugArray plugs;
-				MFnLambertShader lambertShader(connections[u].node());
-				lambertShader.findPlug("color").connectedTo(plugs, true, false);
-
-				matD.color.x = lambertShader.color().r;
-				matD.color.y = lambertShader.color().g;
-				matD.color.z = lambertShader.color().b;
-				matD.color.w = lambertShader.color().a;
-
-				matD.specular.x = -1;
-				matD.specular.y = -1;
-				matD.specular.z = -1;
-				matD.specular.w = -1;
-
-				matD.reflectivity = 0;
-				matD.specRolloff = 0;
-
-				MGlobal::displayInfo(MString("LAMBERT!! THERE"));
-
-
-				tMessage.messageType = 4;
-
-				int materialID = -1;
-				for (size_t i = 0; i < materialNames.length(); i++)
-				{
-					if (materialNames[i] == lambertShader.name())
-					{
-						materialID = i;
-
-					}
-
-				//	if (materialID = -1)
-				//	{
-				//		tMessage.messageType = 8;
-				//
-				//	}
-
-
-
-				}
-
-
-				int meshID = -1;
-				for (size_t i = 0; i < nodeNames.length(); i++)
-				{
-					if (materialNames[i] == mesh.name())
-					{
-						meshID = i;
-
-					}
-
-		
-				}
-
-				//Give the material an ID
-				tMessage.numMeshes = materialID;
-				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
-
-
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
-				//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
-				
-				//TEMP MESH ID TRANSFER
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &meshID, sizeof(int));
-
-				//memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
-
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-
-
-			}
-			else if (connections[u].node().hasFn(MFn::kPhong))
-			{
-				MPlugArray plugs;
-				MFnPhongShader phongShader(connections[u].node());
-				phongShader.findPlug("color").connectedTo(plugs, true, false);
-
-				matD.color.x = phongShader.color().r;
-				matD.color.y = phongShader.color().g;
-				matD.color.z = phongShader.color().b;
-				matD.color.w = phongShader.color().a;
-
-				matD.specular.x = phongShader.specularColor().r;
-				matD.specular.y = phongShader.specularColor().g;
-				matD.specular.z = phongShader.specularColor().b;
-				matD.specular.w = phongShader.specularColor().a;
-
-				matD.reflectivity = phongShader.reflectivity();
-				matD.specRolloff = 0;
-
-				//matD.cosine = phongShader.cosPower();
-				//Controls the size of shiny highlights on the surface. The valid range is 2 to infinity.
-				//The slider range is 2 (broad highlight, not very shiny surface) to 100 (small highlight, very shiny surface),
-				//though you can type in a higher value. The default value is 20. 
-
-				tMessage.messageType = 4;
-
-
-				int materialID = -1;
-				for (size_t i = 0; i < nodeNames.length(); i++)
-				{
-					if (materialNames[i] == phongShader.name())
-					{
-						materialID = i;
-
-					}
-					if (materialID = -1)
-					{
-						tMessage.messageType = 8;
-
-					}
-
-
-				}
-
-				//Give the mesh an ID
-				tMessage.numMeshes = materialID;
-
-				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
-
-
-
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
-
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-
-				MGlobal::displayInfo(MString("Phong!!"));
-			}
-
-			else if (connections[u].node().hasFn(MFn::kBlinn))
-			{
-				MPlugArray plugs;
-				MFnBlinnShader blinnShader(connections[u].node());
-				blinnShader.findPlug("color").connectedTo(plugs, true, false);
-
-				matD.color.x = blinnShader.color().r;
-				matD.color.y = blinnShader.color().g;
-				matD.color.z = blinnShader.color().b;
-				matD.color.w = blinnShader.color().a;
-
-				matD.specular.x = blinnShader.specularColor().r;
-				matD.specular.y = blinnShader.specularColor().g;
-				matD.specular.z = blinnShader.specularColor().b;
-				matD.specular.w = blinnShader.specularColor().a;
-
-				matD.specRolloff = blinnShader.specularRollOff();
-				matD.reflectivity = blinnShader.reflectivity();
-				//matD.eccentricity = blinnShader.eccentricity();
-
-				MGlobal::displayInfo(MString("Blinn!!"));
-
-				tMessage.messageType = 4;
-
-				int materialID = -1;
-				for (size_t i = 0; i < nodeNames.length(); i++)
-				{
-					if (materialNames[i] == blinnShader.name())
-					{
-						materialID = i;
-
-					}
-					if (materialID = -1)
-					{
-						tMessage.messageType = 8;
-
-					}
-
-
-				}
-
-				//Give the mesh an ID
-				tMessage.numMeshes = materialID;
-
-				//Send ID
-				std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), &tMessage.numMeshes, sizeof(int));
-
-
-
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &matD.color, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4), &matD.specular, sizeof(XMFLOAT4));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4), &matD.reflectivity, sizeof(float));
-				memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float), &matD.specRolloff, sizeof(float));
-			
-				std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-			}
-
-		
-		//look for all the file textures that are upstream from the shader node
-		MItDependencyGraph shaderTextureIter(connections[u].node(), MFn::kFileTexture, MItDependencyGraph::kUpstream,
-			MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel,
-			&status);
-		if (status != MS::kFailure)
-		{
-			shaderTextureIter.disablePruningOnFilter(); //don't prune the iter path for nodes that don't match the filter
-
-			if (!shaderTextureIter.isDone())//did we find any file texture nodes?
-			{
-				MObject textureNode; //current texture node being processed
-
-				for (; !shaderTextureIter.isDone(); shaderTextureIter.next())
-				{
-					textureNode = shaderTextureIter.thisNode(&status);
-					if (status != MS::kFailure)
-					{
-						//attach a node function set so we can get attribute info
-						MFnDependencyNode textureNodeFn(textureNode, &status);
-						if (status != MS::kFailure)
-						{
-							//MPlug attribPlug;
-							//
-							//attribPlug = textureNodeFn.findPlug(MString("fileTextureName"), &status);
-							//int howmany = attribPlug.numChildren();
-							//MString name = attribPlug.name();
-
-
-							MPlug ftnPlug = textureNodeFn.findPlug("ftn");
-							MString fileName;
-							ftnPlug.getValue(fileName);
-							//attribPlug = textureNodeFn.findPlug(MString("imageName"), &status);
-							MGlobal::displayInfo(MString("Texture name is: " + fileName));
-							MGlobal::displayInfo(MString("it somethn"));
-							
-							const char* charname = fileName.asChar();
-
-							int addressMax = sizeof(tMessage.textureAddress);
-
-							if (fileName.length() < addressMax)
-							{
-								for (int i = 0; i < addressMax; i++)
-								{
-									tMessage.textureAddress[i] = charname[i];
-								}
-
-							}
-							else
-								MGlobal::displayInfo(MString("Address contains way many chars."));
-
-							
-
-							memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4X4) + sizeof(XMFLOAT4) + sizeof(XMFLOAT4) + sizeof(float)+ sizeof(float),&tMessage.textureAddress,(sizeof(char) * 500));
-
-							
-
-							//if (status != MS::kFailure)
-							//{
-							//	MGlobal::displayInfo(MString("Texture name is: " + textureNodeFn.name()));
-							//	MGlobal::displayInfo(MString("nice"));
-							//
-							//
-							//	//cout << "Texture name: " << textureNodeFn.name().asChar() << endl;
-							//
-							//}//end if, got file name plug
-
-						}//end if, made fn set
-
-					}//end if, made texture object
-
-				}//end for, texture iter
-
-			}//end if, have textures
-
-		}//end if, made texture iter
-
-}
-	
-
-
-		/*if (connections.length() > 0)
-		{
-			MObject src = connections[0];
-
-			if (src.hasFn(MFn::kFileTexture))
-			{
-
-				MFnDependencyNode fnFile(src);
-				MPlug ftnPlug = fnFile.findPlug(TEXTURE_NAME, &status);
-				if (status = MS::kSuccess)
-				{
-					MString fileTextureName;
-					ftnPlug.getValue(fileTextureName);
-				}
-			}
-		}*/
-
-
-	}
-
-
-}
-
-void shaderAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &plug2, void *clientData)
-{
-	MGlobal::displayInfo(MString("LAMBERT HAS CHANGED..."));
-	MGlobal::displayInfo(MString("ayo"));
-	
-	if (msg & MNodeMessage::kAttributeSet)
+	if ((msg & MNodeMessage::kAttributeSet) || msg & MNodeMessage::kConnectionMade)
 	{
 		//meshNames.append(mesh.name());
 		MFnLambertShader lambertShader;
-		
+		MFnBlinnShader blinnShader;
+		MFnPhongShader phongShader;
 		MColor color;
-		XMFLOAT4 col;
-	
+		int whatMaterial = 0;
+
+		// Find the material and then color
 		if (plug.node().hasFn(MFn::kLambert))
 		{
 			lambertShader.setObject(plug.node());
 			MGlobal::displayInfo(lambertShader.name());
 			color = lambertShader.color();
-			col.x = color.r;
-			col.y = color.g;
-			col.z = color.b;
-			col.w = color.a;
-			
+			whatMaterial = 1;
 		}
-		
-
-
-		
-		tMessage.messageType = 4;
-
-		int materialID = -1;
-		for (size_t i = 0; i < materialNames.length(); i++)
+		else if (plug.node().hasFn(MFn::kBlinn))
 		{
-			if (materialNames[i] == lambertShader.name())
+			blinnShader.setObject(plug.node());
+			MGlobal::displayInfo(blinnShader.name());
+			color = blinnShader.color();
+			whatMaterial = 2;
+		}
+		else if (plug.node().hasFn(MFn::kPhong))
+		{
+			phongShader.setObject(plug.node());
+			MGlobal::displayInfo(phongShader.name());
+			color = phongShader.color();
+			whatMaterial = 3;
+		}
+
+		//Texture:
+		MFnDependencyNode matNamer(plug.node());
+		MObjectArray Files;
+		MString filename;
+		int pathSize;
+		int texExist = 0;
+		MPlugArray textureConnect;
+		MPlug texturePlug;
+
+		if (whatMaterial == 1)
+		{
+			texturePlug = lambertShader.findPlug("color");
+		}
+		else if (whatMaterial == 2)
+		{
+			texturePlug = blinnShader.findPlug("color");
+		}
+		else if (whatMaterial == 3)
+		{
+			texturePlug = phongShader.findPlug("color");
+		}
+
+		MGlobal::displayInfo(texturePlug.name());
+		texturePlug.connectedTo(textureConnect, true, false);
+
+		if (textureConnect.length() != 0)
+		{
+			MGlobal::displayInfo(textureConnect[0].name());
+
+			MFnDependencyNode fn(textureConnect[0].node());
+			MGlobal::displayInfo(fn.name());
+
+			MPlug ftn = fn.findPlug("ftn");
+
+			ftn.getValue(filename);
+
+			MGlobal::displayInfo(filename);
+
+			pathSize = filename.numChars();
+
+			texExist = 1;
+		}
+
+		for (int i = 0; i < materialNames.length(); i++)
+		{
+			if (materialNames[i] == matNamer.name())
 			{
-				materialID = i;
+				tMessage.messageType = 4;
+				tMessage.messageSize = i;
 
-			}
-		
+				std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
+				//tempMatID
+				std::memcpy((char*)pBuf + sizeof(int), &tMessage.messageSize, sizeof(int));
+				//hasTexture
+				std::memcpy((char*)pBuf + sizeof(int)+sizeof(int), &texExist, sizeof(int));
 
-
-		}
-
-		if (materialID == -1)
-		{
-			tMessage.messageType = 8;
-		}
-
+				if (texExist == 1)
+				{
 
 
-		//Give the mesh an ID
-		tMessage.numMeshes = materialID;
+				}
 
-		//Send ID
-		std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), &tMessage.numMeshes, sizeof(int));
+				matD.color.x = color.r;
+				matD.color.y = color.g;
+				matD.color.z = color.b;
+				matD.color.w = color.a;
 
 
-
-		memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4X4), &col, sizeof(XMFLOAT4));
-		
-
-		std::memcpy((char*)pBuf + usedSpace, &tMessage.messageType, sizeof(int));
-
-		int po = 0;
-
-		}
-	}
 	
 
+				std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int), &matD.color, sizeof(DirectX::XMFLOAT4));
+
+
+
+
+			}
+		}
+	}
+}
+	
+void matChanged(MFnMesh& mesh)
+{
+	// MATERIAL:
+	unsigned int instanceNumber = 0;
+	MObjectArray shaders;
+	MPlugArray test;
+	MIntArray indices;
+	MPlugArray connections;
+	MColor color;
+	int whatMaterial = 0;
+	MFnLambertShader lambertShader;
+	MFnBlinnShader blinnShader;
+	MFnPhongShader phongShader;
+
+	int localMesh = nodeNames.length();
+	for (int i = 0; i < nodeNames.length(); i++)
+	{
+		if (mesh.name() == nodeNames[i])
+		{
+			localMesh = i;
+		}
+	}
+
+	// Find the shadingReasourceGroup
+	mesh.getConnectedShaders(instanceNumber, shaders, indices);
+	if (shaders.length() != 0)
+	{
+		MFnDependencyNode shaderGroup(shaders[0]);
+		MGlobal::displayInfo(shaderGroup.name());
+		MPlug shaderPlug = shaderGroup.findPlug("surfaceShader");
+		MGlobal::displayInfo(shaderPlug.name());
+		shaderPlug.connectedTo(connections, true, false);
+
+		// Find the material and then color
+		if (connections[0].node().hasFn(MFn::kLambert))
+		{
+			lambertShader.setObject(connections[0].node());
+			MGlobal::displayInfo(lambertShader.name());
+			color = lambertShader.color();
+			whatMaterial = 1;
+			materialNames[localMesh] = lambertShader.name();
+		}
+		else if (connections[0].node().hasFn(MFn::kBlinn))
+		{
+			blinnShader.setObject(connections[0].node());
+			MGlobal::displayInfo(blinnShader.name());
+			color = blinnShader.color();
+			whatMaterial = 2;
+			materialNames[localMesh] = blinnShader.name();
+		}
+		else if (connections[0].node().hasFn(MFn::kPhong))
+		{
+			phongShader.setObject(connections[0].node());
+			MGlobal::displayInfo(phongShader.name());
+			color = phongShader.color();
+			whatMaterial = 3;
+			materialNames[localMesh] = phongShader.name();
+		}
+
+		//Texture:
+		MObjectArray Files;
+		MString filename;
+		int pathSize;
+		int texExist = 0;
+		MPlugArray textureConnect;
+		MPlug texturePlug;
+
+		if (whatMaterial == 1)
+		{
+			texturePlug = lambertShader.findPlug("color");
+		}
+		else if (whatMaterial == 2)
+		{
+			texturePlug = blinnShader.findPlug("color");
+		}
+		else if (whatMaterial == 3)
+		{
+			texturePlug = phongShader.findPlug("color");
+		}
+
+		MGlobal::displayInfo(texturePlug.name());
+		texturePlug.connectedTo(textureConnect, true, false);
+
+		if (textureConnect.length() != 0)
+		{
+			MGlobal::displayInfo(textureConnect[0].name());
+
+			MFnDependencyNode fn(textureConnect[0].node());
+			MGlobal::displayInfo(fn.name());
+
+			MPlug ftn = fn.findPlug("ftn");
+
+			ftn.getValue(filename);
+
+			MGlobal::displayInfo(filename);
+
+			pathSize = filename.numChars();
+
+			texExist = 1;
+		}
+
+	//	// Send data to shared memory
+	//	do
+	//	{
+	//		if (sm.cb->freeMem >= slotSize/* && sm.cb->head < sm.memSize - sm.cb->freeMem*/)
+	//		{
+	//			// Sets head to 0 if there are no place to write
+	//			if (sm.cb->head == sm.memSize)
+	//				sm.cb->head = 0;
+	//
+	//			localHead = sm.cb->head;
+	//
+	//			// Message header
+	//			sm.msgHeader.type = TMaterialUpdate;
+	//			if (texExist == 0)
+	//			{
+	//				sm.msgHeader.byteSize = sm.msgHeaderSize + sizeof(MColor)+sizeof(int)+sizeof(int);
+	//				sm.msgHeader.byteSize += slotSize - sm.msgHeader.byteSize;
+	//			}
+	//			else
+	//			{
+	//				sm.msgHeader.byteSize = sm.msgHeaderSize + sizeof(MColor)+sizeof(int)+sizeof(int)+pathSize + sizeof(int);
+	//				sm.msgHeader.byteSize += slotSize - sm.msgHeader.byteSize;
+	//			}
+	//			memcpy((char*)sm.buffer + localHead, &sm.msgHeader, sm.msgHeaderSize);
+	//			localHead += sm.msgHeaderSize;
+	//
+	//			// Mesh ID
+	//			memcpy((char*)sm.buffer + localHead, &localMesh, sizeof(int));
+	//			localHead += sizeof(int);
+	//
+	//			// Material data
+	//			memcpy((char*)sm.buffer + localHead, &color, sizeof(MColor));
+	//			localHead += sizeof(MColor);
+	//
+	//			//Bool for Texture
+	//			XMINT4 ha = XMINT4(texExist, 0, 0, 0);
+	//			memcpy((char*)sm.buffer + localHead, &ha.x, sizeof(int));
+	//			localHead += sizeof(int);
+	//
+	//			if (texExist == 1)
+	//			{
+	//				//Texture Size
+	//				memcpy((char*)sm.buffer + localHead, &pathSize, sizeof(int));
+	//				localHead += sizeof(int);
+	//
+	//				//Texture data
+	//				memcpy((char*)sm.buffer + localHead, filename.asChar(), pathSize);
+	//				localHead += pathSize;
+	//			}
+	//
+	//			// Move header
+	//			sm.cb->freeMem -= slotSize;
+	//			sm.cb->head += slotSize;
+	//			break;
+	//		}
+	//	} while (sm.cb->freeMem >!slotSize);
+	}
+}
 
 

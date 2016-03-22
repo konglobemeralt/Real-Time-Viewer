@@ -351,16 +351,14 @@ void realTimeViewer::update()
 			m_Light->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 		}
 
-		//Transform material
+		//material change
 		if (messageType == 4)
 		{
 			int matID = -1;
 			//ModelID
 
-			//for matID we use nummeshes from the mayaplugin since that one is not used for other things
-			memcpy(&matID, (char*)pBuf + (sizeof(int)* 3) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float), sizeof(int));
-
-			memcpy(&modelID, (char*)pBuf + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + (sizeof(char) * 500), sizeof(float));
+			//for matID we use messageSize from the mayaplugin since that one is not used for other things
+			memcpy(&matID, (char*)pBuf + sizeof(int), sizeof(int));
 
 			if (matID != -1)
 			{
@@ -473,7 +471,7 @@ unsigned int tempH = *headP;
 
 		if (*tailP < *memSize) // read == *readerAmount) &&
 		{
-			*tailP += 100000;
+			*tailP += 10000;
 			//*readP = 1;
 		}
 		if (*tailP >= *memSize) //(read == *readerAmount) &&

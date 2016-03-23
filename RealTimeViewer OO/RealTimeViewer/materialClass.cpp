@@ -49,15 +49,29 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 	
 	if (textureChech == 1)
 	{
-		ReleaseTexture();
+		//ReleaseTexture();
 		int TextPathSize = 0;
 		memcpy(&TextPathSize, (char*)pBuf +sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(int));
 		//delete[]m_texturePath;
 		
-	//char* tempText = (char *)malloc(sizeof(char)* (TextPathSize+1));
-	//memcpy(&tempText, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(char)*(TextPathSize + 1));
-		m_texturePath = L"alpha.dds";
-		m_diffuseTexturePath = L"alpha.dds";
+	char* tempText = (char *)malloc(sizeof(char)* (TextPathSize+1));
+	memcpy(&tempText, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(char)*(TextPathSize));
+		//m_texturePath = L"alpha.dds";
+		//m_diffuseTexturePath = L"alpha.dds";
+	if (TextPathSize != 0)
+	{
+		size_t size = strlen(tempText) + 1;
+		WCHAR* wa = new WCHAR[size];
+		mbstowcs(wa, tempText, size);
+
+		m_texturePath = wa;
+		m_diffuseTexturePath = wa;
+	}
+
+
+
+	
+
 	}
 	
 	unsigned int tempH = *headPtr;
@@ -147,3 +161,8 @@ void MaterialClass::ReleaseTexture()
 
 	return;
 }
+
+
+
+	
+

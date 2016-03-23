@@ -38,9 +38,27 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 
 	for (int i = 0; i < 500; i++)
 	{
-		char tempChar;
+		//ReleaseTexture();
 		memcpy(&tempChar +(sizeof(char)*i), (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(float) + sizeof(float), (sizeof(char)));
 		//m_texturePath[i] = tempChar;
+	char* tempText = (char *)malloc(sizeof(char)* (TextPathSize+1));
+	memcpy(&tempText, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(char)*(TextPathSize));
+		//m_texturePath = L"alpha.dds";
+		//m_diffuseTexturePath = L"alpha.dds";
+	if (TextPathSize != 0)
+	{
+		size_t size = strlen(tempText) + 1;
+		WCHAR* wa = new WCHAR[size];
+		mbstowcs(wa, tempText, size);
+
+		m_texturePath = wa;
+		m_diffuseTexturePath = wa;
+	}
+
+
+
+	
+
 	}
 	
 
@@ -119,3 +137,8 @@ void MaterialClass::ReleaseTexture()
 
 	return;
 }
+
+
+
+	
+

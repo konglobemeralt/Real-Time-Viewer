@@ -15,6 +15,7 @@ public:
 
 	bool Initialize();
 	void Shutdown();
+	
 
 	bool MaterialClass::updateMaterial(void* cBuf, void* pBuf);
 	

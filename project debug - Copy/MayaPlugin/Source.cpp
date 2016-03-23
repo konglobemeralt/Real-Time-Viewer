@@ -14,6 +14,7 @@
 */
 
 #include "maya_includes.h"
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <DirectXMath.h>
@@ -2010,8 +2011,8 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 				if (texExist == 1 && pathSize != 0)
 				{
 					std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), &pathSize, sizeof(int));
-					//const char* charname = filename.asChar();
-					std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), filename.asChar(), sizeof(char)*(pathSize + 1));
+					const char* charname = filename.asChar();
+					std::memcpy((char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), filename.asChar(), sizeof(char)*(strlen(charname)));
 
 				}
 

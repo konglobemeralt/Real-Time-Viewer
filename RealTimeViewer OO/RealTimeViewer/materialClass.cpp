@@ -54,12 +54,12 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 		memcpy(&TextPathSize, (char*)pBuf +sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(int));
 		//delete[]m_texturePath;
 		
-	char* tempText = (char *)malloc(sizeof(char)* (TextPathSize+1));
-	memcpy(&tempText, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(char)*(TextPathSize));
 		//m_texturePath = L"alpha.dds";
 		//m_diffuseTexturePath = L"alpha.dds";
 	if (TextPathSize != 0)
 	{
+		char* tempText = (char *)malloc(sizeof(char)* (TextPathSize + 1));
+		memcpy(&tempText, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(char)*(TextPathSize));
 		size_t size = strlen(tempText) + 1;
 		WCHAR* wa = new WCHAR[size];
 		mbstowcs(wa, tempText, size);

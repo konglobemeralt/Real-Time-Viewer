@@ -1,21 +1,35 @@
-﻿Build started 2015-10-14 12:47:24.
-     1>Project "C:\temp\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" on node 2 (Build target(s)).
+﻿Build started 3/23/2016 12:05:39 PM.
+     1>Project "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\temp\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/include/" /ZI /nologo /W3 /WX- /Od /Oy- /D HAS_DIRECTXTK /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt modelClass.cpp
-         modelClass.cpp
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\temp\RealTimeViewer OO\Debug\RealTimeViewer.exe" /INCREMENTAL /NOLOGO "C:\temp\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/lib/Win32/Debug/DirectXTKAudioDX.lib" "C:\temp\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/lib/Win32/Debug/DirectXTK.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\temp\RealTimeViewer OO\Debug\RealTimeViewer.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\temp\RealTimeViewer OO\Debug\RealTimeViewer.lib" /MACHINE:X86 Debug\cameraClass.obj
-         Debug\d3dclass.obj
-         Debug\fileMapping.obj
-         Debug\lightClass.obj
-         Debug\modelClass.obj
-         Debug\realTimeViewer.obj
-         Debug\ShaderShader.obj
-         Debug\Source.obj
-         Debug\textureClass.obj
-         RealTimeViewer.vcxproj -> C:\temp\RealTimeViewer OO\Debug\RealTimeViewer.exe
-     1>Done Building Project "C:\temp\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" (Build target(s)).
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\packages\directxtk_desktop_2013.2015.7.29.1\build\native\../../build/native/include/" /ZI /nologo /W3 /WX- /Od /Oy- /D HAS_DIRECTXTK /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ShaderShader.cpp Source.cpp realTimeViewer.cpp
+         realTimeViewer.cpp
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(28): warning C4316: 'fileMapping' : object allocated on the heap may not be aligned 16
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(25): warning C4101: 'videoMemory' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(24): warning C4101: 'videoCard' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(181): warning C4101: 'foundHeight' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(184): warning C4101: 'radians' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(183): warning C4101: 'height' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(222): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(204): warning C4101: 'modelCount' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(204): warning C4101: 'index' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(205): warning C4101: 'positionX' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(205): warning C4101: 'radius' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(205): warning C4101: 'positionY' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(204): warning C4101: 'renderCount' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(205): warning C4101: 'positionZ' : unreferenced local variable
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(324): warning C4018: '>' : signed/unsigned mismatch
+         Source.cpp
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\source.cpp(29): warning C4316: 'realTimeViewer' : object allocated on the heap may not be aligned 16
+         ShaderShader.cpp
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\shadershader.cpp(109): error C2664: 'int MessageBoxW(HWND,LPCWSTR,LPCWSTR,UINT)' : cannot convert argument 2 from 'LPCSTR' to 'LPCWSTR'
+                 Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\shadershader.cpp(127): error C2664: 'int MessageBoxW(HWND,LPCWSTR,LPCWSTR,UINT)' : cannot convert argument 2 from 'LPCSTR' to 'LPCWSTR'
+                 Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+     1>c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\shadershader.cpp(352): error C2664: 'int MessageBoxW(HWND,LPCWSTR,LPCWSTR,UINT)' : cannot convert argument 2 from 'const char [61]' to 'LPCWSTR'
+                 Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+         Generating Code...
+     1>Done Building Project "C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" (Build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:09.58
+Time Elapsed 00:00:02.40

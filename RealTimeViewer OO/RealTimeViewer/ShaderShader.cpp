@@ -106,12 +106,11 @@ bool ShaderShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 		// if it couldn't find the shader and it was nothing in the error message
 		else
 		{
-			MessageBox(hwnd, vsFilename, L"Missing Vertex Shader File", MB_OK);
+			MessageBox(hwnd, (LPCSTR)vsFilename, (LPCSTR)"Missing Vertex Shader File", MB_OK);
 		}
 
 		return false;
 	}
-
 
 	//shadow pixel shader
 	result = D3DCompileFromFile(psFilename, NULL, NULL, "pixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
@@ -125,11 +124,12 @@ bool ShaderShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR*
 		// if it couldn't find the shader and it was nothing in the error message
 		else
 		{
-			MessageBox(hwnd, psFilename, L"Missing Pixel Shader File", MB_OK);
+			MessageBox(hwnd, (LPCSTR)psFilename, (LPCSTR)"Missing Pixel Shader File", MB_OK);
 		}
 
 		return false;
 	}
+
 
 	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
 	if (FAILED(result))
@@ -349,7 +349,7 @@ void ShaderShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND 
 	errorMessage = 0;
 
 	// Pop a message up on the screen to notify the user to check the text file for compile errors.
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
+	MessageBox(hwnd, "Error compiling shader.  Check shader-error.txt for message.", (LPCSTR)shaderFilename, MB_OK);
 
 	return;
 }

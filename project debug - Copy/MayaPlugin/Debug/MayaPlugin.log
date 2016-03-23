@@ -1,0 +1,46 @@
+﻿Build started 3/23/2016 11:57:19 AM.
+     1>Project "C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\MayaPlugin\MayaPlugin.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files\Autodesk\Maya2015\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D MAYAPLUGIN_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source.cpp
+         Source.cpp
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(75): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(513): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(514): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(515): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(536): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(682): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(684): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(715): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(760): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(782): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(783): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(784): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(807): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(813): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(970): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(971): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(972): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1308): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1310): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1335): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1378): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1400): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1401): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1402): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1473): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1475): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1494): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1537): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1559): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1560): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1561): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(1998): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\temp\rtvgit\real-time-viewer\project debug - copy\mayaplugin\source.cpp(2069): warning C4018: '<' : signed/unsigned mismatch
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\Debug\MayaPlugin.dll" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\Autodesk\Maya2015\lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\Debug\MayaPlugin.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\Debug\MayaPlugin.lib" /MACHINE:X86 /DLL Debug\Source.obj
+     1>OpenMaya.lib(OpenMaya.dll) : fatal error LNK1112: module machine type 'x64' conflicts with target machine type 'X86'
+     1>Done Building Project "C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\MayaPlugin\MayaPlugin.vcxproj" (Rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:01.01

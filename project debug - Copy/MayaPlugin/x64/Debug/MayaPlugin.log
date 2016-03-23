@@ -1,4 +1,4 @@
-﻿Build started 3/22/2016 1:12:43 PM.
+﻿Build started 3/23/2016 2:55:36 PM.
      1>Project "C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\MayaPlugin\MayaPlugin.vcxproj" on node 2 (Rebuild target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2015\include" /Zi /nologo /W3 /WX- /sdl /Od /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt Source.cpp
@@ -57,4 +57,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.09
+Time Elapsed 00:00:01.08

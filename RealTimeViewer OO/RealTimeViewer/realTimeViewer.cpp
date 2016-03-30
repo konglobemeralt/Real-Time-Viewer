@@ -49,7 +49,7 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 	result = m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize DirectX 11.", L"Error", MB_OK);
+		MessageBox(hwnd, "Could not initialize DirectX 11.", "Error", MB_OK);
 		return false;
 	}
 
@@ -100,7 +100,7 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 	result = m_ShaderShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, "Could not initialize the shader object.", "Error", MB_OK);
 		return false;
 	}
 

@@ -26,7 +26,7 @@ private:
 	void InitializeWindows(int&, int&);
 	void ShutdownWindows();
 
-	LPCWSTR m_applicationName;
+	LPCSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;
 	realTimeViewer * m_realTimeViewer;

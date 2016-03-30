@@ -59,14 +59,6 @@ void geometryShader(triangle vertexShader_OUTPUT input[3], inout TriangleStream<
 		{
 		OutputStream.Append(output);
 		}
-		if(test > 0 )
-		{
-		OutputStream.Append(output);
-		}
-		if(test == 0 )
-		{
-		OutputStream.Append(output);
-		}
 	}
 	OutputStream.RestartStrip();
 	

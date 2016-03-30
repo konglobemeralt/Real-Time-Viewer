@@ -14,16 +14,16 @@ realTimeViewer::realTimeViewer()
 
 }
 
-realTimeViewer::~realTimeViewer(){};
+realTimeViewer::~realTimeViewer() {};
 
 
 bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight)
 {
 	bool result;
-	
+
 	char videoCard[128];
 	int videoMemory;
-	
+
 	//Create the fileMapping object
 	m_fileMap = new fileMapping;
 	if (!m_fileMap)
@@ -35,8 +35,8 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 		m_fileMap->openFileMap();
 	}
 
-	
-	
+
+
 	//Create the Direct3D object.
 	m_Direct3D = (D3DClass*)_aligned_malloc(sizeof(D3DClass), 16);
 	new (m_Direct3D)D3DClass();
@@ -49,7 +49,7 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 	result = m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 	if (!result)
 	{
-		MessageBox(hwnd, "Could not initialize DirectX 11.", "Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize DirectX 11.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -63,7 +63,7 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 		return false;
 	}
 
-	
+
 	//Create the light object.
 	m_Light = new LightClass;
 	if (!m_Light)
@@ -74,20 +74,20 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 	//Initialize the light object.
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
-	
 
 
-// //Create a modelObject!
-// m_model = new ModelClass(); 
-// result = m_model->Initialize(m_Direct3D->GetDevice(), L"missy2.dds", m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-// 
-// if (result == false)
-// {
-// 	MessageBox(hwnd, L"Could not initialize model.", L"ERROR", MB_OK);
-// 	//return false;
-// 	return true;
-// }
-	
+
+	// //Create a modelObject!
+	// m_model = new ModelClass(); 
+	// result = m_model->Initialize(m_Direct3D->GetDevice(), L"missy2.dds", m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	// 
+	// if (result == false)
+	// {
+	// 	MessageBox(hwnd, L"Could not initialize model.", L"ERROR", MB_OK);
+	// 	//return false;
+	// 	return true;
+	// }
+
 
 	//create shader object
 	m_ShaderShader = new ShaderShaderClass;
@@ -100,7 +100,7 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 	result = m_ShaderShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, "Could not initialize the shader object.", "Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -108,7 +108,7 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 
 	//create shader object
 	MaterialClass DefaultMaterial;
-	
+
 	//initialize material 
 	DefaultMaterial.LoadTexture(m_Direct3D->GetDevice());
 
@@ -148,13 +148,13 @@ void realTimeViewer::Shutdown()
 		m_Light = 0;
 	}
 
-//	//Release the camera object.
-//	if (m_model)
-//	{
-//		m_model->~ModelClass();
-//		_aligned_free(m_model);
-//		m_model = 0;
-//	}
+	//	//Release the camera object.
+	//	if (m_model)
+	//	{
+	//		m_model->~ModelClass();
+	//		_aligned_free(m_model);
+	//		m_model = 0;
+	//	}
 
 
 	//Release the Direct3D object.
@@ -204,7 +204,7 @@ bool realTimeViewer::RenderGraphics()
 	int modelCount, renderCount, index;
 	float positionX, positionY, positionZ, radius;
 	XMFLOAT4 color;
-	
+
 
 
 	// Clear the scene.
@@ -212,11 +212,11 @@ bool realTimeViewer::RenderGraphics()
 
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-	
+
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
-	
+
 
 	//update model if necessary
 	for (int i = 0; i < modelVector.size(); i++)
@@ -224,20 +224,20 @@ bool realTimeViewer::RenderGraphics()
 
 		if (modelVector.at(i).GetIndexCount() > 0)
 		{
-		
-		
-		modelVector.at(i).Render(m_Direct3D->GetDeviceContext());
+
+
+			modelVector.at(i).Render(m_Direct3D->GetDeviceContext());
 			// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 
-			
+
 			//Move the model to the location it should be rendered at.
-		worldMatrix = modelVector.at(i).getWorldMatrix();
-	
-	
-		
+			worldMatrix = modelVector.at(i).getWorldMatrix();
+
+
+
 			//Put the model vertex and index buffers on the graphics pipeline to prepare for drawing.
 			int matID = modelVector.at(i).getMatID();
-			
+
 			if (matID > 0)
 			{
 
@@ -247,8 +247,8 @@ bool realTimeViewer::RenderGraphics()
 			{
 				materialVector.at(0).LoadTexture(m_Direct3D->GetDevice());
 			}
-			
-			
+
+
 
 			result = m_ShaderShader->Render(m_Direct3D->GetDeviceContext(),
 				modelVector.at(i).GetIndexCount(),
@@ -256,7 +256,7 @@ bool realTimeViewer::RenderGraphics()
 				viewMatrix,
 				projectionMatrix,
 				materialVector.at(matID).GetTexture(),
-				materialVector.at(matID).getMatColor(), 
+				materialVector.at(matID).getMatColor(),
 				materialVector.at(matID).getMatSpecColor(),
 				materialVector.at(matID).getMatReflectivity(),
 				materialVector.at(matID).getMatSpecRolloff(),
@@ -268,9 +268,9 @@ bool realTimeViewer::RenderGraphics()
 				return false;
 			}
 
+		}
 	}
-	}
-	
+
 	update();
 
 
@@ -279,7 +279,7 @@ bool realTimeViewer::RenderGraphics()
 
 
 
-	
+
 
 	return true;
 }
@@ -301,32 +301,88 @@ void realTimeViewer::update()
 	//if (*tailP != *headP)
 	//{
 
-		memcpy(&messageType, (char*)pBuf, sizeof(int));
+	memcpy(&messageType, (char*)pBuf, sizeof(int));
 
 
 
 
-		int modelID = -1;
-
-
-		
+	int modelID = -1;
 
 
 
-		//Create mesh
-		if (messageType == 0)
+
+
+
+	//Create mesh
+	if (messageType == 0)
+	{
+
+		//ModelID
+		memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+
+
+		if (modelID > modelVector.size())
 		{
 
-			//ModelID
-			memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+			m_model.Initialize(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+			modelVector.push_back(m_model);
+
+		}
+
+		modelID = -1;
+
+	}
+
+	//Transform mesh
+	if (messageType == 2)
+	{
+		//ModelID
+		memcpy(&modelID, (char*)pBuf + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
+
+		XMFLOAT4X4 tempMatrix;
+		memcpy(&tempMatrix, (char*)pBuf + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 
-			if (modelID > modelVector.size())
+		if (modelID > 0)
+			modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
+
+		else
+			modelVector.at(modelID).setWorldMatrix(tempMatrix);
+
+		modelID = -1;
+	}
+
+	//find light
+	if (messageType == 3)
+	{
+		m_Light->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	}
+
+	//material change
+	if (messageType == 4)
+	{
+		int matID = -1;
+		//ModelID
+
+		//for matID we use messageSize from the mayaplugin since that one is not used for other things
+		memcpy(&matID, (char*)pBuf + sizeof(int), sizeof(int));
+
+		if (matID != -1)
+		{
+
+			if (matID > 0)
 			{
-								
-				 m_model.Initialize(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 
-				modelVector.push_back(m_model);
+				materialVector.at(matID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+			}
+
+			else
+			{
+
+				materialVector.at(matID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
 
 			}
 
@@ -334,127 +390,71 @@ void realTimeViewer::update()
 
 		}
 
-		//Transform mesh
-		if (messageType == 2)
-		{
-			//ModelID
-			memcpy(&modelID, (char*)pBuf + sizeof(XMFLOAT4X4)+sizeof(int), sizeof(int));
-
-			XMFLOAT4X4 tempMatrix;
-			memcpy(&tempMatrix, (char*)pBuf + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
-
-
-			if (modelID > 0)
-				modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
-
-			else
-				modelVector.at(modelID).setWorldMatrix(tempMatrix);
-
-			modelID = -1;
-		}
-
-		//find light
-		if (messageType == 3)
-		{
-			m_Light->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-		}
-
-		//material change
-		if (messageType == 4)
-		{
-			int matID = -1;
-			//ModelID
-
-			//for matID we use messageSize from the mayaplugin since that one is not used for other things
-			memcpy(&matID, (char*)pBuf + sizeof(int), sizeof(int));
-
-			if (matID != -1)
-			{
-
-				if (matID > 0)
-				{
-					
-					materialVector.at(matID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-					
-				}
-					
-				else
-				{
-					
-					materialVector.at(matID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-				
-
-				}
-
-				modelID = -1;
-					
-			}
-
-			
-
-			
-		}
 
 
 
-		//Delete Mesh
-		if (messageType == 5)
-		{
-			//ModelID
-			memcpy(&modelID, (char*)pBuf + (sizeof(int)), sizeof(int));
-
-
-			if (modelID > 0)
-				modelVector.at(modelID - 1).setIndexCount(-1);
-
-			else
-				modelVector.at(modelID).setIndexCount(-1);
-
-			modelID = -1;
-		}
-
-		//vertex changed mesh
-		if (messageType == 6)
-		{
-			
-			//ModelID
-			memcpy(&modelID, (char*)pBuf + sizeof(int)+sizeof(int), sizeof(int));
+	}
 
 
 
-			if (modelID > 0)
-				modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-
-			else
-				modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-
-
-			modelID = -1;
-
-		}
-
-		
-		
-		//extrude changed mesh
-		if (messageType == 7)
-		{
+	//Delete Mesh
+	if (messageType == 5)
+	{
+		//ModelID
+		memcpy(&modelID, (char*)pBuf + (sizeof(int)), sizeof(int));
 
 
-		
-			//ModelID
-			memcpy(&modelID, (char*)pBuf + sizeof(int)+sizeof(int), sizeof(int));
+		if (modelID > 0)
+			modelVector.at(modelID - 1).setIndexCount(-1);
+
+		else
+			modelVector.at(modelID).setIndexCount(-1);
+
+		modelID = -1;
+	}
+
+	//vertex changed mesh
+	if (messageType == 6)
+	{
+
+		//ModelID
+		memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
 
 
-			if (modelID > 0)
-				modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 
-			else
-				modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+		if (modelID > 0)
+			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+		else
+			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 
 
-			modelID = -1;
+		modelID = -1;
 
-		}
+	}
+
+
+
+	//extrude changed mesh
+	if (messageType == 7)
+	{
+
+
+
+		//ModelID
+		memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+
+
+		if (modelID > 0)
+			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+		else
+			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+
+
+		modelID = -1;
+
+	}
 
 
 	//	//New MAterial
@@ -477,22 +477,22 @@ void realTimeViewer::update()
 
 
 
-unsigned int tempH = *headP;
+	unsigned int tempH = *headP;
 
-		if (*tailP < *memSize) // read == *readerAmount) &&
-		{
-			*tailP += 10000;
-			//*readP = 1;
-		}
-		if (*tailP >= *memSize) //(read == *readerAmount) &&
-		{
-			*tailP = 0;
-		}
+	if (*tailP < *memSize) // read == *readerAmount) &&
+	{
+		*tailP += 10000;
+		//*readP = 1;
+	}
+	if (*tailP >= *memSize) //(read == *readerAmount) &&
+	{
+		*tailP = 0;
+	}
 
 
 	//}
 
-	
+
 
 }
 

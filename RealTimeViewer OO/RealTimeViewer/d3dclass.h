@@ -21,7 +21,7 @@ public:
 
 	bool Initialize(int, int, bool, HWND, bool, float, float);
 	void Shutdown();
-	
+
 	void BeginScene(float, float, float, float);
 	void EndScene();
 
@@ -30,9 +30,9 @@ public:
 
 	ID3D11DepthStencilView* GetDepthStencilView();
 
-	void GetProjectionMatrix( XMMATRIX& );
-	void GetWorldMatrix( XMMATRIX& );
-	void GetOrthoMatrix( XMMATRIX& );
+	void GetProjectionMatrix(XMMATRIX&);
+	void GetWorldMatrix(XMMATRIX&);
+	void GetOrthoMatrix(XMMATRIX&);
 
 	void GetVideoCardInfo(char*, int&);
 
@@ -54,7 +54,7 @@ private:
 	XMMATRIX m_projectionMatrix;
 	XMMATRIX m_worldMatrix;
 	XMMATRIX m_orthoMatrix;
-	
+
 };
 
 #endif

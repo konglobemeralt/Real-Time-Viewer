@@ -48,13 +48,13 @@ public:
 
 
 	bool UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void*);
-	
+
 	//bool updateMaterial(void* cBuf, void* pBuf);
 
 	int GetIndexCount();
 
-	
-	
+
+
 	void SetPosition(float, float, float);
 	void GetPosition(float&, float&, float&);
 	void setIndexCount(int i);
@@ -73,7 +73,7 @@ private:
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 
-	
+
 
 	void ReleaseModel();
 

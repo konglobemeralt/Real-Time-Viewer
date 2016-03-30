@@ -61,36 +61,36 @@ void LightClass::Render(void* cBuf, void* pBuf)
 
 
 
-			memcpy(&lightData.position, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), sizeof(XMFLOAT4));
-			memcpy(&lightData.color, (char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), sizeof(XMFLOAT4));
+	memcpy(&lightData.position, (char*)pBuf + usedSpace + sizeof(int) + sizeof(int) + sizeof(int), sizeof(XMFLOAT4));
+	memcpy(&lightData.color, (char*)pBuf + usedSpace + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), sizeof(XMFLOAT4));
 
 
-			/*memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
-			memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &color, sizeof(XMFLOAT4));*/
+	/*memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
+	memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4), &color, sizeof(XMFLOAT4));*/
 
 
-			unsigned int tempH = *headP;
+	unsigned int tempH = *headP;
 
-			if (*tailP < *memSize) // read == *readerAmount) &&
-			{
-				*tailP += 100000;
-				//*readP = 1;
-			}
-			if (*tailP >= *memSize) //(read == *readerAmount) &&
-			{
-				*tailP = 0;
-			}
+	if (*tailP < *memSize) // read == *readerAmount) &&
+	{
+		*tailP += 100000;
+		//*readP = 1;
+	}
+	if (*tailP >= *memSize) //(read == *readerAmount) &&
+	{
+		*tailP = 0;
+	}
 
 
-			///NOT SO USELESS///
-			//m_viewMatrix = XMLoadFloat4x4(&cameraData.camViewMatrix);
+	///NOT SO USELESS///
+	//m_viewMatrix = XMLoadFloat4x4(&cameraData.camViewMatrix);
 
-			//XMStoreFloat3(&m_position, lightData.position);
-			SetDiffuseColor(lightData.color.x, lightData.color.y, lightData.color.z, lightData.color.w);
-			SetPosition(lightData.position.x, lightData.position.y, lightData.position.z, lightData.position.w);
+	//XMStoreFloat3(&m_position, lightData.position);
+	SetDiffuseColor(lightData.color.x, lightData.color.y, lightData.color.z, lightData.color.w);
+	SetPosition(lightData.position.x, lightData.position.y, lightData.position.z, lightData.position.w);
 
-		
-	
+
+
 
 	return;
 }

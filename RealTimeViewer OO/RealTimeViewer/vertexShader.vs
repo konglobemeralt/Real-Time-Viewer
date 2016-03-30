@@ -8,40 +8,45 @@ cbuffer MatrixBuffer
 
 struct VertexInputType
 {
-    float4 position : POSITION;
-    float2 tex : TEXCOORD0;
+	float4 position : POSITION;
+	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
+
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
+	float4 position : POSITION0;
+	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
+	float4 OriginalPos : POSITION1;
+
 };
 
 
 //Thusly the vertex shader arriveth:
 PixelInputType vertexShader(VertexInputType input)
 {
-    PixelInputType output;
-    
+	PixelInputType output;
 
-	
-    input.position.w = 1.0f;
+	//input.position.w = 1.0f;
 
+	output.position = mul(input.position, worldMatrix);
 	
-    output.position = mul(input.position, worldMatrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projectionMatrix);
-    
+	//Save pos in WS
+	output.OriginalPos = output.position;
 	
+	//Continue transforming the output.position with the view and projection matrices
+	output.position = mul(output.position, viewMatrix);
+	output.position = mul(output.position, projectionMatrix);
+
+
+	//send forth textures and normals as well, the normal transformed into world space and normalized
 	output.tex = input.tex;
-    
 	output.normal = mul(input.normal, (float3x3)worldMatrix);
-	
-   
-    output.normal = normalize(output.normal);
+	output.normal = normalize(output.normal);
 
-    return output;
+	
+	return output;
+
 }

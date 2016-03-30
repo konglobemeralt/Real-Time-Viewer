@@ -1,52 +1,63 @@
 Texture2D shaderTexture;
 SamplerState SampleType;
 
-cbuffer LightBuffer : register(b0)
-{
-    float4 diffuseColor;
-    float3 lightDirection;
-	float padding;
-};
 
-cbuffer Materialbuffer : register(b1)
+cbuffer LightBuffer
 {
-	float4 materialColor;
-	float4 materialSpecular;
-	float materialReflect;
-	float materialSpecRolloff;
-	float padding2;
-	float padding3;
+	float4 ambientColor;
+	float4 diffuseColor;
+	float3 lightDirection;
+	float padding;
 };
 
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
+	float4 position : SV_POSITION;
+	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
+
 float4 pixelShader(PixelInputType input) : SV_TARGET
 {
-	float4 textureColor;
-
-	float3 lightDir;
-	float lightIntensity;
 	float4 color;
+	float2 projectTexCoord;
+	float depthValue;
+	float lightDepthValue;
+	float lightIntensity;
+	//float4 textureColor;
+	float3 lightDir;
 
+	float4 color1;
+    float4 color2;
+    float4 alphaValue;
+    float4 blendColor;
+
+	//inverting the light direction:
+	lightDir = -lightDirection;
+
+	color = ambientColor;
 
 	
-	textureColor = shaderTexture.Sample(SampleType, input.tex);
+		
+		lightIntensity = saturate(dot(input.normal, lightDir));
+		if(lightIntensity > 0.0f)
+		{
+			color += (diffuseColor * lightIntensity);
+			color = saturate(color);
+		}
+	
 
-    lightDir = lightDirection;
 
-    //lightIntensity = saturate(dot(input.normal, lightDir));
-	lightIntensity = 0.5;
+	//if not in the view of the light, then just sample the regular pixel color from the texture at this texcoord location
+	//blending of textures
 
-    color = saturate(diffuseColor * lightIntensity);
+    // Get the pixel color from the first texture.
+	 color1 = shaderTexture.Sample(SampleType, input.tex);
 
-    color = diffuseColor * textureColor;
 
-	color = color * materialColor;
 
-    return color;
+
+	color = color1;
+	return color;
 }

@@ -26,7 +26,7 @@ public:
 
 	void Render(void* cBuf, void* pBuf);
 	void GetViewMatrix(XMMATRIX&);
-	
+
 private:
 
 	float m_positionX, m_positionY, m_positionZ;
@@ -34,7 +34,7 @@ private:
 
 	XMMATRIX m_viewMatrix;
 
-	
+
 };
 
 #endif

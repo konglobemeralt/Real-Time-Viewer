@@ -74,7 +74,7 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 
 
 		memcpy(&messageType, (char*)pBuf + usedSpace, sizeof(int));
-		
+
 
 		if (messageType == 1)
 		{
@@ -95,8 +95,8 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 			{
 				*tailP = 0;
 			}
-		
-	
+
+
 			///USELESS///
 
 			XMVECTOR up, position, lookAt;
@@ -128,13 +128,13 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 
 			//Create the rotation matrix from the above values.
 			rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
-	
+
 			//Transfoorm the lookAt and upp vector by the rotation matrix.
 			lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);
 			up = XMVector3TransformCoord(up, rotationMatrix);
 
 
-		
+
 
 			// Translate the rotated camera position to the location of the viewer.
 			lookAt = position + lookAt;
@@ -145,11 +145,11 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 
 
 			///NOT SO USELESS///
-			
+
 			m_viewMatrix = XMLoadFloat4x4(&cameraData.camViewMatrix);
-		
+
 		}
-	
+
 	}
 
 	return;

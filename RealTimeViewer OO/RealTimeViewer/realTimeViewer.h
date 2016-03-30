@@ -31,7 +31,7 @@ private:
 	bool HandleInput(float);
 	bool Render();
 	bool RenderGraphics();
-	
+
 	void update();
 
 	int numberOfModels;

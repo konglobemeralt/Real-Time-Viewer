@@ -15,7 +15,7 @@ public:
 	fileMapping();
 	fileMapping(const fileMapping&);
 	~fileMapping();
-	
+
 	//Message not to date, dont use it
 	struct VertexData
 	{
@@ -40,7 +40,7 @@ public:
 		DirectX::XMFLOAT3 rotation;
 		DirectX::XMFLOAT3 viewDirection;
 	}; CameraData cameraData;
-	
+
 	struct message
 	{
 		//Header
@@ -49,7 +49,7 @@ public:
 		int padding;
 		//actual message
 		//meshes
-		
+
 		//camera
 		CameraData camData;
 
@@ -60,7 +60,7 @@ public:
 		int numMeshes;
 		int numVerts;
 		std::vector<VertexData> vert;
-		
+
 	};
 
 
@@ -88,11 +88,11 @@ public:
 
 private:
 	HeadTail headTail_;
-	
+
 	HANDLE hMapFile_;
-	
-	
-	
+
+
+
 
 	void* pBuf_;
 	void* controlBuf_;
@@ -100,7 +100,7 @@ private:
 	//readWriteControlls
 	HANDLE bufferController_;
 
-	
+
 };
 
 

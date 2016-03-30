@@ -104,7 +104,7 @@ void SystemClass::Run()
 bool SystemClass::Frame()
 {
 	bool result = false;
-	
+
 	// Do the frame processing for the application object.
 	result = m_realTimeViewer->frame();
 	if (!result)
@@ -136,7 +136,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// Give the application a name.
-	m_applicationName = "Engine";
+	m_applicationName = L"Engine";
 
 	// Setup the windows class with default settings.
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -240,21 +240,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 		// Check if the window is being destroyed.
 	case WM_DESTROY:
 	{
-					   PostQuitMessage(0);
-					   return 0;
+		PostQuitMessage(0);
+		return 0;
 	}
 
-		// Check if the window is being closed.
+	// Check if the window is being closed.
 	case WM_CLOSE:
 	{
-					 PostQuitMessage(0);
-					 return 0;
+		PostQuitMessage(0);
+		return 0;
 	}
 
-		// All other messages pass to the message handler in the system class.
+	// All other messages pass to the message handler in the system class.
 	default:
 	{
-			   return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
+		return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
 	}
 	}
 }

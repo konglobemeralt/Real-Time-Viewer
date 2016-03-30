@@ -40,7 +40,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	D3D11_RASTERIZER_DESC rasterDesc;
 	D3D11_VIEWPORT viewport;
 	float fieldOfView, screenAspect;
-	
+
 
 	//Store the vsync setting.
 	m_vsync_enabled = vsync;
@@ -341,7 +341,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	//Create an orthographic projection matrix for 2D rendering.
 	m_orthoMatrix = XMMatrixOrthographicRH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
-	
+
 
 	return true;
 }

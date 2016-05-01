@@ -2065,7 +2065,7 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 					std::string toString = filename.asChar();
 					const char* toChar = toString.c_str();
 
-					std::memcpy((char*)pBuf + +sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
+					std::memcpy((char*)pBuf  +sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
 
 
 				}

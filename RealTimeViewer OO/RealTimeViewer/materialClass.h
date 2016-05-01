@@ -38,7 +38,8 @@ public:
 	void ReleaseTexture();
 
 	
-	WCHAR* m_texturePath;
+	WCHAR m_texturePath[100];
+	char tempPath[200];
 private:
 	ID3D11ShaderResourceView* m_texture;
 	

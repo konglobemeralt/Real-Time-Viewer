@@ -49,4 +49,5 @@ Source.cpp(2246): warning C4267: 'argument': conversion from 'size_t' to 'unsign
 Source.cpp(2248): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 Source.cpp(2256): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
 Source.cpp(2258): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  MayaPlugin.vcxproj -> C:\QUESTIONBOX\Documents\School\RTV\Real-Time-Viewer-master\Real-Time-Viewer-master\project debug - Copy\x64\Debug\MayaPlugin.mll
+     Creating library C:\Temp\RTVGIT\CommitRepository\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.lib and object C:\Temp\RTVGIT\CommitRepository\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.exp
+  MayaPlugin.vcxproj -> C:\Temp\RTVGIT\CommitRepository\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.mll

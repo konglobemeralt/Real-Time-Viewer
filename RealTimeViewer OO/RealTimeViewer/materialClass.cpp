@@ -1,5 +1,5 @@
 #include "materialClass.h"
-
+#include <string>
 
 MaterialClass::MaterialClass()
 {
@@ -12,9 +12,9 @@ MaterialClass::MaterialClass()
 	m_diffuseG = 1.0f;
 	m_diffuseB = 1.0f;
 
-	m_texturePath = (WCHAR *)malloc(sizeof(WCHAR)* (500 + 1));
-	m_texturePath = L"missy.dds\0";
-	
+	//m_texturePath = (WCHAR *)malloc(sizeof(WCHAR)* (500 + 1));
+	//m_texturePath = L"missy.dds\0";
+	wcscpy(m_texturePath, L"missy.dds\0");
 	
 }
 
@@ -49,12 +49,27 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 		////int TextPathSize = 0;
 		////memcpy(m_texturePath, L"frontdesk.dds\0", 150);
 		//
-		m_texturePath = L"frontdesk.dds\0";
-		m_diffuseTexturePath = L"frontdesk.dds\0";
-		m_matColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-		////memcpy(&m_texturePath, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
+		//m_texturePath = L"frontdesk.dds\0";
+		//m_diffuseTexturePath = L"frontdesk.dds\0";
 
-	
+		m_matColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+		
+		memcpy(&tempPath, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
+		
+		std::string test = tempPath;
+		std::size_t found = test.find_last_of("/\\");
+		std::string test2 = test.substr(found+1);
+
+		std::wstring widestr = std::wstring(test2.begin(), test2.end());
+		
+		WCHAR* jollygoodString = (WCHAR*)widestr.c_str();
+		
+		wcscpy(m_texturePath, jollygoodString);
+		//	mbscpy()
+		//m_texturePath = jollygoodString;
+		
+
+		int sg = 0;
 	
 
 	}
@@ -135,7 +150,4 @@ void MaterialClass::ReleaseTexture()
 	return;
 }
 
-
-
-	
 

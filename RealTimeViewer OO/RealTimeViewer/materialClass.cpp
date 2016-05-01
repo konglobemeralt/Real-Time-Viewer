@@ -15,6 +15,7 @@ MaterialClass::MaterialClass()
 	m_texturePath = (WCHAR *)malloc(sizeof(WCHAR)* (500 + 1));
 	m_texturePath = L"missy.dds\0";
 	
+	
 }
 
 MaterialClass::~MaterialClass()
@@ -36,8 +37,27 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 	//memcpy(&m_matSpecRolloff, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(float), sizeof(float));
 
 	//delete[]m_texturePath;
-	//memcpy(&m_texturePath, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char)* 500));
+	int texExist;
+	memcpy(&texExist, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
 
+	if (texExist == 1)
+	{
+		
+		////ReleaseTexture();
+		////delete[]m_texturePath;
+		//m_texturePath = (WCHAR *)malloc(sizeof(WCHAR)* (500 + 1));
+		////int TextPathSize = 0;
+		////memcpy(m_texturePath, L"frontdesk.dds\0", 150);
+		//
+		m_texturePath = L"frontdesk.dds\0";
+		m_diffuseTexturePath = L"frontdesk.dds\0";
+		m_matColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+		////memcpy(&m_texturePath, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
+
+	
+	
+
+	}
 	return true;
 }
 
@@ -71,8 +91,8 @@ WCHAR* MaterialClass::getTexturePath()
 bool MaterialClass::LoadTexture(ID3D11Device* pDevice)
 {
 	bool result;
-
-
+	
+	
 	// Create the texture object.
 	m_pTexture = new TextureClass;
 	if (!m_pTexture)
@@ -80,7 +100,7 @@ bool MaterialClass::LoadTexture(ID3D11Device* pDevice)
 		return false;
 	}
 
-
+	WCHAR* temp = m_texturePath;
 
 	// Initialize the texture object.
 	result = m_pTexture->Initialize(pDevice, m_texturePath);
@@ -97,6 +117,7 @@ bool MaterialClass::LoadTexture(ID3D11Device* pDevice)
 
 ID3D11ShaderResourceView* MaterialClass::GetTexture()
 {
+
 	return m_pTexture->GetTexture();
 }
 

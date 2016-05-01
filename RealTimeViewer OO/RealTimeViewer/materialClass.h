@@ -38,7 +38,7 @@ public:
 	void ReleaseTexture();
 
 	
-
+	WCHAR* m_texturePath;
 private:
 	ID3D11ShaderResourceView* m_texture;
 	
@@ -51,7 +51,7 @@ float m_diffuseR, m_diffuseG, m_diffuseB;
 WCHAR* m_diffuseTexturePath;
 
 
-WCHAR* m_texturePath;
+
 DirectX::XMFLOAT4 m_matColor;
 DirectX::XMFLOAT4 m_matSpecColor;
 float m_matReflectivity;

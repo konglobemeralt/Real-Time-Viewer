@@ -43,11 +43,10 @@ Source.cpp(1510): warning C4267: '=': conversion from 'size_t' to 'int', possibl
 Source.cpp(1546): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 Source.cpp(1547): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 Source.cpp(1548): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-Source.cpp(2044): warning C4018: '<': signed/unsigned mismatch
-Source.cpp(2123): warning C4018: '<': signed/unsigned mismatch
-Source.cpp(2222): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
-Source.cpp(2224): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-Source.cpp(2232): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
-Source.cpp(2234): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-     Creating library C:\Temp\RTVGIT\Real-Time-Viewer-VS15-2KOOL4SKOOL\VS15-2KOOL4SKOOL-Backup\project debug - Copy\x64\Debug\MayaPlugin.lib and object C:\Temp\RTVGIT\Real-Time-Viewer-VS15-2KOOL4SKOOL\VS15-2KOOL4SKOOL-Backup\project debug - Copy\x64\Debug\MayaPlugin.exp
-  MayaPlugin.vcxproj -> C:\Temp\RTVGIT\Real-Time-Viewer-VS15-2KOOL4SKOOL\VS15-2KOOL4SKOOL-Backup\project debug - Copy\x64\Debug\MayaPlugin.mll
+Source.cpp(2045): warning C4018: '<': signed/unsigned mismatch
+Source.cpp(2128): warning C4018: '<': signed/unsigned mismatch
+Source.cpp(2246): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+Source.cpp(2248): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Source.cpp(2256): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+Source.cpp(2258): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  MayaPlugin.vcxproj -> C:\QUESTIONBOX\Documents\School\RTV\Real-Time-Viewer-master\Real-Time-Viewer-master\project debug - Copy\x64\Debug\MayaPlugin.mll

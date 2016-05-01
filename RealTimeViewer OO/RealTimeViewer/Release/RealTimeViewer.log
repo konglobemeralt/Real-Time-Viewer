@@ -1,10 +1,4 @@
-﻿  cameraClass.cpp
-  d3dclass.cpp
-  fileMapping.cpp
-  lightClass.cpp
-  materialClass.cpp
-  modelClass.cpp
-  realTimeViewer.cpp
+﻿  realTimeViewer.cpp
 realTimeViewer.cpp(28): warning C4316: 'fileMapping': object allocated on the heap may not be aligned 16
 realTimeViewer.cpp(24): warning C4101: 'videoCard': unreferenced local variable
 realTimeViewer.cpp(25): warning C4101: 'videoMemory': unreferenced local variable
@@ -19,16 +13,12 @@ realTimeViewer.cpp(205): warning C4101: 'positionX': unreferenced local variable
 realTimeViewer.cpp(204): warning C4101: 'index': unreferenced local variable
 realTimeViewer.cpp(205): warning C4101: 'positionY': unreferenced local variable
 realTimeViewer.cpp(205): warning C4101: 'positionZ': unreferenced local variable
-realTimeViewer.cpp(318): warning C4018: '>': signed/unsigned mismatch
-realTimeViewer.cpp(365): warning C4018: '<': signed/unsigned mismatch
-realTimeViewer.cpp(500): warning C4018: '>': signed/unsigned mismatch
-  ShaderShader.cpp
-  Source.cpp
-Source.cpp(29): warning C4316: 'realTimeViewer': object allocated on the heap may not be aligned 16
-  textureClass.cpp
+realTimeViewer.cpp(317): warning C4018: '>': signed/unsigned mismatch
+realTimeViewer.cpp(364): warning C4018: '<': signed/unsigned mismatch
+realTimeViewer.cpp(499): warning C4018: '>': signed/unsigned mismatch
   Generating code
-  414 of 416 functions (99.5%) were compiled, the rest were copied from previous compilation.
+  1 of 416 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   RealTimeViewer.vcxproj -> C:\Temp\RTVGIT\CommitRepository\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.exe

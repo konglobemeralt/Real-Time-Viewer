@@ -2038,7 +2038,8 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 
 			pathSize = filename.numChars();
 
-			texExist = 1;
+			if (pathSize > 0)
+				texExist = 1;
 		}
 
 		for (int i = 0; i < materialNames.length(); i++)
@@ -2061,6 +2062,10 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 
 				if (texExist == 1)
 				{
+					std::string toString = filename.asChar();
+					const char* toChar = toString.c_str();
+
+					std::memcpy((char*)pBuf + +sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
 
 
 				}
@@ -2207,14 +2212,33 @@ void matChanged(MFnMesh& mesh)
 
 			pathSize = filename.numChars();
 
-			texExist = 1;
+			if(pathSize > 0)
+				texExist = 1;
+
 		}
 
+		if (texExist == 1)
+		{
+			tMessage.messageType = 4;
+
+			std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
+			//hasTexture
+			std::memcpy((char*)pBuf + sizeof(int) + sizeof(int), &texExist, sizeof(int));
+
+			std::string toString = filename.asChar();
+			const char* toChar = toString.c_str();
+
+			std::memcpy((char*)pBuf + +sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
+
+
+		
+		}
+				
 
 	
 
 
-		}
+	}
 
 		int meshID = -1;
 		for (size_t i = 0; i < nodeNames.length(); i++)

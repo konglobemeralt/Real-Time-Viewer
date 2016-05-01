@@ -110,7 +110,7 @@ bool realTimeViewer::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth,
 	MaterialClass DefaultMaterial;
 
 	//initialize material 
-	DefaultMaterial.LoadTexture(m_Direct3D->GetDevice());
+	//DefaultMaterial.LoadTexture(m_Direct3D->GetDevice());
 
 	materialVector.push_back(DefaultMaterial);
 
@@ -225,7 +225,12 @@ bool realTimeViewer::RenderGraphics()
 		if (modelVector.at(i).GetIndexCount() > 0)
 		{
 
+			//Put the model vertex and index buffers on the graphics pipeline to prepare for drawing.
+			int matID = modelVector.at(i).getMatID();
 
+			materialVector.at(matID).LoadTexture(m_Direct3D->GetDevice());
+
+						
 			modelVector.at(i).Render(m_Direct3D->GetDeviceContext());
 			// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 
@@ -233,13 +238,7 @@ bool realTimeViewer::RenderGraphics()
 			//Move the model to the location it should be rendered at.
 			worldMatrix = modelVector.at(i).getWorldMatrix();
 
-
-
-			//Put the model vertex and index buffers on the graphics pipeline to prepare for drawing.
-			int matID = modelVector.at(i).getMatID();
-
-		
-			materialVector.at(matID).LoadTexture(m_Direct3D->GetDevice());
+			
 
 
 			result = m_ShaderShader->Render(m_Direct3D->GetDeviceContext(),
@@ -376,7 +375,7 @@ void realTimeViewer::update()
 			//
 			//	else
 			//	{
-
+					//materialVector.at(matID).ReleaseTexture();
 					materialVector.at(matID).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
 
 

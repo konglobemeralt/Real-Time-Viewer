@@ -88,7 +88,7 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 
 			if (*tailP < *memSize) // read == *readerAmount) &&
 			{
-				*tailP += 10000;
+				*tailP += 1024 * 10;;
 				//*readP = 1;
 			}
 			if (*tailP >= *memSize) //(read == *readerAmount) &&

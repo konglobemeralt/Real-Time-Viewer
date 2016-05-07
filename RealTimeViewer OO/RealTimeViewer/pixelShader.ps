@@ -48,5 +48,5 @@ float4 pixelShader(PixelInputType input) : SV_TARGET
 
 	color = color * materialColor;
 
-    return textureColor + materialColor;
+    return textureColor * materialColor;
 }

@@ -7,8 +7,7 @@
 #include <Windows.h>
 #include <vector>
 
-
-	using namespace DirectX;
+using namespace DirectX;
 using namespace std;
 
 void createdNodeCallback(MObject &node, void* clientData);
@@ -153,7 +152,7 @@ void* controlBuf;
 int usedSpace = 0;
 
 
-#define BUF_SIZE 1024*1024*100
+#define BUF_SIZE 1024*1024
 TCHAR globName[] = TEXT("Global\\testMap");
 TCHAR globName2[] = TEXT("Global\\controlFileMap");
 //TCHAR globName[] = TEXT("testMap");
@@ -295,8 +294,10 @@ EXPORT MStatus uninitializePlugin(MObject obj)
 void createdNodeCallback(MObject &node, void* clientData)
 {
 	//append new callbacks as objects are created
-	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, meshAttributeChangedCallback));
 	CbIds.append(MNodeMessage::addNodeAboutToDeleteCallback(node, destroyedNodeCallback));
+	
+	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, meshAttributeChangedCallback));
+	
 	CbIds.append(MNodeMessage::addNameChangedCallback(node, renamedNodeCallback));
 
 }
@@ -433,6 +434,7 @@ void createdTransformCallback(MObject &node, void* clientData)
 	MStatus res;
 
 	CbIds.append(MNodeMessage::addAttributeChangedCallback(node, transformChangedCallback, &res));
+	CbIds.append(MNodeMessage::addNodeAboutToDeleteCallback(node, destroyedNodeCallback));
 
 
 }
@@ -535,11 +537,14 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 			std::memcpy((char*)pBuf + sizeof(XMFLOAT4X4) + sizeof(int), &tMessage.numMeshes, sizeof(int));
 
 
-			*headP += 10000;
+			if (*headP >= *tailP)
+			{
+				*headP += 10000;
+				*freeMem -= 10000;
+			}
+			
 
-
-
-			if (*headP > *memSize)
+			if (*headP >= *memSize)
 			{
 				*headP = 0;
 			}
@@ -906,11 +911,14 @@ void getMeshInfo(MFnMesh &meshNode)
 
 
 	//END GET MATERIAL
-	*headP += 10000;
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
 
-
-	if (*headP > *memSize)
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
@@ -959,7 +967,7 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 
 
 	*headP += 10000;
-
+	*freeMem += 10000;
 	if (*headP > *memSize)
 	{
 		*headP = 0;
@@ -1042,9 +1050,14 @@ void lightAttrChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 		memcpy((char*)pBuf + usedSpace + sizeof(int) + sizeof(int) + sizeof(int), &translation, sizeof(XMFLOAT4));
 		memcpy((char*)pBuf + usedSpace + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), &colorVec, sizeof(XMFLOAT4));
 
-		*headP += 10000;
+		if (*headP >= *tailP)
+		{
+			*headP += 10000;
+			*freeMem -= 10000;
+		}
 
-		if (*headP > *memSize)
+
+		if (*headP >= *memSize)
 		{
 			*headP = 0;
 		}
@@ -1121,9 +1134,14 @@ void lightChange(MFnTransform& transform, MPlug &plug)
 
 
 
-	*headP += 10000;
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
-	if (*headP > *memSize)
+
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
@@ -1201,9 +1219,14 @@ void getLightInfo(MFnLight& lightNode)
 
 
 
-	*headP += 10000;
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
-	if (*headP > *memSize)
+
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
@@ -1247,13 +1270,18 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 
 
 
-	*headP += 10000;
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
 
-	if (*headP > *memSize)
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
+
 	//Copy index, use to destroy mesh of index in RTV
 }
 
@@ -1405,16 +1433,17 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
 
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
-	*headP += 10000;
 
-
-
-	if (*headP > *memSize)
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
-
 
 
 
@@ -1556,10 +1585,14 @@ void getExtrudeChangeInfo(MPlug& plug)
 	////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
 
-	*headP += 10000;
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
 
-	if (*headP > *memSize)
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
@@ -1610,10 +1643,14 @@ void shaderChangedCallback(MObject &node, void* clientData)
 
 
 
-	*headP += 10000;
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
 
-	if (*headP > *memSize)
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
@@ -2090,11 +2127,14 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 			
 		}
 	}
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
-	*headP += 10000;
 
-
-	if (*headP > *memSize)
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
 	}
@@ -2337,13 +2377,17 @@ void matChanged(MFnMesh& mesh)
 		//		}
 		//	} while (sm.cb->freeMem >!slotSize);
 	
+	
+	if (*headP >= *tailP)
+	{
+		*headP += 10000;
+		*freeMem -= 10000;
+	}
 
-	*headP += 10000;
-
-
-	if (*headP > *memSize)
+	if (*headP >= *memSize)
 	{
 		*headP = 0;
+		
 	}
 }
 

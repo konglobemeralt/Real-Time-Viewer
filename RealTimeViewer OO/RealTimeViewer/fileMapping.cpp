@@ -1,6 +1,6 @@
 #include "fileMapping.h"
 
-#define BUFFER_SIZE 1024*1024*100
+#define BUFFER_SIZE 1024*1024
 
 TCHAR globName[] = TEXT("Global\\testMap");
 TCHAR globName2[] = TEXT("Global\\controlFileMap");

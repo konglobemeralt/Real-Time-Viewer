@@ -3,7 +3,7 @@
 
 MaterialClass::MaterialClass()
 {
-	m_matColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	m_matColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	m_matSpecColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	m_matReflectivity = 1.0f;
 	m_matSpecRolloff = 1.0f;
@@ -31,6 +31,7 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 
 	int usedSpace = 0;
 	
+	memcpy(&m_matColor, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4));
 	//memcpy(&m_matSpecColor, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(DirectX::XMFLOAT4));
 	//memcpy(&m_matReflectivity, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), sizeof(float));
 	//memcpy(&m_matSpecRolloff, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(float), sizeof(float));
@@ -38,10 +39,9 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 	//delete[]m_texturePath;
 	int texExist;
 	memcpy(&texExist, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
-	if (texExist != 1)
-	{
-		memcpy(&m_matColor, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4));
-	}
+	
+
+
 	
 	if (texExist == 1)
 	{
@@ -76,9 +76,10 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 		
 
 		int sg = 0;
-	
-
+		
+		return true;
 	}
+
 	return true;
 }
 

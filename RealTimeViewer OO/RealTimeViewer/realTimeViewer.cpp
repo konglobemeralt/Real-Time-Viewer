@@ -395,7 +395,7 @@ void realTimeViewer::update()
 
 
 	//Delete Mesh
-	if (messageType == 5)
+if (messageType == 5)
 	{
 		//ModelID
 		memcpy(&modelID, (char*)pBuf + (sizeof(int)), sizeof(int));
@@ -512,10 +512,10 @@ void realTimeViewer::update()
 
 	unsigned int tempH = *headP;
 
-	if (*tailP < *memSize) // read == *readerAmount) &&
+	if (*tailP < *headP) // read == *readerAmount) &&
 	{
 		*tailP += 10000;
-		//*readP = 1;
+		
 	}
 	if (*tailP >= *memSize) //(read == *readerAmount) &&
 	{

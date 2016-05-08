@@ -452,6 +452,8 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 
 	if (msg & MNodeMessage::kAttributeSet)
 	{
+
+
 		unsigned int *headP = (unsigned int*)controlBuf;
 		unsigned int *tailP = headP + 1;
 		unsigned int *readerAmount = headP + 2;
@@ -459,6 +461,21 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 		unsigned int *memSize = headP + 4;
 
 		MFnTransform transform(plug.node());
+
+		size_t tempT = *tailP;
+		size_t distance = 0;
+		//
+		if (tempT >= *headP)
+		{
+			distance = tempT - *headP;
+		}
+		else if (tempT < *headP)
+		{
+			distance = (*memSize - *headP) + tempT;
+		}
+
+		if (10000 < distance || *headP == tempT)
+		{
 
 		if (transform.isParentOf(camera.object()))
 		{
@@ -529,20 +546,7 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 			//Give the mesh an ID
 			tMessage.numMeshes = meshID;
 
-			size_t tempT = *tailP;
-			size_t distance = 0;
-			//
-			if (tempT >= *headP)
-			{
-				distance = tempT - *headP;
-			}
-			else if (tempT < *headP)
-			{
-				distance = (*memSize - *headP) + tempT;
-			}
-
-			if (10000 < distance || *headP == tempT)
-			{
+	
 
 				//Send ID
 				std::memcpy((char*)pBuf + sizeof(XMFLOAT4X4) + sizeof(int), &tMessage.numMeshes, sizeof(int));
@@ -550,8 +554,9 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 				std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
 				//send Matrix
 				std::memcpy((char*)pBuf + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
-
+				
 				*headP += 10000;
+				*freeMem -= 10000;
 
 
 				if (*headP >= *memSize)
@@ -703,7 +708,20 @@ void getMeshInfo(MFnMesh &meshNode)
 	//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
 
 
+	size_t tempT = *tailP;
+	size_t distance = 0;
+	//
+	if (tempT >= *headP)
+	{
+		distance = tempT - *headP;
+	}
+	else if (tempT < *headP)
+	{
+		distance = (*memSize - *headP) + tempT;
+	}
 
+	if (10000 < distance || *headP == tempT)
+	{
 
 
 	message tMessage;
@@ -747,20 +765,7 @@ void getMeshInfo(MFnMesh &meshNode)
 	tMessage.padding = 0;
 
 
-	size_t tempT = *tailP;
-	size_t distance = 0;
-	//
-	if (tempT >= *headP)
-	{
-		distance = tempT - *headP;
-	}
-	else if (tempT < *headP)
-	{
-		distance = (*memSize - *headP) + tempT;
-	}
 
-	if (10000 < distance || *headP == tempT)
-	{
 
 		std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
 		std::memcpy((char*)pBuf + sizeof(int), &tMessage.messageSize, sizeof(int));
@@ -936,7 +941,7 @@ void getMeshInfo(MFnMesh &meshNode)
 		}
 		//END GET MATERIAL
 		*headP += 10000;
-
+		*freeMem -= 10000;
 
 
 		if (*headP >= *memSize)
@@ -1006,7 +1011,7 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 
 
 		*headP += 10000;
-
+		*freeMem -= 10000;
 
 
 		if (*headP >= *memSize)
@@ -1292,20 +1297,6 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
-	int messageType = 5;
-
-	unsigned int meshCount = nodeNames.length();
-	int destroyMesh;
-	for (size_t i = 0; i < meshCount; i++)
-	{
-		if (nodeNames[i] == mesh.name())
-		{
-			destroyMesh = i;
-		}
-	}
-	MGlobal::displayInfo(MString(mesh.name() + " has changed been destroyed!!"));
-	MGlobal::displayInfo(MString("ID = " + destroyMesh));
-	//destroyMesh = -1;
 
 
 	size_t tempT = *tailP;
@@ -1322,6 +1313,23 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 
 	if (10000 < distance || *headP == tempT)
 	{
+
+	int messageType = 5;
+
+	unsigned int meshCount = nodeNames.length();
+	int destroyMesh;
+	for (size_t i = 0; i < meshCount; i++)
+	{
+		if (nodeNames[i] == mesh.name())
+		{
+			destroyMesh = i;
+		}
+	}
+	MGlobal::displayInfo(MString(mesh.name() + " has changed been destroyed!!"));
+	MGlobal::displayInfo(MString("ID = " + destroyMesh));
+	//destroyMesh = -1;
+
+
 		std::memcpy((char*)pBuf, &messageType, sizeof(int));
 		//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
 		std::memcpy((char*)pBuf + sizeof(int), &destroyMesh, sizeof(int));
@@ -1329,7 +1337,7 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 
 
 		*headP += 10000;
-
+		*freeMem -= 10000;
 
 
 		if (*headP >= *memSize)
@@ -1392,7 +1400,20 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+	size_t tempT = *tailP;
+	size_t distance = 0;
+	//
+	if (tempT >= *headP)
+	{
+		distance = tempT - *headP;
+	}
+	else if (tempT < *headP)
+	{
+		distance = (*memSize - *headP) + tempT;
+	}
 
+	if (10000 < distance || *headP == tempT)
+	{
 	//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
 
 
@@ -1436,20 +1457,6 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	tMessage.messageSize = 10000;
 	tMessage.padding = 0;
 	
-	size_t tempT = *tailP;
-	size_t distance = 0;
-	//
-	if (tempT >= *headP)
-	{
-		distance = tempT - *headP;
-	}
-	else if (tempT < *headP)
-	{
-		distance = (*memSize - *headP) + tempT;
-	}
-
-	if (10000 < distance || *headP == tempT)
-	{
 
 		std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
 		std::memcpy((char*)pBuf + sizeof(int), &tMessage.messageSize, sizeof(int));
@@ -1503,7 +1510,7 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 
 
 		*headP += 10000;
-
+		*freeMem -= 10000;
 
 
 		if (*headP >= *memSize)
@@ -1542,6 +1549,7 @@ void getExtrudeChangeInfo(MPlug& plug)
 
 
 
+
 	while (!polyIt.isDone())
 	{
 		polyIt.getTriangles(vert, vertex);
@@ -1567,7 +1575,20 @@ void getExtrudeChangeInfo(MPlug& plug)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+	size_t tempT = *tailP;
+	size_t distance = 0;
+	//
+	if (tempT >= *headP)
+	{
+		distance = tempT - *headP;
+	}
+	else if (tempT < *headP)
+	{
+		distance = (*memSize - *headP) + tempT;
+	}
 
+	if (10000 < distance || *headP == tempT)
+	{
 	//MGlobal::displayInfo(MString("Number of verts: ") + vertList.length());
 	message tMessage;
 
@@ -1607,20 +1628,7 @@ void getExtrudeChangeInfo(MPlug& plug)
 	tMessage.messageSize = 10000;
 	tMessage.padding = 0;
 
-	size_t tempT = *tailP;
-	size_t distance = 0;
-	//
-	if (tempT >= *headP)
-	{
-		distance = tempT - *headP;
-	}
-	else if (tempT < *headP)
-	{
-		distance = (*memSize - *headP) + tempT;
-	}
-
-	if (10000 < distance || *headP == tempT)
-	{
+	
 		std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
 		std::memcpy((char*)pBuf + sizeof(int), &tMessage.messageSize, sizeof(int));
 
@@ -1665,7 +1673,7 @@ void getExtrudeChangeInfo(MPlug& plug)
 
 
 		*headP += 10000;
-
+		*freeMem -= 10000;
 
 
 		if (*headP >= *memSize)
@@ -1688,6 +1696,20 @@ void shaderChangedCallback(MObject &node, void* clientData)
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+	size_t tempT = *tailP;
+	size_t distance = 0;
+	//
+	if (tempT >= *headP)
+	{
+		distance = tempT - *headP;
+	}
+	else if (tempT < *headP)
+	{
+		distance = (*memSize - *headP) + tempT;
+	}
+
+	if (10000 < distance || *headP == tempT)
+	{
 
 	MStatus res;
 
@@ -1711,21 +1733,6 @@ void shaderChangedCallback(MObject &node, void* clientData)
 	tMessage.messageType = 9;
 	tMessage.messageSize = materialNames.length();
 
-
-	size_t tempT = *tailP;
-	size_t distance = 0;
-	//
-	if (tempT >= *headP)
-	{
-		distance = tempT - *headP;
-	}
-	else if (tempT < *headP)
-	{
-		distance = (*memSize - *headP) + tempT;
-	}
-
-	if (10000 < distance || *headP == tempT)
-	{
 		std::memcpy((char*)pBuf, &tMessage.messageType, sizeof(int));
 		//tempMatID
 		std::memcpy((char*)pBuf + sizeof(int), &tMessage.messageSize, sizeof(int));
@@ -1734,7 +1741,7 @@ void shaderChangedCallback(MObject &node, void* clientData)
 
 
 		*headP += 10000;
-
+		*freeMem -= 10000;
 
 
 		if (*headP >= *memSize)
@@ -2067,7 +2074,25 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
+
+	size_t tempT = *tailP;
+	size_t distance = 0;
+	//
+	if (tempT >= *headP)
+	{
+		distance = tempT - *headP;
+	}
+	else if (tempT < *headP)
+	{
+		distance = (*memSize - *headP) + tempT;
+	}
+
+	if (10000 < distance || *headP == tempT)
+	{
+
 	MaterialData matD;
+
+
 
 	if ((msg & MNodeMessage::kAttributeSet) || msg & MNodeMessage::kConnectionMade)
 	{
@@ -2175,20 +2200,7 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 			if (materialNames[i] == matNamer.name())
 			{
 
-				size_t tempT = *tailP;
-				size_t distance = 0;
-				//
-				if (tempT >= *headP)
-				{
-					distance = tempT - *headP;
-				}
-				else if (tempT < *headP)
-				{
-					distance = (*memSize - *headP) + tempT;
-				}
-
-				if (10000 < distance || *headP == tempT)
-				{
+		
 					tMessage.messageType = 4;
 					tMessage.messageSize = i;
 					MGlobal::displayInfo("Coosen:");
@@ -2232,6 +2244,7 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 		}
 
 		*headP += 10000;
+		*freeMem -= 10000;
 
 
 
@@ -2253,6 +2266,20 @@ void matChanged(MFnMesh& mesh)
 	unsigned int *memSize = headP + 4;
 
 
+	size_t tempT = *tailP;
+	size_t distance = 0;
+	//
+	if (tempT >= *headP)
+	{
+		distance = tempT - *headP;
+	}
+	else if (tempT < *headP)
+	{
+		distance = (*memSize - *headP) + tempT;
+	}
+
+	if (10000 < distance || *headP == tempT)
+	{
 	// MATERIAL:
 	unsigned int instanceNumber = 0;
 	MObjectArray shaders;
@@ -2360,20 +2387,7 @@ void matChanged(MFnMesh& mesh)
 		}
 
 
-		size_t tempT = *tailP;
-		size_t distance = 0;
-		//
-		if (tempT >= *headP)
-		{
-			distance = tempT - *headP;
-		}
-		else if (tempT < *headP)
-		{
-			distance = (*memSize - *headP) + tempT;
-		}
-
-		if (10000 < distance || *headP == tempT)
-		{
+		
 
 			if (texExist == 1)
 			{
@@ -2498,8 +2512,7 @@ void matChanged(MFnMesh& mesh)
 
 
 		*headP += 10000;
-
-
+		*freeMem -= 10000;
 
 		if (*headP >= *memSize)
 		{

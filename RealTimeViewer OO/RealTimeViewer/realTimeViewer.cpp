@@ -301,7 +301,7 @@ void realTimeViewer::update()
 		int modelID = -1;
 
 
-		if (*tailP != *headP)
+		if (1)
 		{
 
 
@@ -512,7 +512,7 @@ void realTimeViewer::update()
 
 			if (*tailP < *memSize) // read == *readerAmount) &&
 			{
-				*tailP += 1000;
+				*tailP += 10000;
 				//*readP = 1;
 			}
 			if (*tailP >= *memSize) //(read == *readerAmount) &&

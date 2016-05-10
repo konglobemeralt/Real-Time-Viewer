@@ -204,12 +204,12 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 
 
 
-	unsigned int tempH = *headPtr;
+	//unsigned int tempH = *headPtr;
 
 	if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
 	{
 		*tailPtr += 10000;
-		*readPtr = 1;
+		//*readPtr = 1;
 	}
 	if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
 	{

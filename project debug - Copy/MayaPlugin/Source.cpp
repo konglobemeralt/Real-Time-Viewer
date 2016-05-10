@@ -477,74 +477,74 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 		if (10000 < distance || *headP == tempT)
 		{
 
-		if (transform.isParentOf(camera.object()))
-		{
-			cameraChange(transform, camera);
-		}
-
-		else if (strstr(name.asChar(), "Light"))
-		{
-			lightChange(transform, plug.parent());
-		}
-
-
-		else
-		{
-
-
-
-
-			MGlobal::displayInfo(MString("Mesh Transformed!!! "));
-
-			MFnMesh meshNode(plug.node());
-
-			//mesh rotation
-			double rotation[4];
-			transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
-
-			double scale[3];
-			transform.getScale(scale);
-
-			MVector translation = transform.getTranslation(MSpace::kPostTransform);
-			//Build matrix with xmvectors
-			MGlobal::displayInfo(MString() + "Color: " + translation.x + " " + translation.y + " " + translation.z + " ");
-
-
-			XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
-			XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
-			XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
-			XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
-
-			//Put in xmFloat4x4
-			DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
-
-
-
-			tMessage.messageType = 2;
-
-			
-
-
-			int meshCount = nodeNames.length();
-			int meshID = -1;
-
-			MFnMesh nameNode(transform.child(0));
-			for (size_t i = 0; i < meshCount; i++)
+			if (transform.isParentOf(camera.object()))
 			{
-				if (nodeNames[i] == nameNode.name())
+				cameraChange(transform, camera);
+			}
+
+			else if (strstr(name.asChar(), "Light"))
+			{
+				lightChange(transform, plug.parent());
+			}
+
+
+			else
+			{
+
+
+
+
+				MGlobal::displayInfo(MString("Mesh Transformed!!! "));
+
+				MFnMesh meshNode(plug.node());
+
+				//mesh rotation
+				double rotation[4];
+				transform.getRotationQuaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+
+				double scale[3];
+				transform.getScale(scale);
+
+				MVector translation = transform.getTranslation(MSpace::kPostTransform);
+				//Build matrix with xmvectors
+				MGlobal::displayInfo(MString() + "Color: " + translation.x + " " + translation.y + " " + translation.z + " ");
+
+
+				XMVECTOR translationVector = XMVectorSet(translation.x, translation.y, translation.z, 1.0f);
+				XMVECTOR rotationVector = XMVectorSet(rotation[0], rotation[1], rotation[2], rotation[3]);
+				XMVECTOR scaleVector = XMVectorSet(scale[0], scale[1], scale[2], 0.0f);
+				XMVECTOR zeroVector = XMVectorSet(0, 0, 0, 0.0f);
+
+				//Put in xmFloat4x4
+				DirectX::XMStoreFloat4x4(&tMessage.matrixData, XMMatrixAffineTransformation(scaleVector, zeroVector, rotationVector, translationVector));
+
+
+
+				tMessage.messageType = 2;
+
+				
+
+
+				int meshCount = nodeNames.length();
+				int meshID = -1;
+
+				MFnMesh nameNode(transform.child(0));
+				for (size_t i = 0; i < meshCount; i++)
 				{
-					meshID = i;
+					if (nodeNames[i] == nameNode.name())
+					{
+						meshID = i;
+
+					}
+
 
 				}
 
-
-			}
-
-			MGlobal::displayInfo(MString("ID = " + meshID));
+				MGlobal::displayInfo(MString("ID = " + meshID));
 
 
-			//Give the mesh an ID
-			tMessage.numMeshes = meshID;
+				//Give the mesh an ID
+				tMessage.numMeshes = meshID;
 
 	
 
@@ -564,12 +564,9 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 					*headP = 0;
 				}
 
-
-
 			}
 
 		}
-
 
 
 	}

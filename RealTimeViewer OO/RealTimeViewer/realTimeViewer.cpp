@@ -292,7 +292,9 @@ void realTimeViewer::update()
 	unsigned int *freeMem = headP + 3;
 	unsigned int *memSize = headP + 4;
 
-	
+	if (*tailP != *headP)
+	{
+
 		memcpy(&messageType, (char*)pBuf, sizeof(int));
 
 
@@ -301,8 +303,8 @@ void realTimeViewer::update()
 		int modelID = -1;
 
 
-		if (1)
-		{
+	/*	if (1)
+		{*/
 
 
 

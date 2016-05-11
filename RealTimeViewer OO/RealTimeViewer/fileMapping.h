@@ -1,107 +1,127 @@
-#ifndef FILEMAPPING_H
-#define FILEMAPPING_H
+#ifndef SHAREDMEMORY_H
+#define SHAREDMEMORY_H
 
-#include <tchar.h>
-#include <windows.h>
+#include <d3d11.h>
+#include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include <vector>
+#include <string>
+#include <iostream>
+#include <windows.h>
 
+#include <fstream>
 
-class fileMapping
+using namespace DirectX;
+using namespace std;
+
+#pragma comment (lib, "d3d11.lib")
+#pragma comment (lib, "d3dcompiler.lib")
+
+using namespace DirectX;
+
+class SharedMemory
 {
 public:
 
-	//HeadTail
-	fileMapping();
-	fileMapping(const fileMapping&);
-	~fileMapping();
+	SharedMemory();
+	~SharedMemory();
 
-	//Message not to date, dont use it
-	struct VertexData
-	{
-		int id;
-		DirectX::XMFLOAT4 pos;
-		DirectX::XMFLOAT2 uv;
-		DirectX::XMFLOAT3 norms;
-	};
-	VertexData *vertData;
+	void OpenMemory(float size);
+	int ReadMSGHeader();
+	void ReadMemory(unsigned int type);
 
-	struct MatrixData
+	// SHARED MEOMRY
+	HANDLE fmCB;
+	HANDLE fmMain;
+	unsigned int slotSize;
+	unsigned int localTail;
+
+	struct CircBuffer
 	{
-		DirectX::XMMATRIX position;
-		DirectX::XMMATRIX rotation;
-		DirectX::XMMATRIX scale;
+		unsigned int freeMem;
+		unsigned int head;
+		unsigned int tail;
+	}*cb;
+	unsigned int localFreeMem;
+
+	size_t memSize;
+	void* buffer;
+
+	// MESSAGE HEADER
+	struct MSGHeader
+	{
+		unsigned int type;
+		unsigned int byteSize;
+	}msgHeader;
+
+	// MESH
+	struct meshTexture
+	{
+		XMINT4 textureExist;
+		XMFLOAT4 materialColor;
 	};
-	MatrixData matrices;
+	struct MeshData
+	{
+		//VertexData* vertexData;
+		XMFLOAT3* pos;
+		XMFLOAT2* uv;
+		XMFLOAT3* normal;
+		unsigned int vertexCount;
+		XMFLOAT4X4* transform;
+		ID3D11Buffer* meshesBuffer[3];
+		ID3D11Buffer* transformBuffer;
+
+		//Material:
+		ID3D11Buffer* colorBuffer;
+		meshTexture meshTex;
+		ID3D11ShaderResourceView* meshTextures;
+
+		//Texture:
+		unsigned int textureSize;
+		char* texturePath;
+	};
+	vector<MeshData> meshes;
+	unsigned int localMesh;
+	unsigned int localVertex;
+	XMFLOAT3 vtxChanged;
+	unsigned int meshSize;
+
+	// TEXTURES
+	//vector<ID3D11ShaderResourceView*> meshTextures;
+
+	// TRANSFORM
+	vector<string> tranformNames;
+	vector<XMFLOAT4X4> transforms;
+	vector<ID3D11Buffer*> transformBuffers;
+
+	// CAMERA
+	XMFLOAT4X4* view;
+	XMFLOAT4X4* projection;
+	XMFLOAT4X4 projectionTemp;
+	ID3D11Buffer* viewMatrix;
+	ID3D11Buffer* projectionMatrix;
+	D3D11_MAPPED_SUBRESOURCE mapSub;
 
 	struct CameraData
 	{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT3 rotation;
-		DirectX::XMFLOAT3 viewDirection;
-	}; CameraData cameraData;
+		double pos[3];
+		double view[3];
+		double up[3];
+	}*cameraData;
+	XMFLOAT4X4* testViewMatrix;
 
-	struct message
+	//LIGHT
+	struct LightData
 	{
-		//Header
-		int messageType;
-		int messageSize;
-		int padding;
-		//actual message
-		//meshes
-
-		//camera
-		CameraData camData;
-
-		//mesh transforms
-		DirectX::XMFLOAT4X4 matrixData;
-
-		//mesh
-		int numMeshes;
-		int numVerts;
-		std::vector<VertexData> vert;
-
+		XMFLOAT4 pos;
+		XMFLOAT4 color;
 	};
-
-
-
-
-	struct HeadTail
+	struct Lights
 	{
-		unsigned int *m_head;
-		unsigned int *m_tail;
-		unsigned int *m_reader;
-		unsigned int *m_freeMem;
-		unsigned int *m_memSize;
-	};
-
-
-
-
-	bool openFileMap();
-	bool closeFileMap();
-	void* returnPbuf();
-	void* returnControlbuf();
-
-	void getControlBufferContent(int&, int&, int&, int&, int&);
-
-
-private:
-	HeadTail headTail_;
-
-	HANDLE hMapFile_;
-
-
-
-
-	void* pBuf_;
-	void* controlBuf_;
-
-	//readWriteControlls
-	HANDLE bufferController_;
-
-
+		LightData* lightData;
+		ID3D11Buffer* lightBuffer;
+	}light;
+	int localLight;
 };
-
 
 #endif

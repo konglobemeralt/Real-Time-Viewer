@@ -1,10 +1,10 @@
-#include "SharedMem.h"
+#include "sharedMem.h"
 
-SharedMem::SharedMem() {}
+SharedMemory::SharedMemory() {}
 
-SharedMem::~SharedMem() {}
+SharedMemory::~SharedMemory() {}
 
-char* SharedMem::openSM(float size)
+char* SharedMemory::OpenMemory(float size)
 {
 	//SE_CREATE_GLOBAL_NAME;
 	size *= 1024 * 1024;
@@ -16,7 +16,7 @@ char* SharedMem::openSM(float size)
 		PAGE_READWRITE,
 		(DWORD)0,
 		sizeof(CircBuffer),
-		L"Global/CircularBuffer2");
+		L"Global/CircularBuffer3");
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		return "CircularBuffer allready exist\n";
 
@@ -44,7 +44,7 @@ char* SharedMem::openSM(float size)
 		PAGE_READWRITE,
 		(DWORD)0,
 		size,
-		L"Global/MainData2");
+		L"Global/MainData3");
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		return "MainData allready exist\n";
 
@@ -60,7 +60,7 @@ char* SharedMem::openSM(float size)
 	return "Shared memory open success!";
 }
 
-char* SharedMem::closeSM()
+char* SharedMemory::CloseMemory()
 {
 	char* status = NULL;
 

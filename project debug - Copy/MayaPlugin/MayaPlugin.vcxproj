@@ -114,8 +114,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="maya_includes.h" />
+    <ClInclude Include="sharedMem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="sharedMem.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

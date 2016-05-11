@@ -1,123 +1,275 @@
 #include "fileMapping.h"
 
-#define BUFFER_SIZE 1024*1024
-
-TCHAR globName[] = TEXT("Global\\testMap");
-TCHAR globName2[] = TEXT("Global\\controlFileMap");
-
-fileMapping::fileMapping()
+SharedMemory::SharedMemory()
 {
-	pBuf_ = 0;
-	hMapFile_ = 0;
-
-
-	//controll buffer
-	headTail_.m_head = 0;
-	headTail_.m_tail = 0;
-	headTail_.m_reader = 0;
-	headTail_.m_freeMem = 0;
-	headTail_.m_memSize = 0;
-
+	//OpenMemory(1.0f / 256.0f);
+	OpenMemory(100);
+	slotSize = 256;
+	cameraData = new CameraData();
+	view = new XMFLOAT4X4();
+	projection = new XMFLOAT4X4();
+	testViewMatrix = new XMFLOAT4X4();
 }
 
-fileMapping::~fileMapping()
+SharedMemory::~SharedMemory()
 {
+	if (UnmapViewOfFile(cb) == 0)
+		OutputDebugStringA("Failed unmap CircBuffer!");
+	if (CloseHandle(fmCB) == 0)
+		OutputDebugStringA("Failed close fmCB!");
+	if (UnmapViewOfFile(buffer) == 0)
+		OutputDebugStringA("Failed unmap buffer!");
+	if (CloseHandle(fmMain) == 0)
+		OutputDebugStringA("Failed unmap fmMain!");
 
+	delete cameraData;
 }
 
-bool fileMapping::openFileMap()
+void SharedMemory::OpenMemory(float size)
 {
-
-	hMapFile_ = CreateFileMapping(
+	size *= 1024 * 1024;
+	memSize = size;
+	// Circular buffer data
+	fmCB = CreateFileMapping(
 		INVALID_HANDLE_VALUE,
 		NULL,
 		PAGE_READWRITE,
-		0,
-		BUFFER_SIZE,
-		globName);
+		(DWORD)0,
+		size,
+		L"Global/CircularBuffer3");
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+		OutputDebugStringA("CircularBuffer allready exist\n");
 
+	if (fmCB == NULL)
+		OutputDebugStringA("Could not open file mapping object! -> CircularBuffer\n");
 
-	if (hMapFile_ == NULL)
+	cb = (CircBuffer*)MapViewOfFile(fmCB, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	if (cb == NULL)
 	{
-		//	MessageBox(hWnd, L"Could not open the filemap!", L"Filler Text", MB_OK);
-		return false;
+		OutputDebugStringA("Could not map view of file!\n");
+		CloseHandle(cb);
 	}
 
-
-	pBuf_ = (void*)MapViewOfFile(hMapFile_, FILE_MAP_ALL_ACCESS, 0, 0, (BUFFER_SIZE));
-
-
-	if (pBuf_ == NULL)
+	if (GetLastError() != ERROR_ALREADY_EXISTS)
 	{
-		//	MessageBox(hWnd, L"Could not create view of the filemap!", L"Filler Text", MB_OK);
-		return false;
-		CloseHandle(hMapFile_);
-		return false;
+		cb->head = 0;
+		cb->tail = 0;
+		cb->freeMem = size;
 	}
 
-
-	bufferController_ = CreateFileMapping(
+	// Main data
+	fmMain = CreateFileMapping(
 		INVALID_HANDLE_VALUE,
 		NULL,
 		PAGE_READWRITE,
-		0,
-		sizeof(HeadTail),
-		globName2);
+		(DWORD)0,
+		size,
+		L"Global/MainData3");
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+		OutputDebugStringA("MainData allready exist\n");
 
+	if (fmMain == NULL)
+		OutputDebugStringA("Could not open file mapping object! -> MainData\n");
 
-	if (bufferController_ == NULL)
+	buffer = MapViewOfFile(fmMain, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	if (buffer == NULL)
 	{
-		//	MessageBox(hWnd, L"Could not open the controller filemap!", L"Filler Text", MB_OK);
-		return false;
+		OutputDebugStringA("Could not map view of file!\n");
+		CloseHandle(buffer);
 	}
+}
 
-
-	controlBuf_ = MapViewOfFile(bufferController_, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(HeadTail));
-
-	if (controlBuf_ == NULL)
+int SharedMemory::ReadMSGHeader()
+{
+	if (cb->freeMem < memSize)
 	{
-		//	MessageBox(hWnd, L"Could not open the view of the controller filemap!", L"Filler Text", MB_OK);
-		CloseHandle(bufferController_);
-		return 1;
+		// Sets tail to 0 if there are no place to read
+		if (cb->tail == memSize)
+			cb->tail = 0;
+
+		localTail = cb->tail;
+		localFreeMem = 0;
+		int returnInt;
+		// Message header
+		memcpy(&returnInt, (char*)buffer, sizeof(int));
+		localTail += sizeof(MSGHeader);
+
+		// Check if there are something to read else move tail to 0
+		if (msgHeader.type > -1)
+		{
+			localFreeMem += (memSize - cb->tail);
+			cb->tail = 0;
+			localTail = cb->tail;
+
+			// Read message header again at 0
+			memcpy(&msgHeader, (char*)buffer + localTail, sizeof(MSGHeader));
+			localTail += sizeof(MSGHeader);
+		}
+
+		return returnInt;
 	}
-
-
-	//Control Buffer
-	headTail_.m_head = (unsigned int*)controlBuf_;
-	headTail_.m_tail = headTail_.m_head + 1;
-	headTail_.m_reader = headTail_.m_head + 2;
-	headTail_.m_freeMem = headTail_.m_head + 3;
-	headTail_.m_memSize = headTail_.m_head + 4;
-
-
-
-	return true;
+	return -1;
 }
 
-bool fileMapping::closeFileMap()
-{
-	CloseHandle(hMapFile_);
-	return true;
-}
-
-void* fileMapping::returnPbuf()
-{
-	return pBuf_;
-}
-
-void* fileMapping::returnControlbuf()
-{
-	return controlBuf_;
-}
-
-
-void fileMapping::getControlBufferContent(int &head, int &tail, int &reader, int &freeSpace, int &memSize)
-{
-
-	head = *headTail_.m_head;
-	tail = *headTail_.m_tail;
-	reader = *headTail_.m_reader;
-	freeSpace = *headTail_.m_freeMem;
-	memSize = *headTail_.m_memSize;
-
-}
+//void SharedMemory::ReadMemory(unsigned int type)
+//{
+//	if (type == TMeshCreate)
+//	{
+//		// Read and store whole mesh data
+//
+//		// Size of mesh
+//		memcpy(&meshSize, (char*)buffer + localTail, sizeof(int));
+//		localTail += sizeof(int);
+//
+//		meshes.push_back(MeshData());
+//		meshes.back().transform = new XMFLOAT4X4();
+//
+//		if (meshSize > 0)
+//		{
+//			meshes.back().vertexCount = meshSize;
+//
+//			// Rezise to hold every vertex
+//			meshes.back().pos = new XMFLOAT3[meshes.back().vertexCount];
+//			meshes.back().uv = new XMFLOAT2[meshes.back().vertexCount];
+//			meshes.back().normal = new XMFLOAT3[meshes.back().vertexCount];
+//
+//			// Vertex data
+//			memcpy(meshes.back().pos, (char*)buffer + localTail, sizeof(XMFLOAT3)* meshes.back().vertexCount);
+//			localTail += sizeof(XMFLOAT3)* meshes.back().vertexCount;
+//			memcpy(meshes.back().uv, (char*)buffer + localTail, sizeof(XMFLOAT2)* meshes.back().vertexCount);
+//			localTail += sizeof(XMFLOAT2)* meshes.back().vertexCount;
+//			memcpy(meshes.back().normal, (char*)buffer + localTail, sizeof(XMFLOAT3)* meshes.back().vertexCount);
+//			localTail += sizeof(XMFLOAT3)* meshes.back().vertexCount;
+//
+//			// Matrix data
+//			memcpy(meshes.back().transform, (char*)buffer + localTail, sizeof(XMFLOAT4X4));
+//			localTail += sizeof(XMFLOAT4X4);
+//
+//			// Material data
+//			memcpy(&meshes.back().meshTex.materialColor, (char*)buffer + localTail, sizeof(XMFLOAT4));
+//			localTail += sizeof(XMFLOAT4);
+//
+//			//Texture true or false
+//			memcpy(&meshes.back().meshTex.textureExist.x, (char*)buffer + localTail, sizeof(int));
+//			localTail += sizeof(int);
+//
+//			if (meshes.back().meshTex.textureExist.x == 1)
+//			{
+//				//Texture path size
+//				memcpy(&meshes.back().textureSize, (char*)buffer + localTail, sizeof(int));
+//				localTail += sizeof(int);
+//
+//				meshes.back().texturePath = new char[meshes.back().textureSize + 1];
+//
+//				//Texture data
+//				memcpy(meshes.back().texturePath, (char*)buffer + localTail, meshes.back().textureSize);
+//				localTail += meshes.back().textureSize;
+//
+//				meshes.back().texturePath[meshes.back().textureSize] = '\0';
+//
+//			}
+//
+//			// Move tail
+//			cb->freeMem += msgHeader.byteSize + localFreeMem;
+//			cb->tail += msgHeader.byteSize;
+//		}
+//	}
+//	else if (type == TAddedVertex)
+//	{
+//		// Mesh index
+//		memcpy(&localMesh, (char*)buffer + localTail, sizeof(int));
+//		localTail += sizeof(int);
+//
+//		// Size of mesh
+//		memcpy(&meshes[localMesh].vertexCount, (char*)buffer + localTail, sizeof(int));
+//		localTail += sizeof(int);
+//
+//		// Delete and rezise
+//		meshes[localMesh].meshesBuffer[0]->Release();
+//		meshes[localMesh].meshesBuffer[1]->Release();
+//		meshes[localMesh].meshesBuffer[2]->Release();
+//		//delete[] meshes[localMesh].pos;
+//		//delete[] meshes[localMesh].uv;
+//		//delete[] meshes[localMesh].normal;
+//
+//		meshes[localMesh].pos = new XMFLOAT3[meshes[localMesh].vertexCount];
+//		meshes[localMesh].uv = new XMFLOAT2[meshes[localMesh].vertexCount];
+//		meshes[localMesh].normal = new XMFLOAT3[meshes[localMesh].vertexCount];
+//
+//		// Vertex data
+//		memcpy(meshes[localMesh].pos, (char*)buffer + localTail, sizeof(XMFLOAT3)* meshes[localMesh].vertexCount);
+//		localTail += sizeof(XMFLOAT3)* meshes[localMesh].vertexCount;
+//		memcpy(meshes[localMesh].uv, (char*)buffer + localTail, sizeof(XMFLOAT2)* meshes[localMesh].vertexCount);
+//		localTail += sizeof(XMFLOAT2)* meshes[localMesh].vertexCount;
+//		memcpy(meshes[localMesh].normal, (char*)buffer + localTail, sizeof(XMFLOAT3)* meshes[localMesh].vertexCount);
+//		localTail += sizeof(XMFLOAT3)* meshes[localMesh].vertexCount;
+//
+//
+//		// Move tail
+//		cb->freeMem += msgHeader.byteSize + localFreeMem;
+//		cb->tail += msgHeader.byteSize;
+//	}
+//	else if (type == TMaterialUpdate)
+//	{
+//		// Mesh index
+//		memcpy(&localMesh, (char*)buffer + localTail, sizeof(int));
+//		localTail += sizeof(int);
+//
+//		// Material data
+//		memcpy(&meshes[localMesh].meshTex.materialColor, (char*)buffer + localTail, sizeof(XMFLOAT4));
+//		localTail += sizeof(XMFLOAT4);
+//
+//		//Texture true or false
+//		memcpy(&meshes[localMesh].meshTex.textureExist.x, (char*)buffer + localTail, sizeof(int));
+//		localTail += sizeof(int);
+//
+//		if (meshes[localMesh].meshTex.textureExist.x == 1)
+//		{
+//			//Texture path size
+//			memcpy(&meshes[localMesh].textureSize, (char*)buffer + localTail, sizeof(int));
+//			localTail += sizeof(int);
+//
+//			meshes[localMesh].texturePath = new char[meshes[localMesh].textureSize + 1];
+//
+//			//Texture data
+//			memcpy(meshes[localMesh].texturePath, (char*)buffer + localTail, meshes[localMesh].textureSize);
+//			localTail += meshes[localMesh].textureSize;
+//
+//			meshes[localMesh].texturePath[meshes[localMesh].textureSize] = '\0';
+//
+//		}
+//
+//		// Move tail
+//		cb->freeMem += msgHeader.byteSize + localFreeMem;
+//		cb->tail += msgHeader.byteSize;
+//	}
+//	else if (type == TtransformUpdate)
+//	{
+//		memcpy(&localMesh, (char*)buffer + localTail, sizeof(int));
+//		localTail += sizeof(int);
+//	}
+//	else if (type == TLightCreate)
+//	{
+//		light.lightData = new LightData();
+//
+//		// Light data
+//		memcpy(&light.lightData->pos, (char*)buffer + localTail, sizeof(XMFLOAT3));
+//		localTail += sizeof(XMFLOAT3);
+//		memcpy(&light.lightData->color, (char*)buffer + localTail, sizeof(XMFLOAT4));
+//		localTail += sizeof(XMFLOAT4);
+//
+//		cb->tail += slotSize;
+//		cb->freeMem += slotSize;
+//	}
+//	else if (type == TMeshDestroyed)
+//	{
+//		localTail = cb->tail + sizeof(MSGHeader);
+//		// Read mesh index
+//		memcpy(&localMesh, (char*)buffer + localTail, sizeof(int));
+//		localTail += sizeof(int);
+//
+//		// Move tail
+//		cb->tail += slotSize;
+//		cb->freeMem += slotSize;
+//	}
+//}

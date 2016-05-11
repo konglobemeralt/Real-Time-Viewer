@@ -33,14 +33,14 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* pDevice, void* cBuf, void* pBuf)
+bool ModelClass::Initialize(ID3D11Device* pDevice, void* cBuf)
 {
 	bool result;
 
 
 
 	// Initialize the vertex and index buffers.
-	result = InitializeBuffers(pDevice, cBuf, pBuf);
+	result = InitializeBuffers(pDevice, cBuf);
 	if (!result)
 	{
 		return false;
@@ -51,7 +51,7 @@ bool ModelClass::Initialize(ID3D11Device* pDevice, void* cBuf, void* pBuf)
 	return true;
 }
 
-bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf)
+bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf)
 {
 	bool result;
 
@@ -61,7 +61,7 @@ bool ModelClass::UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void* pBuf)
 	//Shutdown();
 
 	// Initialize the vertex and index buffers.
-	result = InitializeBuffers(pDevice, cBuf, pBuf);
+	result = InitializeBuffers(pDevice, cBuf);
 	if (!result)
 	{
 		return false;
@@ -111,20 +111,8 @@ int ModelClass::GetIndexCount()
 }
 
 
-bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
+bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf)
 {
-
-
-
-	//Control Buffer
-	unsigned int* headPtr = (unsigned int*)cBuf;
-	unsigned int* tailPtr = headPtr + 1;
-	unsigned int* readPtr = headPtr + 2;
-	unsigned int* freeMemPtr = headPtr + 3;
-	unsigned int* memSizePtr = headPtr + 4;
-
-
-
 
 
 	VertexType* vertices;
@@ -155,7 +143,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 	//memcpy(&m_modelID, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 	//vertCount
-	memcpy(&m_vertexCount, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
+	memcpy(&m_vertexCount, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
 
 	//memcpy(&m_vertexCount, (char*)pBuf + (sizeof(int) *4), sizeof(int));
 
@@ -183,9 +171,9 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 		XMFLOAT3 norms;
 	};
 
-	char* tempBuf = (char*)pBuf;
+	char* tempBuf = (char*)cBuf;
 
-	memcpy(&m_worldMatrix, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
+	memcpy(&m_worldMatrix, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 	tempBuf += (sizeof(int) * 4) + sizeof(DirectX::XMFLOAT4X4);
 
@@ -202,19 +190,6 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 	}
 
 
-
-
-	unsigned int tempH = *headPtr;
-
-	if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
-	{
-		*tailPtr += 10000;
-		*readPtr = 1;
-	}
-	if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
-	{
-		*tailPtr = 0;
-	}
 
 
 

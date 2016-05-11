@@ -52,49 +52,20 @@ XMFLOAT3 CameraClass::GetRotation()
 }
 
 
-void CameraClass::Render(void* cBuf, void* pBuf)
+void CameraClass::Render(void* cBuf)
 {
 	CameraData cameraData;
 
 
-	int messageType = -1;
 
 	int usedSpace = 0;
 
-	unsigned int *headP = (unsigned int*)cBuf;
-	unsigned int *tailP = headP + 1;
-	unsigned int *readerAmount = headP + 2;
-	unsigned int *freeMem = headP + 3;
-	unsigned int *memSize = headP + 4;
+	
+
+		//CHANGED
+		memcpy(&cameraData.camViewMatrix, (char*)cBuf + sizeof(int), sizeof(XMFLOAT4X4));
 
 
-	if (*tailP != *headP)
-	{
-
-
-
-		memcpy(&messageType, (char*)pBuf + usedSpace, sizeof(int));
-
-
-		if (messageType == 1)
-		{
-			//CHANGED
-			memcpy(&cameraData.camViewMatrix, (char*)pBuf + sizeof(int), sizeof(XMFLOAT4X4));
-
-
-
-
-			unsigned int tempH = *headP;
-
-			if (*tailP < *memSize) // read == *readerAmount) &&
-			{
-				*tailP += 1024 * 10;;
-				//*readP = 1;
-			}
-			if (*tailP >= *memSize) //(read == *readerAmount) &&
-			{
-				*tailP = 0;
-			}
 
 
 			///USELESS///
@@ -148,9 +119,9 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 
 			m_viewMatrix = XMLoadFloat4x4(&cameraData.camViewMatrix);
 
-		}
+		
 
-	}
+	
 
 	return;
 }

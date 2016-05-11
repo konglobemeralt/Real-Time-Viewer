@@ -1,41 +1,25 @@
+#ifndef SHAREDMEMORY_H
+#define SHAREDMEMORY_H
 
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <string>
-#include <DirectXMath.h>
+#include <iostream>
 #include <windows.h>
+#include <DirectXMath.h>
+#include <fstream>
 
+using namespace std;
+using namespace DirectX;
 
-enum Type
+class SharedMemory
 {
-	TMeshCreate,
-	TMeshUpdate,
-	TAddedVertex,
-	TVertexUpdate,
-	TNormalUpdate,
-	TUVUpdate,
-	TtransformUpdate,
-	TCameraUpdate,
-	TLightCreate,
-	TLightUpdate,
-	TMeshDestroyed,
-	TMaterialUpdate,
-	TMaterialChanged,
-	TAmount
-};
-
-
-class SharedMem
-{
-
 public:
 
-	SharedMem();
-	~SharedMem();
+	SharedMemory();
+	~SharedMemory();
 
-	char* openSM(float size);
-	char* closeSM();
+	char* OpenMemory(float size);
+	char* CloseMemory();
 
 	HANDLE fmCB;
 	HANDLE fmMain;
@@ -59,12 +43,13 @@ public:
 	void* buffer;
 
 	// MESHES
-	std::vector<DirectX::XMFLOAT3> pos;
-	std::vector<DirectX::XMFLOAT2> uv;
-	std::vector<DirectX::XMFLOAT3> normal;
-	std::vector<DirectX::XMFLOAT3> vertices;
+	vector<XMFLOAT3> pos;
+	vector<XMFLOAT2> uv;
+	vector<XMFLOAT3> normal;
+	vector<XMFLOAT3> vertices;
 
 	// Camera
 	unsigned camDataSize;
 };
 
+#endif

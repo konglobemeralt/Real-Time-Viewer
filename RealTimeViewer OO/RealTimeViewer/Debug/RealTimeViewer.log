@@ -1,9 +1,48 @@
-﻿Build started 2015-10-07 10:53:54.
-     1>Project "C:\temp\Två Versioner RTV\Två Versioner RTV\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" on node 2 (Build target(s)).
-     1>Link:
-         RealTimeViewer.vcxproj -> C:\temp\Två Versioner RTV\Två Versioner RTV\RealTimeViewer OO\Debug\RealTimeViewer.exe
-     1>Done Building Project "C:\temp\Två Versioner RTV\Två Versioner RTV\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" (Build target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.10
+﻿  textureClass.cpp
+  Source.cpp
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\source.cpp(29): warning C4316: 'realTimeViewer' : object allocated on the heap may not be aligned 16
+  ShaderShader.cpp
+  realTimeViewer.cpp
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(26): warning C4101: 'videoMemory' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(25): warning C4101: 'videoCard' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(176): warning C4101: 'foundHeight' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(179): warning C4101: 'radians' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(178): warning C4101: 'height' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(217): warning C4018: '<' : signed/unsigned mismatch
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(199): warning C4101: 'modelCount' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(199): warning C4101: 'index' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(200): warning C4101: 'positionX' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(200): warning C4101: 'radius' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(200): warning C4101: 'positionY' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(199): warning C4101: 'renderCount' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(200): warning C4101: 'positionZ' : unreferenced local variable
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\realtimeviewer.cpp(297): warning C4018: '>' : signed/unsigned mismatch
+  modelClass.cpp
+  materialClass.cpp
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\materialclass.cpp(17): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(294) : see declaration of 'wcscpy'
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\materialclass.cpp(73): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(294) : see declaration of 'wcscpy'
+  lightClass.cpp
+  fileMapping.cpp
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\filemapping.cpp(31): warning C4244: '=' : conversion from 'float' to 'size_t', possible loss of data
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\filemapping.cpp(39): warning C4244: 'argument' : conversion from 'float' to 'DWORD', possible loss of data
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\filemapping.cpp(57): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
+c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\filemapping.cpp(67): warning C4244: 'argument' : conversion from 'float' to 'DWORD', possible loss of data
+  d3dclass.cpp
+  cameraClass.cpp
+  Generating Code...
+DirectXTKAudioDX.lib(WaveBank.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTKAudioDX.lib(AudioEngine.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTKAudioDX.lib(SoundEffectInstance.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTKAudioDX.lib(WaveBankReader.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTKAudioDX.lib(SoundCommon.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTKAudioDX.lib(SoundEffect.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTKAudioDX.lib(WAVFileReader.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTK.lib(DDSTextureLoader.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+DirectXTK.lib(pch.obj) : error LNK2038: mismatch detected for '_MSC_VER': value '1900' doesn't match value '1800' in cameraClass.obj
+msvcprtd.lib(MSVCP120D.dll) : error LNK2005: "public: __thiscall std::_Container_base12::_Container_base12(void)" (??0_Container_base12@std@@QAE@XZ) already defined in DirectXTKAudioDX.lib(WaveBank.obj)
+msvcprtd.lib(MSVCP120D.dll) : error LNK2005: "public: __thiscall std::_Container_base12::~_Container_base12(void)" (??1_Container_base12@std@@QAE@XZ) already defined in DirectXTKAudioDX.lib(WaveBank.obj)
+msvcprtd.lib(MSVCP120D.dll) : error LNK2005: "public: void __thiscall std::_Container_base12::_Orphan_all(void)" (?_Orphan_all@_Container_base12@std@@QAEXXZ) already defined in DirectXTKAudioDX.lib(WaveBank.obj)
+msvcprtd.lib(MSVCP120D.dll) : error LNK2005: "public: struct std::_Iterator_base12 * * __thiscall std::_Container_base12::_Getpfirst(void)const " (?_Getpfirst@_Container_base12@std@@QBEPAPAU_Iterator_base12@2@XZ) already defined in DirectXTKAudioDX.lib(WaveBank.obj)
+LINK : fatal error LNK1104: cannot open file 'x3daudio.lib'

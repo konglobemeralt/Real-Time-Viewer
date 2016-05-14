@@ -284,7 +284,7 @@ void realTimeViewer::update()
 	int modelID = -1;
 
 
-	if (messageType != 0)
+	if (messageType != -1)
 	{
 		//Create mesh MESSAGE 0
 		if (messageType == 0)
@@ -301,7 +301,7 @@ void realTimeViewer::update()
 				modelVector.push_back(m_model);
 
 			}
-			messageType = -1;
+			
 			modelID = -1;
 
 		}
@@ -323,10 +323,10 @@ void realTimeViewer::update()
 		if (messageType == 2)
 		{
 			//ModelID
-			memcpy(&modelID, (char*)m_fileMap->buffer + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
+			memcpy(&modelID, (char*)m_fileMap->buffer +  sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
 
 			XMFLOAT4X4 tempMatrix;
-			memcpy(&tempMatrix, (char*)m_fileMap->buffer + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
+			memcpy(&tempMatrix, (char*)m_fileMap->buffer +  sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 			if (modelID > 0)
 				modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
@@ -501,8 +501,8 @@ void realTimeViewer::update()
 
 
 
-		m_fileMap->cb->freeMem += 10000;
-		m_fileMap->cb->tail += 10000;
+		m_fileMap->cb->freeMem += 250;
+		m_fileMap->cb->tail += 250;
 
 
 	}

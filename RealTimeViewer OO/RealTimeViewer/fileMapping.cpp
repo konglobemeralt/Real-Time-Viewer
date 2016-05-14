@@ -4,11 +4,8 @@ SharedMemory::SharedMemory()
 {
 	//OpenMemory(1.0f / 256.0f);
 	OpenMemory(100);
-	slotSize = 256;
-	cameraData = new CameraData();
-	view = new XMFLOAT4X4();
-	projection = new XMFLOAT4X4();
-	testViewMatrix = new XMFLOAT4X4();
+	slotSize = 250;
+	
 }
 
 SharedMemory::~SharedMemory()
@@ -91,19 +88,19 @@ int SharedMemory::ReadMSGHeader()
 		localFreeMem = 0;
 		int returnInt;
 		// Message header
-		memcpy(&returnInt, (char*)buffer, sizeof(int));
-		localTail += sizeof(MSGHeader);
+		memcpy(&returnInt, (char*)buffer + localTail, sizeof(int));
+		localTail += 250;
 
 		// Check if there are something to read else move tail to 0
-		if (msgHeader.type > -1)
+		if (returnInt > -1)
 		{
 			localFreeMem += (memSize - cb->tail);
 			cb->tail = 0;
 			localTail = cb->tail;
 
 			// Read message header again at 0
-			memcpy(&msgHeader, (char*)buffer + localTail, sizeof(MSGHeader));
-			localTail += sizeof(MSGHeader);
+			memcpy(&returnInt, (char*)buffer + localTail, sizeof(MSGHeader));
+			localTail += 250;
 		}
 
 		return returnInt;

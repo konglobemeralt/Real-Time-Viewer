@@ -61,8 +61,8 @@ void LightClass::Render(void* cBuf, void* pBuf)
 
 
 
-	memcpy(&lightData.position, (char*)pBuf + usedSpace + sizeof(int) + sizeof(int) + sizeof(int), sizeof(XMFLOAT4));
-	memcpy(&lightData.color, (char*)pBuf + usedSpace + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), sizeof(XMFLOAT4));
+	memcpy(&lightData.position, (char*)pBuf + *tailP + sizeof(int) + sizeof(int) + sizeof(int), sizeof(XMFLOAT4));
+	memcpy(&lightData.color, (char*)pBuf + *tailP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4), sizeof(XMFLOAT4));
 
 
 	/*memcpy((char*)pBuf + usedSpace + sizeof(int)+sizeof(int)+sizeof(int), &translation, sizeof(XMFLOAT4));
@@ -73,7 +73,7 @@ void LightClass::Render(void* cBuf, void* pBuf)
 
 	if (*tailP < *memSize) // read == *readerAmount) &&
 	{
-		*tailP += 100000;
+		*tailP += 1000;
 		//*readP = 1;
 	}
 	if (*tailP >= *memSize) //(read == *readerAmount) &&

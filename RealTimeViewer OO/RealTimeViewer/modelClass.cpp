@@ -155,7 +155,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 	//memcpy(&m_modelID, (char*)pBuf + usedSpace + (sizeof(int)* 4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(float)+sizeof(float) + (sizeof(char) * 500), sizeof(int));
 
 	//vertCount
-	memcpy(&m_vertexCount, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
+	memcpy(&m_vertexCount, (char*)pBuf + *tailPtr + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
 
 	//memcpy(&m_vertexCount, (char*)pBuf + (sizeof(int) *4), sizeof(int));
 
@@ -183,9 +183,9 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 		XMFLOAT3 norms;
 	};
 
-	char* tempBuf = (char*)pBuf;
+	char* tempBuf = (char*)pBuf + *tailPtr;
 
-	memcpy(&m_worldMatrix, (char*)pBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
+	memcpy(&m_worldMatrix, (char*)pBuf + *tailPtr + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 	tempBuf += (sizeof(int) * 4) + sizeof(DirectX::XMFLOAT4X4);
 
@@ -206,15 +206,15 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, void* cBuf, void* pBuf)
 
 	//unsigned int tempH = *headPtr;
 
-	if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
-	{
-		*tailPtr += 10000;
-		//*readPtr = 1;
-	}
-	if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
-	{
-		*tailPtr = 0;
-	}
+	//if (*tailPtr < *memSizePtr) // read == *readerAmount) &&
+	//{
+	//	*tailPtr += 10000;
+	//	//*readPtr = 1;
+	//}
+	//if (*tailPtr >= *memSizePtr) //(read == *readerAmount) &&
+	//{
+	//	*tailPtr = 0;
+	//}
 
 
 

@@ -295,7 +295,7 @@ void realTimeViewer::update()
 	if (*tailP != *headP)
 	{
 
-		memcpy(&messageType, (char*)pBuf, sizeof(int));
+		memcpy(&messageType, (char*)pBuf + *tailP, sizeof(int));
 
 
 
@@ -313,7 +313,7 @@ void realTimeViewer::update()
 			{
 
 				//ModelID
-				memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+				memcpy(&modelID, (char*)pBuf + *tailP + sizeof(int) + sizeof(int), sizeof(int));
 
 
 				if (modelID > modelVector.size())
@@ -334,10 +334,10 @@ void realTimeViewer::update()
 			if (messageType == 2)
 			{
 				//ModelID
-				memcpy(&modelID, (char*)pBuf + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
+				memcpy(&modelID, (char*)pBuf + *tailP + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
 
 				XMFLOAT4X4 tempMatrix;
-				memcpy(&tempMatrix, (char*)pBuf + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
+				memcpy(&tempMatrix, (char*)pBuf + *tailP + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 				if (modelID > 0)
 					modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
@@ -361,7 +361,7 @@ void realTimeViewer::update()
 				//ModelID
 
 				//for matID we use messageSize from the mayaplugin since that one is not used for other things
-				memcpy(&matID, (char*)pBuf + sizeof(int), sizeof(int));
+				memcpy(&matID, (char*)pBuf + *tailP + sizeof(int), sizeof(int));
 
 				if (matID != -1 && matID < materialVector.size())
 				{
@@ -400,7 +400,7 @@ void realTimeViewer::update()
 			if (messageType == 5)
 			{
 				//ModelID
-				memcpy(&modelID, (char*)pBuf + (sizeof(int)), sizeof(int));
+				memcpy(&modelID, (char*)pBuf + *tailP + (sizeof(int)), sizeof(int));
 
 
 				if (modelID > 0)
@@ -417,7 +417,7 @@ void realTimeViewer::update()
 			{
 
 				//ModelID
-				memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+				memcpy(&modelID, (char*)pBuf + *tailP + sizeof(int) + sizeof(int), sizeof(int));
 
 
 
@@ -441,7 +441,7 @@ void realTimeViewer::update()
 
 
 				//ModelID
-				memcpy(&modelID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+				memcpy(&modelID, (char*)pBuf + *tailP + sizeof(int) + sizeof(int), sizeof(int));
 
 
 				if (modelID > 0)
@@ -461,12 +461,12 @@ void realTimeViewer::update()
 			{
 				int meshID = -1;
 				//MeshID
-				memcpy(&meshID, (char*)pBuf + sizeof(int), sizeof(int));
+				memcpy(&meshID, (char*)pBuf + *tailP + sizeof(int), sizeof(int));
 
 
 				int matID = -1;
 				//ModelID
-				memcpy(&matID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+				memcpy(&matID, (char*)pBuf + *tailP + sizeof(int) + sizeof(int), sizeof(int));
 
 
 				if (matID != -1 && meshID != -1)
@@ -492,7 +492,7 @@ void realTimeViewer::update()
 				//ModelID
 
 				//for matID we use messageSize from the mayaplugin since that one is not used for other things
-				memcpy(&matID, (char*)pBuf + sizeof(int), sizeof(int));
+				memcpy(&matID, (char*)pBuf + *tailP + sizeof(int), sizeof(int));
 
 				if (matID != -1)
 				{
@@ -514,7 +514,7 @@ void realTimeViewer::update()
 
 			if (*tailP < *memSize) // read == *readerAmount) &&
 			{
-				*tailP += 10000;
+				*tailP += 1000;
 				//*readP = 1;
 			}
 			if (*tailP >= *memSize) //(read == *readerAmount) &&

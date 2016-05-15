@@ -73,13 +73,13 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 
 
 
-		memcpy(&messageType, (char*)pBuf + usedSpace, sizeof(int));
+		memcpy(&messageType, (char*)pBuf + *tailP, sizeof(int));
 
 
 		if (messageType == 1)
 		{
 			//CHANGED
-			memcpy(&cameraData.camViewMatrix, (char*)pBuf + sizeof(int), sizeof(XMFLOAT4X4));
+			memcpy(&cameraData.camViewMatrix, (char*)pBuf + *tailP + sizeof(int), sizeof(XMFLOAT4X4));
 
 
 
@@ -88,7 +88,8 @@ void CameraClass::Render(void* cBuf, void* pBuf)
 
 			if (*tailP < *memSize) // read == *readerAmount) &&
 			{
-				*tailP += 1024 * 10;;
+				//*tailP += 1024 * 10;;
+				*tailP += 1000;
 				//*readP = 1;
 			}
 			if (*tailP >= *memSize) //(read == *readerAmount) &&

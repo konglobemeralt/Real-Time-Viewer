@@ -76,6 +76,9 @@ void SharedMemory::OpenMemory(float size)
 	}
 }
 
+
+
+
 int SharedMemory::ReadMSGHeader()
 {
 	if (cb->freeMem < memSize)
@@ -86,21 +89,23 @@ int SharedMemory::ReadMSGHeader()
 
 		localTail = cb->tail;
 		localFreeMem = 0;
-		int returnInt;
+		int returnInt = -1;
+		
+		
 		// Message header
 		memcpy(&returnInt, (char*)buffer + localTail, sizeof(int));
-		localTail += 250;
+		//localTail += 250;
 
 		// Check if there are something to read else move tail to 0
-		if (returnInt > -1)
+		if (returnInt > -1 && returnInt < 14)
 		{
 			localFreeMem += (memSize - cb->tail);
 			cb->tail = 0;
 			localTail = cb->tail;
 
 			// Read message header again at 0
-			memcpy(&returnInt, (char*)buffer + localTail, sizeof(MSGHeader));
-			localTail += 250;
+			memcpy(&returnInt, (char*)buffer + localTail, sizeof(int));
+			//localTail += 250;
 		}
 
 		return returnInt;

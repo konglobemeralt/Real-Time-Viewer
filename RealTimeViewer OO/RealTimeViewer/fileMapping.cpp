@@ -89,7 +89,7 @@ int SharedMemory::ReadMSGHeader()
 		int returnInt;
 		// Message header
 		memcpy(&returnInt, (char*)buffer + localTail, sizeof(int));
-		localTail += 250;
+		localTail += 1000;
 
 		// Check if there are something to read else move tail to 0
 		if (returnInt > -1)
@@ -100,7 +100,7 @@ int SharedMemory::ReadMSGHeader()
 
 			// Read message header again at 0
 			memcpy(&returnInt, (char*)buffer + localTail, sizeof(MSGHeader));
-			localTail += 250;
+			localTail += 1000;
 		}
 
 		return returnInt;

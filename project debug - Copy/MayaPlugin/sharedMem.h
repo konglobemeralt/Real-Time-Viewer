@@ -21,8 +21,8 @@ public:
 	char* OpenMemory(float size);
 	char* CloseMemory();
 
-	HANDLE fmCB;
-	HANDLE fmMain;
+	HANDLE smCircle;
+	HANDLE smMess;
 
 	struct CircBuffer
 	{

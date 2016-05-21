@@ -279,7 +279,7 @@ void realTimeViewer::update()
 
 
 	int messageType = -1;
-	messageType = m_fileMap->ReadMSGHeader();
+	memcpy(&messageType, (char*)m_fileMap->buffer + m_fileMap->cb->tail, sizeof(int));
 
 	int modelID = -1;
 
@@ -292,7 +292,7 @@ void realTimeViewer::update()
 
 
 			//ModelID
-			memcpy(&modelID, (char*)m_fileMap->buffer + sizeof(int) + sizeof(int), sizeof(int));
+			memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(int));
 
 			if (modelID > modelVector.size())
 			{
@@ -301,7 +301,7 @@ void realTimeViewer::update()
 				modelVector.push_back(m_model);
 
 			}
-			
+
 			modelID = -1;
 
 		}
@@ -323,10 +323,10 @@ void realTimeViewer::update()
 		if (messageType == 2)
 		{
 			//ModelID
-			memcpy(&modelID, (char*)m_fileMap->buffer +  sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
+			memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
 
 			XMFLOAT4X4 tempMatrix;
-			memcpy(&tempMatrix, (char*)m_fileMap->buffer +  sizeof(int), sizeof(DirectX::XMFLOAT4X4));
+			memcpy(&tempMatrix, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 			if (modelID > 0)
 				modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
@@ -501,13 +501,18 @@ void realTimeViewer::update()
 
 
 
-		m_fileMap->cb->freeMem += 250;
-		m_fileMap->cb->tail += 250;
+		m_fileMap->cb->freeMem += 1000;
+		m_fileMap->cb->tail += 1000;
 
+		if (m_fileMap->cb->freeMem < m_fileMap->memSize)
+		{
+			// Sets tail to 0 if there are no place to read
+			if (m_fileMap->cb->tail == m_fileMap->memSize)
+				m_fileMap->cb->tail = 0;
+
+		}
 
 	}
-		
-	}
-
+}
 
 

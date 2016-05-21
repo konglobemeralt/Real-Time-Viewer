@@ -10,7 +10,7 @@ char* SharedMemory::OpenMemory(float size)
 	size *= 1024 * 1024;
 	memSize = size;
 	// Circular buffer data
-	fmCB = CreateFileMapping(
+	smCircle = CreateFileMapping(
 		INVALID_HANDLE_VALUE,
 		NULL,
 		PAGE_READWRITE,
@@ -20,10 +20,10 @@ char* SharedMemory::OpenMemory(float size)
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		return "CircularBuffer allready exist\n";
 
-	if (fmCB == NULL)
+	if (smCircle == NULL)
 		return "Could not open file mapping object! -> CircularBuffer";
 
-	cb = (CircBuffer*)MapViewOfFile(fmCB, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	cb = (CircBuffer*)MapViewOfFile(smCircle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	if (cb == NULL)
 	{
 		CloseHandle(cb);
@@ -38,7 +38,7 @@ char* SharedMemory::OpenMemory(float size)
 	}
 
 	// Main data
-	fmMain = CreateFileMapping(
+	smMess = CreateFileMapping(
 		INVALID_HANDLE_VALUE,
 		NULL,
 		PAGE_READWRITE,
@@ -48,10 +48,10 @@ char* SharedMemory::OpenMemory(float size)
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
 		return "MainData allready exist\n";
 
-	if (fmMain == NULL)
+	if (smMess == NULL)
 		return "Could not open file mapping object! -> MainData";
 
-	buffer = MapViewOfFile(fmMain, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	buffer = MapViewOfFile(smMess, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	if (buffer == NULL)
 	{
 		CloseHandle(buffer);
@@ -66,11 +66,11 @@ char* SharedMemory::CloseMemory()
 
 	if (UnmapViewOfFile(cb) == 0)
 		status = "Failed unmap CircBuffer!";
-	if (CloseHandle(fmCB) == 0)
+	if (CloseHandle(smCircle) == 0)
 		status = "Failed close fmCB!";
 	if (UnmapViewOfFile(buffer) == 0)
 		status = "Failed unmap buffer!";
-	if (CloseHandle(fmMain) == 0)
+	if (CloseHandle(smMess) == 0)
 		status = "Failed unmap fmMain!";
 	if (status == NULL)
 		status = "Closed all maps!";

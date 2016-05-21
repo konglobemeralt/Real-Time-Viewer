@@ -469,10 +469,7 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 			//Give the mesh an ID
 			tMessage.numMeshes = meshID;
 
-			do
-			{
-
-				if (sm.cb->freeMem > 250)
+			if (sm.cb->freeMem > 1000)
 				{
 					// Sets head to 0 if there are no place to write
 					if (sm.cb->head > sm.memSize - sm.msgHeader.byteSize)
@@ -485,22 +482,22 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 
 					}
 
-
+					//
 					//Send ID
-					std::memcpy((char*)sm.buffer + sizeof(XMFLOAT4X4) + sizeof(int), &tMessage.numMeshes, sizeof(int));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(XMFLOAT4X4) + sizeof(int), &tMessage.numMeshes, sizeof(int));
 					//end Message Type
-					std::memcpy((char*)sm.buffer, &tMessage.messageType, sizeof(int));
+					std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
 					//send Matrix
-					std::memcpy((char*)sm.buffer + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
 
 					//////////////
-					sm.cb->freeMem -= (250);
-					sm.cb->head += 250;
-					break;
+					sm.cb->freeMem -= (1000);
+					sm.cb->head += 1000;
+				
 
 
 				}
-			} while ((sm.cb->freeMem > ! 250));
+			
 
 			}
 
@@ -667,9 +664,8 @@ void getMeshInfo(MFnMesh &meshNode)
 		tMessage.messageSize = 10000;
 		tMessage.padding = 0;
 		
-		do
-		{
-			if (sm.cb->freeMem > 250)
+		
+			if (sm.cb->freeMem > 1000)
 			{
 				// Sets head to 0 if there are no place to write
 				if (sm.cb->head > sm.memSize - sm.msgHeader.byteSize)
@@ -684,19 +680,19 @@ void getMeshInfo(MFnMesh &meshNode)
 				localHead = sm.cb->head;
 
 
-				std::memcpy((char*)sm.buffer, &tMessage.messageType, sizeof(int));
-				std::memcpy((char*)sm.buffer + sizeof(int), &tMessage.messageSize, sizeof(int));
+				std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
+				std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.messageSize, sizeof(int));
 
 
 
-				std::memcpy((char*)sm.buffer  + sizeof(int) + sizeof(int), &tMessage.numMeshes, sizeof(int));
-				std::memcpy((char*)sm.buffer  + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.numVerts, sizeof(int));
+				std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &tMessage.numMeshes, sizeof(int));
+				std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.numVerts, sizeof(int));
 
 				for (int i = 0; i < verticies.size(); i++)
 				{
-					std::memcpy((char*)sm.buffer  + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
-					std::memcpy((char*)sm.buffer  + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
-					std::memcpy((char*)sm.buffer  + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(XMFLOAT4) + sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i), &tMessage.vert[i].pos, sizeof(XMFLOAT4));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(XMFLOAT4), &tMessage.vert[i].uv, sizeof(XMFLOAT2));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(XMFLOAT4X4) + (sizeof(VertexData)*i) + sizeof(XMFLOAT4) + sizeof(XMFLOAT2), &tMessage.vert[i].norms, sizeof(XMFLOAT3));
 
 				}
 
@@ -724,7 +720,7 @@ void getMeshInfo(MFnMesh &meshNode)
 
 
 
-				std::memcpy((char*)sm.buffer + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+				std::memcpy((char*)sm.buffer  +sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
 
 				////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
@@ -856,13 +852,13 @@ void getMeshInfo(MFnMesh &meshNode)
 					/// Move header
 					
 				}
-						sm.cb->freeMem -= (250);
-					sm.cb->head += 250;
-					break;
+						sm.cb->freeMem -= (1000);
+					sm.cb->head += 1000;
+					
 
 			}
 
-		} while ((sm.cb->freeMem > !250));
+	
 
 	
 
@@ -893,9 +889,8 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 		XMVectorSet(viewDirection.x, viewDirection.y, viewDirection.z, 0.0f),
 		XMVectorSet(upDirection.x, upDirection.y, upDirection.z, 0.0f))));
 
-	do{
 
-		if (sm.cb->freeMem > 250)
+		if (sm.cb->freeMem > 1000)
 		{
 			// Sets head to 0 if there are no place to write
 			if (sm.cb->head > sm.memSize - sm.msgHeader.byteSize)
@@ -908,17 +903,17 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 
 			}
 
-			std::memcpy((char*)sm.buffer, &tMessage.messageType, sizeof(int));
+			std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
 
-			std::memcpy((char*)sm.buffer + sizeof(int), &viewMatrix, sizeof(XMFLOAT4X4));
+			std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &viewMatrix, sizeof(XMFLOAT4X4));
 
 			/// Move header
-			sm.cb->freeMem -= (250);
-			sm.cb->head += 250;
-			break;
+			sm.cb->freeMem -= (1000);
+			sm.cb->head += 1000;
+			
 		}
 
-	}while ((sm.cb->freeMem > !250));
+
 	
 	
 

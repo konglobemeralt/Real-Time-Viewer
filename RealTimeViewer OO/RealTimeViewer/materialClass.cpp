@@ -25,23 +25,20 @@ MaterialClass::~MaterialClass()
 }
 
 
-bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
+bool MaterialClass::updateMaterial(void* cBuf)
 {
 
-	unsigned int *headP = (unsigned int*)cBuf;
-	unsigned int *tailP = headP + 1;
-	unsigned int *readerAmount = headP + 2;
-	unsigned int *freeMem = headP + 3;
-	unsigned int *memSize = headP + 4;
+
+	int usedSpace = 0;
 	
-	memcpy(&m_matColor, (char*)pBuf + *tailP + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4));
+	memcpy(&m_matColor, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4));
 	//memcpy(&m_matSpecColor, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(DirectX::XMFLOAT4));
 	//memcpy(&m_matReflectivity, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), sizeof(float));
 	//memcpy(&m_matSpecRolloff, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(float), sizeof(float));
 
 	//delete[]m_texturePath;
 	int texExist;
-	memcpy(&texExist, (char*)pBuf + *tailP + sizeof(int) + sizeof(int), sizeof(int));
+	memcpy(&texExist, (char*)cBuf + sizeof(int) + sizeof(int), sizeof(int));
 	
 
 
@@ -63,7 +60,7 @@ bool MaterialClass::updateMaterial(void* cBuf, void* pBuf)
 	
 
 
-		memcpy(&tempPath, (char*)pBuf + *tailP + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
+		memcpy(&tempPath, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
 		
 		std::string test = tempPath;
 		std::size_t found = test.find_last_of("/\\");

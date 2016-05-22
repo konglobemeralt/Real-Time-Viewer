@@ -24,7 +24,7 @@ public:
 	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetRotation();
 
-	void Render(void* cBuf, void* pBuf);
+	void Render(void* cBuf);
 	void GetViewMatrix(XMMATRIX&);
 
 private:

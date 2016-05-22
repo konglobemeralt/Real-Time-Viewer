@@ -44,7 +44,7 @@ private:
 	ModelClass  m_model;
 	MaterialClass m_material;
 	LightClass *m_Light;
-	fileMapping *m_fileMap;
+	SharedMemory *m_fileMap;
 };
 
 

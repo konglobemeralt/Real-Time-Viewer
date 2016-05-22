@@ -1,123 +1,79 @@
 #include "fileMapping.h"
 
-#define BUFFER_SIZE 1024*1024
-
-TCHAR globName[] = TEXT("Global\\testMap");
-TCHAR globName2[] = TEXT("Global\\controlFileMap");
-
-fileMapping::fileMapping()
+SharedMemory::SharedMemory()
 {
-	pBuf_ = 0;
-	hMapFile_ = 0;
-
-
-	//controll buffer
-	headTail_.m_head = 0;
-	headTail_.m_tail = 0;
-	headTail_.m_reader = 0;
-	headTail_.m_freeMem = 0;
-	headTail_.m_memSize = 0;
-
+	//OpenMemory(1.0f / 256.0f);
+	OpenMemory(100.0f);
+	slotSize = 250;
+	
 }
 
-fileMapping::~fileMapping()
+SharedMemory::~SharedMemory()
 {
+	if (UnmapViewOfFile(cb) == 0)
+		OutputDebugStringA("Failed unmap CircBuffer!");
+	if (CloseHandle(fmCB) == 0)
+		OutputDebugStringA("Failed close fmCB!");
+	if (UnmapViewOfFile(buffer) == 0)
+		OutputDebugStringA("Failed unmap buffer!");
+	if (CloseHandle(fmMain) == 0)
+		OutputDebugStringA("Failed unmap fmMain!");
 
+	delete cameraData;
 }
 
-bool fileMapping::openFileMap()
+void SharedMemory::OpenMemory(float size)
 {
-
-	hMapFile_ = CreateFileMapping(
+	size *= 1024 * 1024;
+	memSize = size;
+	// Circular buffer data
+	fmCB = CreateFileMapping(
 		INVALID_HANDLE_VALUE,
 		NULL,
 		PAGE_READWRITE,
-		0,
-		BUFFER_SIZE,
-		globName);
+		(DWORD)0,
+		size,
+		L"Global/CircularBuffer3");
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+		OutputDebugStringA("CircularBuffer allready exist\n");
 
+	if (fmCB == NULL)
+		OutputDebugStringA("Could not open file mapping object! -> CircularBuffer\n");
 
-	if (hMapFile_ == NULL)
+	cb = (CircBuffer*)MapViewOfFile(fmCB, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	if (cb == NULL)
 	{
-		//	MessageBox(hWnd, L"Could not open the filemap!", L"Filler Text", MB_OK);
-		return false;
+		OutputDebugStringA("Could not map view of file!\n");
+		CloseHandle(cb);
 	}
 
-
-	pBuf_ = (void*)MapViewOfFile(hMapFile_, FILE_MAP_ALL_ACCESS, 0, 0, (BUFFER_SIZE));
-
-
-	if (pBuf_ == NULL)
+	if (GetLastError() != ERROR_ALREADY_EXISTS)
 	{
-		//	MessageBox(hWnd, L"Could not create view of the filemap!", L"Filler Text", MB_OK);
-		return false;
-		CloseHandle(hMapFile_);
-		return false;
+		cb->head = 0;
+		cb->tail = 0;
+		cb->freeMem = size;
 	}
 
-
-	bufferController_ = CreateFileMapping(
+	// Main data
+	fmMain = CreateFileMapping(
 		INVALID_HANDLE_VALUE,
 		NULL,
 		PAGE_READWRITE,
-		0,
-		sizeof(HeadTail),
-		globName2);
+		(DWORD)0,
+		size,
+		L"Global/MainData3");
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+		OutputDebugStringA("MainData allready exist\n");
 
+	if (fmMain == NULL)
+		OutputDebugStringA("Could not open file mapping object! -> MainData\n");
 
-	if (bufferController_ == NULL)
+	buffer = MapViewOfFile(fmMain, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	if (buffer == NULL)
 	{
-		//	MessageBox(hWnd, L"Could not open the controller filemap!", L"Filler Text", MB_OK);
-		return false;
+		OutputDebugStringA("Could not map view of file!\n");
+		CloseHandle(buffer);
 	}
-
-
-	controlBuf_ = MapViewOfFile(bufferController_, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(HeadTail));
-
-	if (controlBuf_ == NULL)
-	{
-		//	MessageBox(hWnd, L"Could not open the view of the controller filemap!", L"Filler Text", MB_OK);
-		CloseHandle(bufferController_);
-		return 1;
-	}
-
-
-	//Control Buffer
-	headTail_.m_head = (unsigned int*)controlBuf_;
-	headTail_.m_tail = headTail_.m_head + 1;
-	headTail_.m_reader = headTail_.m_head + 2;
-	headTail_.m_freeMem = headTail_.m_head + 3;
-	headTail_.m_memSize = headTail_.m_head + 4;
-
-
-
-	return true;
-}
-
-bool fileMapping::closeFileMap()
-{
-	CloseHandle(hMapFile_);
-	return true;
-}
-
-void* fileMapping::returnPbuf()
-{
-	return pBuf_;
-}
-
-void* fileMapping::returnControlbuf()
-{
-	return controlBuf_;
 }
 
 
-void fileMapping::getControlBufferContent(int &head, int &tail, int &reader, int &freeSpace, int &memSize)
-{
-
-	head = *headTail_.m_head;
-	tail = *headTail_.m_tail;
-	reader = *headTail_.m_reader;
-	freeSpace = *headTail_.m_freeMem;
-	memSize = *headTail_.m_memSize;
-
-}

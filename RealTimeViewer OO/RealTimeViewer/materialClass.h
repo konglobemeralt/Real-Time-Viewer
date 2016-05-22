@@ -17,7 +17,7 @@ public:
 	void Shutdown();
 	
 
-	bool MaterialClass::updateMaterial(void* cBuf, void* pBuf);
+	bool MaterialClass::updateMaterial(void* cBuf);
 	
 
 	DirectX::XMFLOAT4 MaterialClass::getMatColor();

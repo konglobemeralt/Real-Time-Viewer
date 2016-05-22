@@ -18,9 +18,15 @@
     <ClInclude Include="maya_includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sharedMem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sharedMem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

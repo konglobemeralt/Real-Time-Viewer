@@ -42,12 +42,12 @@ public:
 	ModelClass();
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, void* cBuf, void* pBuf);
+	bool Initialize(ID3D11Device*, void* cBuf);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 
-	bool UpdateBuffers(ID3D11Device* pDevice, void* cBuf, void*);
+	bool UpdateBuffers(ID3D11Device* pDevice, void*);
 
 	//bool updateMaterial(void* cBuf, void* pBuf);
 
@@ -69,7 +69,7 @@ public:
 	void setWorldMatrix(DirectX::XMFLOAT4X4& tempMatrix);
 
 private:
-	bool InitializeBuffers(ID3D11Device*, void* cBuf, void* pBuf);
+	bool InitializeBuffers(ID3D11Device*, void* cBuf);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 

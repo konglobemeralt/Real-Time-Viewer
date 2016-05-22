@@ -277,223 +277,195 @@ void realTimeViewer::update()
 {
 
 
-
-	int messageType = -1;
-	memcpy(&messageType, (char*)m_fileMap->buffer + m_fileMap->cb->tail, sizeof(int));
-
-	int modelID = -1;
-
-
-	if (messageType != -1)
+	if (m_fileMap->cb->tail != m_fileMap->cb->head)
 	{
-		//Create mesh MESSAGE 0
-		if (messageType == 0)
+
+		int messageType = -1;
+		memcpy(&messageType, (char*)m_fileMap->buffer + m_fileMap->cb->tail, sizeof(int));
+
+		int modelID = -1;
+
+
+		if (messageType != -1)
 		{
-
-
-			//ModelID
-			memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(int));
-
-			if (modelID > modelVector.size())
+			//Create mesh MESSAGE 0
+			if (messageType == 0)
 			{
 
-				m_model.Initialize(m_Direct3D->GetDevice(), m_fileMap->buffer);
-				modelVector.push_back(m_model);
+
+				//ModelID
+				memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(int));
+
+				if (modelID > modelVector.size())
+				{
+					
+					m_model.Initialize(m_Direct3D->GetDevice(), ((char*)m_fileMap->buffer + m_fileMap->cb->tail));
+					modelVector.push_back(m_model);
+
+				}
+
+				modelID = -1;
 
 			}
 
-			modelID = -1;
-
-		}
 
 
+			//Create mesh MESSAGE 0
+			if (messageType == 1)
+			{
 
-		//Create mesh MESSAGE 0
-		if (messageType == 1)
-		{
 
+				m_Camera->Render((char*)m_fileMap->buffer + m_fileMap->cb->tail);
 
-			m_Camera->Render(m_fileMap->buffer);
-
-		}
+			}
 
 
 
-		//Transform mesh
-		if (messageType == 2)
-		{
-			//ModelID
-			memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
+			//Transform mesh
+			if (messageType == 2)
+			{
+				//ModelID
+				memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
 
-			XMFLOAT4X4 tempMatrix;
-			memcpy(&tempMatrix, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
+				XMFLOAT4X4 tempMatrix;
+				memcpy(&tempMatrix, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
-			if (modelID > 0)
-				modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
+				if (modelID > 0)
+					modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
 
-			else
-				modelVector.at(modelID).setWorldMatrix(tempMatrix);
+				else
+					modelVector.at(modelID).setWorldMatrix(tempMatrix);
 
-			modelID = -1;
-		}
+				modelID = -1;
+			}
 
-		////find light
-		//if (messageType == 3)
-		//{
-		//	m_Light->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-		//}
+			////find light
+			//if (messageType == 3)
+			//{
+			//	m_Light->Render(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+			//}
 
-//		//material change
-//		if (messageType == 4)
-//		{
-//			int matID = -1;
-//			//ModelID
-//
-//			//for matID we use messageSize from the mayaplugin since that one is not used for other things
-//			memcpy(&matID, (char*)m_fileMap->buffer + sizeof(int), sizeof(int));
-//
-//			if (matID != -1 && matID < materialVector.size())
-//			{
-//
-//
-//
-//				//	if (matID > 0)
-//				//	{
-//				//
-//				//		materialVector.at(matID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-//				//
-//				//	}
-//				//
-//				//	else
-//				//	{
-//						//materialVector.at(matID).ReleaseTexture();
-//				materialVector.at(matID).updateMaterial(m_fileMap->buffer, m_fileMap->returnPbuf());
-//
-//
-//				//	}
-//
-//
-//				modelID = -1;
-//
-//			}
-//
-//
-//
-//
-//
-//		}
-
-
-
-//	//Delete Mesh
-//	if (messageType == 5)
-//	{
-//		//ModelID
-//		memcpy(&modelID, (char*)m_fileMap->buffer + (sizeof(int)), sizeof(int));
-//
-//
-//		if (modelID > 0)
-//			modelVector.at(modelID - 1).setIndexCount(-1);
-//
-//		else
-//			modelVector.at(modelID).setIndexCount(-1);
-//
-//		modelID = -1;
-//	}
-
-//	//vertex changed mesh
-//	if (messageType == 6)
-//	{
-//
-//		//ModelID
-//		memcpy(&modelID, (char*)m_fileMap->buffer + sizeof(int) + sizeof(int), sizeof(int));
-//
-//
-//
-//		if (modelID > 0)
-//			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-//
-//		else
-//			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-//
-//
-//		modelID = -1;
-//
-//	}
-//
-
-
-//	//extrude changed mesh
-//	if (messageType == 7)
-//	{
-//
-//
-//
-//		//ModelID
-//		memcpy(&modelID, (char*)m_fileMap->buffer + sizeof(int) + sizeof(int), sizeof(int));
-//
-//
-//		if (modelID > 0)
-//			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-//
-//		else
-//			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-//
-//
-//		modelID = -1;
-//
-//	}
-
-//		///// ASSIGN NEW HERER
-//			//Material Assign message
-//		if (messageType == 8)
-//		{
-//			int meshID = -1;
-//			//MeshID
-//			memcpy(&meshID, (char*)m_fileMap->buffer + sizeof(int), sizeof(int));
-//
-//
-//			int matID = -1;
-//			//ModelID
-//			memcpy(&matID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
-//
-//
-//			if (matID != -1 && meshID != -1)
-//			{
-//
-//
-//				modelVector.at(meshID - 1).setMaterialID(matID);
-//			}
-//}
-
-
-
-
-
-
-
-
-	////NewMat
-	//if (messageType == 4)
-	//{
-	//
-	//	int matID = -1;
-	//	//ModelID
-	//
-	//	//for matID we use messageSize from the mayaplugin since that one is not used for other things
-	//	memcpy(&matID, (char*)m_fileMap->buffer + sizeof(int), sizeof(int));
-	//
-	//	if (matID != -1)
-	//	{
-	//		//Works ish
-	//		//if (matID + 1 > materialVector.size() - 1)
-	//		if (matID > materialVector.size() - 1)
+	//		//material change
+	//		if (messageType == 4)
 	//		{
-	//			m_material.updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
-	//			materialVector.push_back(m_material);
+	//			int matID = -1;
+	//			//ModelID
+	//
+	//			//for matID we use messageSize from the mayaplugin since that one is not used for other things
+	//			memcpy(&matID, (char*)m_fileMap->buffer + sizeof(int), sizeof(int));
+	//
+	//			if (matID != -1 && matID < materialVector.size())
+	//			{
+	//
+	//
+	//
+	//				//	if (matID > 0)
+	//				//	{
+	//				//
+	//				//		materialVector.at(matID - 1).updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//				//
+	//				//	}
+	//				//
+	//				//	else
+	//				//	{
+	//						//materialVector.at(matID).ReleaseTexture();
+	//				materialVector.at(matID).updateMaterial(m_fileMap->buffer, m_fileMap->returnPbuf());
+	//
+	//
+	//				//	}
+	//
+	//
+	//				modelID = -1;
+	//
+	//			}
+	//
+	//
+	//
+	//
 	//
 	//		}
+
+
+
+	//	//Delete Mesh
+	//	if (messageType == 5)
+	//	{
+	//		//ModelID
+	//		memcpy(&modelID, (char*)m_fileMap->buffer + (sizeof(int)), sizeof(int));
+	//
+	//
+	//		if (modelID > 0)
+	//			modelVector.at(modelID - 1).setIndexCount(-1);
+	//
+	//		else
+	//			modelVector.at(modelID).setIndexCount(-1);
+	//
+	//		modelID = -1;
 	//	}
+
+	//	//vertex changed mesh
+	//	if (messageType == 6)
+	//	{
+	//
+	//		//ModelID
+	//		memcpy(&modelID, (char*)m_fileMap->buffer + sizeof(int) + sizeof(int), sizeof(int));
+	//
+	//
+	//
+	//		if (modelID > 0)
+	//			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//
+	//		else
+	//			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//
+	//
+	//		modelID = -1;
+	//
+	//	}
+	//
+
+
+	//	//extrude changed mesh
+	//	if (messageType == 7)
+	//	{
+	//
+	//
+	//
+	//		//ModelID
+	//		memcpy(&modelID, (char*)m_fileMap->buffer + sizeof(int) + sizeof(int), sizeof(int));
+	//
+	//
+	//		if (modelID > 0)
+	//			modelVector.at(modelID - 1).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//
+	//		else
+	//			modelVector.at(modelID).UpdateBuffers(m_Direct3D->GetDevice(), m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+	//
+	//
+	//		modelID = -1;
+	//
+	//	}
+
+	//		///// ASSIGN NEW HERER
+	//			//Material Assign message
+	//		if (messageType == 8)
+	//		{
+	//			int meshID = -1;
+	//			//MeshID
+	//			memcpy(&meshID, (char*)m_fileMap->buffer + sizeof(int), sizeof(int));
+	//
+	//
+	//			int matID = -1;
+	//			//ModelID
+	//			memcpy(&matID, (char*)pBuf + sizeof(int) + sizeof(int), sizeof(int));
+	//
+	//
+	//			if (matID != -1 && meshID != -1)
+	//			{
+	//
+	//
+	//				modelVector.at(meshID - 1).setMaterialID(matID);
+	//			}
 	//}
 
 
@@ -501,18 +473,46 @@ void realTimeViewer::update()
 
 
 
-		m_fileMap->cb->freeMem += 1000;
-		m_fileMap->cb->tail += 1000;
 
-		if (m_fileMap->cb->freeMem < m_fileMap->memSize)
-		{
-			// Sets tail to 0 if there are no place to read
-			if (m_fileMap->cb->tail == m_fileMap->memSize)
+
+		////NewMat
+		//if (messageType == 4)
+		//{
+		//
+		//	int matID = -1;
+		//	//ModelID
+		//
+		//	//for matID we use messageSize from the mayaplugin since that one is not used for other things
+		//	memcpy(&matID, (char*)m_fileMap->buffer + sizeof(int), sizeof(int));
+		//
+		//	if (matID != -1)
+		//	{
+		//		//Works ish
+		//		//if (matID + 1 > materialVector.size() - 1)
+		//		if (matID > materialVector.size() - 1)
+		//		{
+		//			m_material.updateMaterial(m_fileMap->returnControlbuf(), m_fileMap->returnPbuf());
+		//			materialVector.push_back(m_material);
+		//
+		//		}
+		//	}
+		//}
+
+
+
+
+			if (m_fileMap->cb->tail < m_fileMap->memSize) // read == *readerAmount) &&
+			{
+				m_fileMap->cb->tail += 1000;
+				//*readP = 1;
+			}
+			if (m_fileMap->cb->tail >= m_fileMap->memSize) //(read == *readerAmount) &&
+			{
 				m_fileMap->cb->tail = 0;
+			}
 
 		}
-
 	}
+
+
 }
-
-

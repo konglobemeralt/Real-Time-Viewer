@@ -469,18 +469,20 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 			//Give the mesh an ID
 			tMessage.numMeshes = meshID;
 
-			if (sm.cb->freeMem > 1000)
-				{
-					// Sets head to 0 if there are no place to write
-					if (sm.cb->head > sm.memSize - sm.msgHeader.byteSize)
-					{
-						// The place over will set a number to indicate that the head was moved to 0
-						unsigned int type = -1;
-						memcpy((char*)sm.buffer + sm.cb->head, &type, sizeof(int));
-						//lastFreeMem = sm.memSize - sm.cb->head;
-						sm.cb->head = 0;
+			size_t tempT = sm.cb->tail;
+			size_t distance = 0;
+			//
+			if (tempT >= sm.cb->head)
+			{
+				distance = tempT - sm.cb->head;
+			}
+			else if (tempT < sm.cb->head)
+			{
+				distance = (sm.memSize - sm.cb->head) + tempT;
+			}
 
-					}
+			if (1000 < distance || sm.cb->head == tempT)
+			{
 
 					//
 					//Send ID
@@ -494,7 +496,10 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 					sm.cb->freeMem -= (1000);
 					sm.cb->head += 1000;
 				
-
+					if (sm.cb->head >= sm.memSize)
+					{
+						sm.cb->head = 0;
+					}
 
 				}
 			
@@ -665,19 +670,21 @@ void getMeshInfo(MFnMesh &meshNode)
 		tMessage.padding = 0;
 		
 		
-			if (sm.cb->freeMem > 1000)
-			{
-				// Sets head to 0 if there are no place to write
-				if (sm.cb->head > sm.memSize - sm.msgHeader.byteSize)
-				{
-					// The place over will set a number to indicate that the head was moved to 0
-					unsigned int type = -1;
-					memcpy((char*)sm.buffer + sm.cb->head, &type, sizeof(int));
-					//lastFreeMem = sm.memSize - sm.cb->head;
-					sm.cb->head = 0;
+		size_t tempT = sm.cb->tail;
+		size_t distance = 0;
+		//
+		if (tempT >= sm.cb->head)
+		{
+			distance = tempT - sm.cb->head;
+		}
+		else if (tempT < sm.cb->head)
+		{
+			distance = (sm.memSize - sm.cb->head) + tempT;
+		}
 
-				}
-				localHead = sm.cb->head;
+		if (1000 < distance || sm.cb->head == tempT)
+		{
+
 
 
 				std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
@@ -852,9 +859,13 @@ void getMeshInfo(MFnMesh &meshNode)
 					/// Move header
 					
 				}
-						sm.cb->freeMem -= (1000);
-					sm.cb->head += 1000;
 					
+					sm.cb->freeMem -= (1000);
+					sm.cb->head += 1000;
+					if (sm.cb->head >= sm.memSize)
+					{
+						sm.cb->head = 0;
+					}
 
 			}
 
@@ -890,18 +901,20 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 		XMVectorSet(upDirection.x, upDirection.y, upDirection.z, 0.0f))));
 
 
-		if (sm.cb->freeMem > 1000)
-		{
-			// Sets head to 0 if there are no place to write
-			if (sm.cb->head > sm.memSize - sm.msgHeader.byteSize)
-			{
-				// The place over will set a number to indicate that the head was moved to 0
-				unsigned int type = -1;
-				memcpy((char*)sm.buffer + sm.cb->head, &type, sizeof(int));
-				//lastFreeMem = sm.memSize - sm.cb->head;
-				sm.cb->head = 0;
+	size_t tempT = sm.cb->tail;
+	size_t distance = 0;
+	//
+	if (tempT >= sm.cb->head)
+	{
+		distance = tempT - sm.cb->head;
+	}
+	else if (tempT < sm.cb->head)
+	{
+		distance = (sm.memSize - sm.cb->head) + tempT;
+	}
 
-			}
+	if (1000 < distance || sm.cb->head == tempT)
+	{
 
 			std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
 
@@ -910,6 +923,11 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 			/// Move header
 			sm.cb->freeMem -= (1000);
 			sm.cb->head += 1000;
+
+			if (sm.cb->head >= sm.memSize)
+			{
+				sm.cb->head = 0;
+			}
 			
 		}
 

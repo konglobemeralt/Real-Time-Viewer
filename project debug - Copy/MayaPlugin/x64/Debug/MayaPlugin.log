@@ -1,4 +1,8 @@
-﻿  Source.cpp
+﻿  sharedMem.cpp
+sharedMem.cpp(11): warning C4244: '=': conversion from 'float' to 'size_t', possible loss of data
+sharedMem.cpp(37): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+sharedMem.cpp(47): warning C4244: 'argument': conversion from 'float' to 'DWORD', possible loss of data
+  Source.cpp
 Source.cpp(61): warning C4305: 'initializing': truncation from 'double' to 'float'
 Source.cpp(268): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
 Source.cpp(436): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
@@ -49,4 +53,6 @@ Source.cpp(1725): warning C4267: 'argument': conversion from 'size_t' to 'unsign
 Source.cpp(1727): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 Source.cpp(1735): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
 Source.cpp(1737): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
+     Creating library C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.lib and object C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.exp
   MayaPlugin.vcxproj -> C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.mll

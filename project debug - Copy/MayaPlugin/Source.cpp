@@ -481,20 +481,28 @@ void transformChangedCallback(MNodeMessage::AttributeMessage msg, MPlug &plug, M
 				distance = (sm.memSize - sm.cb->head) + tempT;
 			}
 
-			if (1000 < distance || sm.cb->head == tempT)
-			{
+			int messageSize = sizeof(XMFLOAT4X4) + sizeof(int) + sizeof(int) + sizeof(int);
 
-					//
-					//Send ID
-					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(XMFLOAT4X4) + sizeof(int), &tMessage.numMeshes, sizeof(int));
+			if (messageSize < distance || sm.cb->head == tempT)
+			{
 					//end Message Type
 					std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
+					//
+					//SendMessageSize
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
+					
 					//send Matrix
-					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &tMessage.matrixData, sizeof(XMFLOAT4X4));
+					
+					
+					//Send ID
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(XMFLOAT4X4) + sizeof(int) +sizeof(int), &tMessage.numMeshes, sizeof(int));
+					
+					
 
 					//////////////
-					sm.cb->freeMem -= (1000);
-					sm.cb->head += 1000;
+					sm.cb->freeMem -= (messageSize);
+					sm.cb->head += messageSize;
 				
 					if (sm.cb->head >= sm.memSize)
 					{
@@ -666,7 +674,7 @@ void getMeshInfo(MFnMesh &meshNode)
 
 		tMessage.numVerts = verticies.size();
 
-		tMessage.messageSize = 10000;
+		
 		tMessage.padding = 0;
 		
 		
@@ -682,13 +690,16 @@ void getMeshInfo(MFnMesh &meshNode)
 			distance = (sm.memSize - sm.cb->head) + tempT;
 		}
 
-		if (1000 < distance || sm.cb->head == tempT)
+
+		int messageSize = tMessage.numVerts * sizeof(XMFLOAT4) * 3;
+
+		if (messageSize < distance || sm.cb->head == tempT)
 		{
 
 
 
 				std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
-				std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.messageSize, sizeof(int));
+				std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
 
 
 
@@ -860,8 +871,8 @@ void getMeshInfo(MFnMesh &meshNode)
 					
 				}
 					
-					sm.cb->freeMem -= (1000);
-					sm.cb->head += 1000;
+					sm.cb->freeMem -= (messageSize);
+					sm.cb->head += messageSize;
 					if (sm.cb->head >= sm.memSize)
 					{
 						sm.cb->head = 0;
@@ -913,16 +924,21 @@ void cameraChange(MFnTransform& transform, MFnCamera& camera)
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	if (1000 < distance || sm.cb->head == tempT)
+	int messageSize = (sizeof(int) * 3) + sizeof(XMFLOAT4X4);
+
+
+	if (messageSize < distance || sm.cb->head == tempT)
 	{
 
 			std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
 
-			std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &viewMatrix, sizeof(XMFLOAT4X4));
+			std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
+
+			std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &viewMatrix, sizeof(XMFLOAT4X4));
 
 			/// Move header
-			sm.cb->freeMem -= (1000);
-			sm.cb->head += 1000;
+			sm.cb->freeMem -= (messageSize);
+			sm.cb->head += messageSize;
 
 			if (sm.cb->head >= sm.memSize)
 			{
@@ -975,16 +991,19 @@ void destroyedNodeCallback(MObject& object, MDGModifier& modifier, void* clientD
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	if (1000 < distance || sm.cb->head == tempT)
+	int messageSize = (sizeof(int) * 3);
+
+	if (messageSize < distance || sm.cb->head == tempT)
 	{
 
 		std::memcpy((char*)sm.buffer + sm.cb->head, &messageType, sizeof(int));
 		//std::memcpy((char*)pBuf + usedSpace + sizeof(XMFLOAT4X4)+sizeof(XMFLOAT4)+sizeof(XMFLOAT4)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(XMFLOAT4X4), &destroyMesh, sizeof(int));
-		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &destroyMesh, sizeof(int));
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &destroyMesh, sizeof(int));
 
 
-		sm.cb->freeMem -= (1000);
-		sm.cb->head += 1000;
+		sm.cb->freeMem -= (messageSize);
+		sm.cb->head += messageSize;
 
 		if (sm.cb->head >= sm.memSize)
 		{
@@ -1020,7 +1039,7 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	vector<XMFLOAT2> UV;
 	vector<XMFLOAT3> normals;
 
-
+	 
 
 	while (!polyIt.isDone())
 	{
@@ -1095,12 +1114,15 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	if (1000 < distance || sm.cb->head == tempT)
+
+	int messageSize = tMessage.numVerts * sizeof(XMFLOAT4) * 3;
+
+	if (messageSize < distance || sm.cb->head == tempT)
 	{
 
 
 		std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
-		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.messageSize, sizeof(int));
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
 
 
 
@@ -1150,8 +1172,8 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 		////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
 
-		sm.cb->freeMem -= (1000);
-		sm.cb->head += 1000;
+		sm.cb->freeMem -= (messageSize);
+		sm.cb->head += messageSize;
 
 		if (sm.cb->head >= sm.memSize)
 		{
@@ -1259,11 +1281,14 @@ void getExtrudeChangeInfo(MPlug& plug)
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	if (1000 < distance || sm.cb->head == tempT)
+	int messageSize = tMessage.numVerts * sizeof(XMFLOAT4) * 3;
+	
+	if (messageSize < distance || sm.cb->head == tempT)
 	{
 
-		std::memcpy((char*)sm.buffer, &tMessage.messageType, sizeof(int));
-		std::memcpy((char*)sm.buffer + sizeof(int), &tMessage.messageSize, sizeof(int));
+	
+		std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
 
 
 
@@ -1305,8 +1330,8 @@ void getExtrudeChangeInfo(MPlug& plug)
 		////memcpy((char*)pBuf + usedSpace + sizeof(CameraData) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(int)+sizeof(VertexData)+sizeof(MatrixData), &tMessage.camData, sizeof(CameraData));
 
 
-		sm.cb->freeMem -= (1000);
-		sm.cb->head += 1000;
+		sm.cb->freeMem -= (messageSize);
+		sm.cb->head += messageSize;
 
 		if (sm.cb->head >= sm.memSize)
 		{
@@ -1355,17 +1380,21 @@ void shaderChangedCallback(MObject &node, void* clientData)
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	if (1000 < distance || sm.cb->head == tempT)
+	int messageSize = sizeof(int) * 3;
+
+	if (messageSize < distance || sm.cb->head == tempT)
 	{
 
 		std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
+
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
 		//tempMatID
-		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.messageSize, sizeof(int));
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &tMessage.messageSize, sizeof(int));
 		//hasTexture
 
 
-		sm.cb->freeMem -= (1000);
-		sm.cb->head += 1000;
+		sm.cb->freeMem -= (messageSize); 
+		sm.cb->head += messageSize;
 
 		if (sm.cb->head >= sm.memSize)
 		{
@@ -1402,7 +1431,10 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	if (1000 < distance || sm.cb->head == tempT)
+	int messageSize = 1000;
+
+
+	if (messageSize < distance || sm.cb->head == tempT)
 	{
 
 
@@ -1519,10 +1551,13 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 					MGlobal::displayInfo("Coosen:");
 					MGlobal::displayInfo(matNamer.name());
 					std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
+
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
+
 					//tempMatID
-					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.messageSize, sizeof(int));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &tMessage.messageSize, sizeof(int));
 					//hasTexture
-					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &texExist, sizeof(int));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int), &texExist, sizeof(int));
 
 					if (texExist == 1)
 					{
@@ -1530,7 +1565,7 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 						const char* toChar = toString.c_str();
 
 
-						std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
+						std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
 
 
 					}
@@ -1543,9 +1578,9 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 
 
 
-					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int), &matD.color, sizeof(DirectX::XMFLOAT4));
+					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), &matD.color, sizeof(DirectX::XMFLOAT4));
 
-
+					i = materialNames.length();
 
 
 				}
@@ -1556,8 +1591,8 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 			}
 		}
 
-		sm.cb->freeMem -= (1000);
-		sm.cb->head += 1000;
+		sm.cb->freeMem -= (messageSize);
+		sm.cb->head += messageSize;
 
 		if (sm.cb->head >= sm.memSize)
 		{
@@ -1595,8 +1630,9 @@ void matChanged(MFnMesh& mesh)
 	{
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
+	int messageSize = 1000;
 
-	if (1000 < distance || sm.cb->head == tempT)
+	if (messageSize < distance || sm.cb->head == tempT)
 	{
 
 		int localMesh = nodeNames.length();
@@ -1695,23 +1731,23 @@ void matChanged(MFnMesh& mesh)
 
 
 
-			if (texExist == 1)
-			{
+			//if (texExist == 1)
+			//{
 
-				tMessage.messageType = 4;
+			//	tMessage.messageType = 4;
 
-				std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
-				//hasTexture
-				std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &texExist, sizeof(int));
+			//	std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
+			//	//hasTexture
+			//	std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int), &texExist, sizeof(int));
 
-				std::string toString = filename.asChar();
-				const char* toChar = toString.c_str();
+			//	std::string toString = filename.asChar();
+			//	const char* toChar = toString.c_str();
 
-				std::memcpy((char*)sm.buffer + sm.cb->head  +sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
+			//	std::memcpy((char*)sm.buffer + sm.cb->head  +sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
 
 
 
-			}
+			//}
 
 
 
@@ -1743,7 +1779,7 @@ void matChanged(MFnMesh& mesh)
 
 		MGlobal::displayInfo(MString("ID = " + meshID));
 
-		//Give the mesh an ID
+		//Give the mesh an ID 
 		tMessage.numMeshes = matID;
 		tMessage.messageType = 8;
 		tMessage.messageSize = meshID;
@@ -1752,11 +1788,14 @@ void matChanged(MFnMesh& mesh)
 
 
 		std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
-		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &tMessage.messageSize, sizeof(int));
+
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
+
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &tMessage.messageSize, sizeof(int));
 
 
 
-		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &tMessage.numMeshes, sizeof(int));
+		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.numMeshes, sizeof(int));
 
 
 		//	// Send data to shared memory
@@ -1816,14 +1855,14 @@ void matChanged(MFnMesh& mesh)
 		//		}
 		//	} while (sm.cb->freeMem >!slotSize);
 
-		sm.cb->freeMem -= (1000);
-		sm.cb->head += 1000;
+		sm.cb->freeMem -= (messageSize);
+		sm.cb->head += messageSize;
 
 		if (sm.cb->head >= sm.memSize)
 		{
 			sm.cb->head = 0;
 		}
-
+		 
 	}
 
 

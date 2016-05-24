@@ -282,6 +282,8 @@ void realTimeViewer::update()
 
 		int messageType = -1;
 		memcpy(&messageType, (char*)m_fileMap->buffer + m_fileMap->cb->tail, sizeof(int));
+		int messageSize = -1;
+		memcpy(&messageSize, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int), sizeof(int));
 
 		int modelID = -1;
 
@@ -315,7 +317,7 @@ void realTimeViewer::update()
 			{
 
 
-				m_Camera->Render((char*)m_fileMap->buffer + m_fileMap->cb->tail);
+				m_Camera->Render((char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int)) ;
 
 			}
 
@@ -325,10 +327,10 @@ void realTimeViewer::update()
 			if (messageType == 2)
 			{
 				//ModelID
-				memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(XMFLOAT4X4) + sizeof(int), sizeof(int));
+				memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(XMFLOAT4X4) + sizeof(int) + sizeof(int), sizeof(int));
 
 				XMFLOAT4X4 tempMatrix;
-				memcpy(&tempMatrix, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
+				memcpy(&tempMatrix, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(DirectX::XMFLOAT4X4));
 
 				if (modelID > 0)
 					modelVector.at(modelID - 1).setWorldMatrix(tempMatrix);
@@ -346,7 +348,7 @@ void realTimeViewer::update()
 				//ModelID
 	
 				//for matID we use messageSize from the mayaplugin since that one is not used for other things
-				memcpy(&matID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int), sizeof(int));
+				memcpy(&matID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(int));
 	
 				if (matID != -1 && matID < materialVector.size())
 				{
@@ -385,7 +387,7 @@ void realTimeViewer::update()
 		if (messageType == 5)
 		{
 			//ModelID
-			memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + (sizeof(int)), sizeof(int));
+			memcpy(&modelID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + (sizeof(int)) + sizeof(int), sizeof(int));
 	
 	
 			if (modelID > 0)
@@ -446,12 +448,12 @@ void realTimeViewer::update()
 			{
 				int meshID = -1;
 				//MeshID
-				memcpy(&meshID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int), sizeof(int));
+				memcpy(&meshID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(int));
 	
 	
 				int matID = -1;
 				//ModelID
-				memcpy(&matID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(int));
+				memcpy(&matID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
 	
 	
 				if (matID != -1 && meshID != -1)
@@ -469,35 +471,35 @@ void realTimeViewer::update()
 
 
 
-		////NewMat
-		//if (messageType == 4)
-		//{
-		//
-		//	int matID = -1;
-		//	//ModelID
-		//
-		//	//for matID we use messageSize from the mayaplugin since that one is not used for other things
-		//	memcpy(&matID, (char*)m_fileMap->buffer + sizeof(int), sizeof(int));
-		//
-		//	if (matID != -1)
-		//	{
-		//		//Works ish
-		//		//if (matID + 1 > materialVector.size() - 1)
-		//		if (matID > materialVector.size() - 1)
-		//		{
-		//			m_material.updateMaterial((char*)m_fileMap->buffer + m_fileMap->cb->tail);
-		//			materialVector.push_back(m_material);
-		//
-		//		}
-		//	}
-		//}
+		//NewMat
+		if (messageType == 9)
+		{
+		
+			int matID = -1;
+			//ModelID
+		
+			//for matID we use messageSize from the mayaplugin since that one is not used for other things
+			memcpy(&matID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int), sizeof(int));
+		
+			if (matID != -1)
+			{
+				//Works ish
+				//if (matID + 1 > materialVector.size() - 1)
+				if (matID > materialVector.size() - 1)
+				{
+					m_material.updateMaterial((char*)m_fileMap->buffer + m_fileMap->cb->tail);
+					materialVector.push_back(m_material);
+		
+				}
+			}
+		}
 
 
 
 
 			if (m_fileMap->cb->tail < m_fileMap->memSize) // read == *readerAmount) &&
 			{
-				m_fileMap->cb->tail += 1000;
+				m_fileMap->cb->tail += messageSize;
 				//*readP = 1;
 			}
 			if (m_fileMap->cb->tail >= m_fileMap->memSize) //(read == *readerAmount) &&

@@ -169,7 +169,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 	localHead = 0;
 	slotSize = 256;
 	sm.cbSize = 20;
-	sm.msgHeaderSize = 8;
+	
 
 	MString memoryString;
 	//sm.OpenMemory(1.0f / 256.0f)

@@ -452,7 +452,7 @@ void realTimeViewer::update()
 	
 	
 				int matID = -1;
-				//ModelID
+				//matID
 				memcpy(&matID, (char*)m_fileMap->buffer + m_fileMap->cb->tail + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
 	
 	
@@ -485,7 +485,7 @@ void realTimeViewer::update()
 			{
 				//Works ish
 				//if (matID + 1 > materialVector.size() - 1)
-				if (matID > materialVector.size() - 1)
+				if (matID > materialVector.size())
 				{
 					m_material.updateMaterial((char*)m_fileMap->buffer + m_fileMap->cb->tail);
 					materialVector.push_back(m_material);

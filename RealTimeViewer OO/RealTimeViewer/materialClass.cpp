@@ -1,4 +1,5 @@
 #include "materialClass.h"
+#include <algorithm>
 #include <string>
 
 MaterialClass::MaterialClass()
@@ -35,12 +36,14 @@ bool MaterialClass::updateMaterial(void* cBuf)
 	//memcpy(&m_matSpecColor, (char*)pBuf + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4), sizeof(DirectX::XMFLOAT4));
 	//memcpy(&m_matReflectivity, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), sizeof(float));
 	//memcpy(&m_matSpecRolloff, (char*)pBuf + usedSpace + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(int)+sizeof(int)+sizeof(int)+sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4X4) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4) + sizeof(float), sizeof(float));
-	memcpy(&m_matColor, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + +sizeof(int), sizeof(DirectX::XMFLOAT4));
+	
 	//delete[]m_texturePath;
+
+
 	int texExist = -1;
 	memcpy(&texExist, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
 	
-
+	memcpy(&m_matColor, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + +sizeof(int), sizeof(DirectX::XMFLOAT4));
 
 	
 	if (texExist == 1)
@@ -55,22 +58,29 @@ bool MaterialClass::updateMaterial(void* cBuf)
 		//m_texturePath = L"frontdesk.dds\0";
 		//m_diffuseTexturePath = L"frontdesk.dds\0";
 
-		m_matColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		
 	
 	
+		DirectX::XMFLOAT4 tempMatColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 
+		memcpy(&m_matColor, &tempMatColor, sizeof(DirectX::XMFLOAT4));
 
 		memcpy(&tempPath, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
 		
-		std::string test = tempPath;
-		std::size_t found = test.find_last_of("/\\");
-		std::string test2 = test.substr(found+1);
+		std::string test = tempPath + '\0' + '\0';
+		
+		//std::size_t found = test.find_last_of("/\\");
+		//std::string test2 = test.substr(found+1);
 
-		std::wstring widestr = std::wstring(test2.begin(), test2.end());
+		std::replace(test.begin(), test.end(), '/', '\\'); // replace all '/' to '\'
+
+		//std::wstring widestr = std::wstring(test2.begin(), test2.end());
+		std::wstring widestr = std::wstring(test.begin(), test.end());
 		
 		WCHAR* jollygoodString = (WCHAR*)widestr.c_str();
 		
 		wcscpy(m_texturePath, jollygoodString);
+		
 		//	mbscpy()
 		//m_texturePath = jollygoodString;
 		
@@ -80,7 +90,6 @@ bool MaterialClass::updateMaterial(void* cBuf)
 		return true;
 	}
 	
-
 
 	return true;
 }
@@ -124,7 +133,10 @@ bool MaterialClass::LoadTexture(ID3D11Device* pDevice)
 		return false;
 	}
 
-	WCHAR* temp = m_texturePath;
+
+	m_pTexture->Shutdown();
+
+	
 
 	// Initialize the texture object.
 	result = m_pTexture->Initialize(pDevice, m_texturePath);

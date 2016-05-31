@@ -21,6 +21,7 @@ public:
 	char* OpenMemory(float size);
 	char* CloseMemory();
 
+
 	HANDLE smCircle;
 	HANDLE smMess;
 
@@ -32,24 +33,11 @@ public:
 	}*cb;
 	unsigned int cbSize;
 
-	struct MSGHeader
-	{
-		unsigned int type;
-		unsigned int byteSize;
-	}msgHeader;
-	unsigned int msgHeaderSize;
 
 	size_t memSize;
 	void* buffer;
 
-	// MESHES
-	vector<XMFLOAT3> pos;
-	vector<XMFLOAT2> uv;
-	vector<XMFLOAT3> normal;
-	vector<XMFLOAT3> vertices;
 
-	// Camera
-	unsigned camDataSize;
 };
 
 #endif

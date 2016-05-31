@@ -20,7 +20,6 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
 	HRESULT result = 0;
 
 	
-
 	result = DirectX::CreateDDSTextureFromFile(device, filename, NULL, &m_texture);
 
 	if (FAILED(result))

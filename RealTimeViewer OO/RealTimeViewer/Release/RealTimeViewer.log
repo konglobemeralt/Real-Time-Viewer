@@ -1,11 +1,4 @@
-﻿  Source.cpp
-Source.cpp(29): warning C4316: 'realTimeViewer': object allocated on the heap may not be aligned 16
-  materialClass.cpp
-materialClass.cpp(18): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-materialClass.cpp(82): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-  realTimeViewer.cpp
+﻿  realTimeViewer.cpp
 realTimeViewer.cpp(25): warning C4101: 'videoCard': unreferenced local variable
 realTimeViewer.cpp(26): warning C4101: 'videoMemory': unreferenced local variable
 realTimeViewer.cpp(178): warning C4101: 'height': unreferenced local variable
@@ -19,12 +12,12 @@ realTimeViewer.cpp(200): warning C4101: 'positionX': unreferenced local variable
 realTimeViewer.cpp(199): warning C4101: 'index': unreferenced local variable
 realTimeViewer.cpp(200): warning C4101: 'positionY': unreferenced local variable
 realTimeViewer.cpp(200): warning C4101: 'positionZ': unreferenced local variable
-realTimeViewer.cpp(301): warning C4018: '>': signed/unsigned mismatch
-realTimeViewer.cpp(353): warning C4018: '<': signed/unsigned mismatch
-realTimeViewer.cpp(488): warning C4018: '>': signed/unsigned mismatch
+realTimeViewer.cpp(302): warning C4018: '>': signed/unsigned mismatch
+realTimeViewer.cpp(354): warning C4018: '<': signed/unsigned mismatch
+realTimeViewer.cpp(489): warning C4018: '>': signed/unsigned mismatch
   Generating code
-  32 of 483 functions ( 6.6%) were compiled, the rest were copied from previous compilation.
+  1 of 483 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    15 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  RealTimeViewer.vcxproj -> C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.exe
+  RealTimeViewer.vcxproj -> C:\QUESTIONBOX\Documents\School\RTV\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.exe

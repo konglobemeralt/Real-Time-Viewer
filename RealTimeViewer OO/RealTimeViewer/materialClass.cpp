@@ -71,7 +71,7 @@ bool MaterialClass::updateMaterial(void* cBuf)
 		
 		//std::size_t found = test.find_last_of("/\\");
 		//std::string test2 = test.substr(found+1);
-
+		
 		std::replace(test.begin(), test.end(), '/', '\\'); // replace all '/' to '\'
 
 		//std::wstring widestr = std::wstring(test2.begin(), test2.end());
@@ -80,6 +80,17 @@ bool MaterialClass::updateMaterial(void* cBuf)
 		WCHAR* jollygoodString = (WCHAR*)widestr.c_str();
 		
 		wcscpy(m_texturePath, jollygoodString);
+		//wcscpy(m_texturePath, L"ice.dds\0");
+
+		//Splits up into the filename.end only
+	/*	std::string shorttest = test.substr(test.find_last_of("/\\") + 1);
+		std::wstring widestr = std::wstring(shorttest.begin(), shorttest.end());
+
+		WCHAR* jollygoodString = (WCHAR*)widestr.c_str();
+
+
+		wcscpy(m_texturePath, (jollygoodString));*/
+
 		
 		//	mbscpy()
 		//m_texturePath = jollygoodString;

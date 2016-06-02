@@ -40,13 +40,13 @@ Source.cpp(1227): warning C4244: 'argument': conversion from 'double' to 'float'
 Source.cpp(1256): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
 Source.cpp(1258): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 Source.cpp(1267): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-Source.cpp(1320): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-Source.cpp(1321): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 Source.cpp(1322): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-Source.cpp(1539): warning C4018: '<': signed/unsigned mismatch
-Source.cpp(1639): warning C4018: '<': signed/unsigned mismatch
-Source.cpp(1761): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
-Source.cpp(1763): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-Source.cpp(1771): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
-Source.cpp(1773): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  MayaPlugin.vcxproj -> C:\Temp\RTVGIT\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.mll
+Source.cpp(1323): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Source.cpp(1324): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Source.cpp(1542): warning C4018: '<': signed/unsigned mismatch
+Source.cpp(1642): warning C4018: '<': signed/unsigned mismatch
+Source.cpp(1764): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+Source.cpp(1766): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Source.cpp(1774): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+Source.cpp(1776): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  MayaPlugin.vcxproj -> C:\QUESTIONBOX\Documents\School\RTV\Real-Time-Viewer\project debug - Copy\x64\Debug\MayaPlugin.mll

@@ -288,6 +288,7 @@ void realTimeViewer::update()
 		int modelID = -1;
 
 
+
 		if (messageType != -1)
 		{
 			//Create mesh MESSAGE 0

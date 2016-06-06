@@ -1115,7 +1115,7 @@ void getVertexChangeInfo(MFnMesh &meshNode)
 	}
 
 
-	int messageSize = tMessage.numVerts * sizeof(XMFLOAT4) * 3;
+	int messageSize = (tMessage.numVerts * sizeof(XMFLOAT4) * 3) + (sizeof(int) * 4);
 
 	if (messageSize < distance || sm.cb->head == tempT)
 	{
@@ -1281,7 +1281,9 @@ void getExtrudeChangeInfo(MPlug& plug)
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	int messageSize = tMessage.numVerts * sizeof(XMFLOAT4) * 3;
+	//int messageSize = tMessage.numVerts * sizeof(XMFLOAT4) * 3;
+	int messageSize = (tMessage.numVerts * sizeof(XMFLOAT4) * 3) + (sizeof(int) * 4);
+
 	
 	if (messageSize < distance || sm.cb->head == tempT)
 	{
@@ -1431,7 +1433,8 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
 
-	int messageSize = 1000;
+	//int messageSize = 1000;
+	int messageSize = ((sizeof(int) * 4) + sizeof(DirectX::XMFLOAT4) + (sizeof(char) * 500));
 
 
 	if (messageSize < distance || sm.cb->head == tempT)
@@ -1544,8 +1547,6 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 				//MGlobal::displayInfo(matNamer.name());
 				if (materialNames[i] == matNamer.name())
 				{
-
-
 					tMessage.messageType = 4;
 					tMessage.messageSize = i;
 					MGlobal::displayInfo("Coosen:");
@@ -1630,7 +1631,9 @@ void matChanged(MFnMesh& mesh)
 	{
 		distance = (sm.memSize - sm.cb->head) + tempT;
 	}
-	int messageSize = 1000;
+	//int messageSize = 1000;
+	int messageSize = ((sizeof(int) * 4) + sizeof(DirectX::XMFLOAT4) + (sizeof(char) * 500));
+
 
 	if (messageSize < distance || sm.cb->head == tempT)
 	{
@@ -1789,12 +1792,14 @@ void matChanged(MFnMesh& mesh)
 
 		std::memcpy((char*)sm.buffer + sm.cb->head, &tMessage.messageType, sizeof(int));
 
+		//send actual message size
 		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int), &messageSize, sizeof(int));
 
+		//send meshId
 		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int), &tMessage.messageSize, sizeof(int));
 
 
-
+		//send material ID
 		std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int), &tMessage.numMeshes, sizeof(int));
 
 

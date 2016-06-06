@@ -1565,7 +1565,7 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 						const char* toChar = toString.c_str();
 
 
-						std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * 500));
+						std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), toChar, (sizeof(char) * toString.length()));
 
 
 					}
@@ -1581,7 +1581,7 @@ void shaderAttrChanged(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &p
 					std::memcpy((char*)sm.buffer + sm.cb->head + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int), &matD.color, sizeof(DirectX::XMFLOAT4));
 
 					i = materialNames.length();
-
+					break;
 
 				}
 

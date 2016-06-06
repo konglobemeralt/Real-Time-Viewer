@@ -260,13 +260,13 @@ bool realTimeViewer::RenderGraphics()
 		}
 	}
 
-	update();
+	
 
 
 	// Present the rendered scene to the screen.
 	m_Direct3D->EndScene();
 
-
+	update();
 
 
 
@@ -353,7 +353,7 @@ void realTimeViewer::update()
 				if (matID != -1 && matID < materialVector.size())
 				{
 	
-	
+				
 	
 					//	if (matID > 0)
 					//	{
@@ -364,7 +364,9 @@ void realTimeViewer::update()
 					//
 					//	else
 					//	{
-							//materialVector.at(matID).ReleaseTexture();
+					materialVector.at(matID).ReleaseTexture();
+					
+					
 					materialVector.at(matID).updateMaterial((char*)m_fileMap->buffer + m_fileMap->cb->tail);
 	
 	
@@ -487,8 +489,9 @@ void realTimeViewer::update()
 				//if (matID + 1 > materialVector.size() - 1)
 				if (matID > materialVector.size())
 				{
-					m_material.updateMaterial((char*)m_fileMap->buffer + m_fileMap->cb->tail);
-					materialVector.push_back(m_material);
+					MaterialClass material;
+					//material.updateMaterial((char*)m_fileMap->buffer + m_fileMap->cb->tail);
+					materialVector.push_back(material);
 		
 				}
 			}

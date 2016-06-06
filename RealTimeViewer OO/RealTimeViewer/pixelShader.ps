@@ -40,13 +40,13 @@ float4 pixelShader(PixelInputType input) : SV_TARGET
     lightDir = lightDirection;
 
     //lightIntensity = saturate(dot(input.normal, lightDir));
-	lightIntensity = 0.9;
+	lightIntensity = 0.15;
 
     //color = saturate(diffuseColor * lightIntensity);
 
     color = saturate(materialColor);
 
-	color = color * textureColor;
+	color = saturate(textureColor) + saturate(materialColor * lightIntensity);
 
     return color;
 }

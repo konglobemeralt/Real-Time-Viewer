@@ -39,13 +39,16 @@ public:
 
 	
 	WCHAR m_texturePath[500];
-	char tempPath[200];
-private:
-	ID3D11ShaderResourceView* m_texture;
+	char tempPath[200];	
 	
 	//material values
-TextureClass* m_pTexture;
+	TextureClass* m_pTexture;
+	
+	ID3D11ShaderResourceView* m_texture;
 
+
+private:
+	
 bool m_HasMaterial;
 float m_diffuseR, m_diffuseG, m_diffuseB;
 

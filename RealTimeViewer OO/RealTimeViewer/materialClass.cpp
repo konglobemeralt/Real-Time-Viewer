@@ -26,6 +26,15 @@ MaterialClass::~MaterialClass()
 }
 
 
+bool MaterialClass::Initialize()
+{
+
+	DirectX::XMFLOAT4 tempMatColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	//
+	memcpy(&m_matColor, &tempMatColor, sizeof(DirectX::XMFLOAT4));
+	return true;
+}
+
 bool MaterialClass::updateMaterial(void* cBuf)
 {
 
@@ -43,7 +52,7 @@ bool MaterialClass::updateMaterial(void* cBuf)
 	int texExist = -1;
 	memcpy(&texExist, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int), sizeof(int));
 	
-	memcpy(&m_matColor, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + +sizeof(int), sizeof(DirectX::XMFLOAT4));
+	
 
 	
 	if (texExist == 1)
@@ -62,7 +71,7 @@ bool MaterialClass::updateMaterial(void* cBuf)
 	
 	
 		DirectX::XMFLOAT4 tempMatColor = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-
+		//
 		memcpy(&m_matColor, &tempMatColor, sizeof(DirectX::XMFLOAT4));
 
 		memcpy(&tempPath, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
@@ -72,25 +81,32 @@ bool MaterialClass::updateMaterial(void* cBuf)
 		//std::size_t found = test.find_last_of("/\\");
 		//std::string test2 = test.substr(found+1);
 
-		std::replace(test.begin(), test.end(), '/', '\\'); // replace all '/' to '\'
 
-		//std::wstring widestr = std::wstring(test2.begin(), test2.end());
-		std::wstring widestr = std::wstring(test.begin(), test.end());
+		if (test.length() > 3)
+		{
+
+				std::replace(test.begin(), test.end(), '/', '\\'); // replace all '/' to '\'
+
+				//std::wstring widestr = std::wstring(test2.begin(), test2.end());
+				std::wstring widestr = std::wstring(test.begin(), test.end());
 		
-		WCHAR* jollygoodString = (WCHAR*)widestr.c_str();
+				WCHAR* jollygoodString = (WCHAR*)widestr.c_str();
 		
-		wcscpy(m_texturePath, jollygoodString);
+				wcscpy(m_texturePath, jollygoodString);
 		
-		//	mbscpy()
-		//m_texturePath = jollygoodString;
+				//	mbscpy()
+				//m_texturePath = jollygoodString;
 		
 
-		int sg = 0;
+				int sg = 0;
 		
+				
+
+		}
 		return true;
 	}
 	
-
+	memcpy(&m_matColor, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int)  +sizeof(int), sizeof(DirectX::XMFLOAT4));
 	return true;
 }
 

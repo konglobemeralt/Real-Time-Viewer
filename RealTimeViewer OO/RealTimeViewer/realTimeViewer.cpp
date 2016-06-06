@@ -365,7 +365,7 @@ void realTimeViewer::update()
 					//
 					//	else
 					//	{
-					materialVector.at(matID).ReleaseTexture();
+					//materialVector.at(matID).ReleaseTexture();
 					
 					
 					materialVector.at(matID).updateMaterial((char*)m_fileMap->buffer + m_fileMap->cb->tail);

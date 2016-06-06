@@ -1,12 +1,24 @@
-﻿  materialClass.cpp
-materialClass.cpp(18): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-materialClass.cpp(95): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+﻿  realTimeViewer.cpp
+realTimeViewer.cpp(25): warning C4101: 'videoCard': unreferenced local variable
+realTimeViewer.cpp(26): warning C4101: 'videoMemory': unreferenced local variable
+realTimeViewer.cpp(178): warning C4101: 'height': unreferenced local variable
+realTimeViewer.cpp(179): warning C4101: 'radians': unreferenced local variable
+realTimeViewer.cpp(176): warning C4101: 'foundHeight': unreferenced local variable
+realTimeViewer.cpp(217): warning C4018: '<': signed/unsigned mismatch
+realTimeViewer.cpp(200): warning C4101: 'radius': unreferenced local variable
+realTimeViewer.cpp(199): warning C4101: 'renderCount': unreferenced local variable
+realTimeViewer.cpp(199): warning C4101: 'modelCount': unreferenced local variable
+realTimeViewer.cpp(200): warning C4101: 'positionX': unreferenced local variable
+realTimeViewer.cpp(199): warning C4101: 'index': unreferenced local variable
+realTimeViewer.cpp(200): warning C4101: 'positionY': unreferenced local variable
+realTimeViewer.cpp(200): warning C4101: 'positionZ': unreferenced local variable
+realTimeViewer.cpp(302): warning C4018: '>': signed/unsigned mismatch
+realTimeViewer.cpp(354): warning C4018: '<': signed/unsigned mismatch
+realTimeViewer.cpp(491): warning C4018: '>': signed/unsigned mismatch
   Generating code
-  7 of 484 functions ( 1.4%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
-    3 functions had inline decision re-evaluated but remain unchanged
+  1 of 484 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    18 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 Source.obj : warning LNK4020: a type record in 'c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\release\vc140.pdb' is corrupted; some symbols and types may not be accessible from the debugger
 textureClass.obj : warning LNK4020: a type record in 'c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\release\vc140.pdb' is corrupted; some symbols and types may not be accessible from the debugger

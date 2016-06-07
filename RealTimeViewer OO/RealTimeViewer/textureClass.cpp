@@ -4,7 +4,7 @@
 
 TextureClass::TextureClass()
 {
-	m_texture = 0;
+	m_texture = nullptr;
 }
 
 

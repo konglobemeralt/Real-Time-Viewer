@@ -1,2 +1,2 @@
-#TargetFrameworkVersion=v4.0:PlatformToolSet=v140:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=8.1
-Release|Win32|C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\|
+#TargetFrameworkVersion=v4.0:PlatformToolSet=v140:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit
+Release|Win32|C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\|

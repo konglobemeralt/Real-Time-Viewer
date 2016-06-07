@@ -1,25 +1,27 @@
-﻿  realTimeViewer.cpp
-realTimeViewer.cpp(25): warning C4101: 'videoCard': unreferenced local variable
-realTimeViewer.cpp(26): warning C4101: 'videoMemory': unreferenced local variable
-realTimeViewer.cpp(178): warning C4101: 'height': unreferenced local variable
-realTimeViewer.cpp(179): warning C4101: 'radians': unreferenced local variable
-realTimeViewer.cpp(176): warning C4101: 'foundHeight': unreferenced local variable
-realTimeViewer.cpp(217): warning C4018: '<': signed/unsigned mismatch
-realTimeViewer.cpp(200): warning C4101: 'radius': unreferenced local variable
-realTimeViewer.cpp(199): warning C4101: 'renderCount': unreferenced local variable
-realTimeViewer.cpp(199): warning C4101: 'modelCount': unreferenced local variable
-realTimeViewer.cpp(200): warning C4101: 'positionX': unreferenced local variable
-realTimeViewer.cpp(199): warning C4101: 'index': unreferenced local variable
-realTimeViewer.cpp(200): warning C4101: 'positionY': unreferenced local variable
-realTimeViewer.cpp(200): warning C4101: 'positionZ': unreferenced local variable
-realTimeViewer.cpp(302): warning C4018: '>': signed/unsigned mismatch
-realTimeViewer.cpp(354): warning C4018: '<': signed/unsigned mismatch
-realTimeViewer.cpp(491): warning C4018: '>': signed/unsigned mismatch
-  Generating code
-  1 of 484 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    18 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-Source.obj : warning LNK4020: a type record in 'c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\release\vc140.pdb' is corrupted; some symbols and types may not be accessible from the debugger
-textureClass.obj : warning LNK4020: a type record in 'c:\temp\rtvgit\real-time-viewer\realtimeviewer oo\realtimeviewer\release\vc140.pdb' is corrupted; some symbols and types may not be accessible from the debugger
-  RealTimeViewer.vcxproj -> C:\Temp\RTVGIT\Real-Time-Viewer\RealTimeViewer OO\Release\RealTimeViewer.exe
+﻿Build started 2016-06-07 16:56:15.
+     1>Project "C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I"C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\packages\directxtk_desktop_2015.2016.2.23.1\build\native\../../build/native/include/" /Zi /nologo /W3 /WX- /Od /Oi /Oy- /GL /D HAS_DIRECTXTK /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt textureClass.cpp
+         textureClass.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\Release\RealTimeViewer.exe" /INCREMENTAL:NO /NOLOGO "C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\packages\directxtk_desktop_2015.2016.2.23.1\build\native\../../build/native/lib/Win32/Release/DirectXTKAudioDX.lib" "C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\packages\directxtk_desktop_2015.2016.2.23.1\build\native\../../build/native/lib/Win32/Release/DirectXTK.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\Release\RealTimeViewer.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\Release\RealTimeViewer.lib" /MACHINE:X86 /SAFESEH Release\cameraClass.obj
+         Release\d3dclass.obj
+         Release\fileMapping.obj
+         Release\lightClass.obj
+         Release\materialClass.obj
+         Release\modelClass.obj
+         Release\realTimeViewer.obj
+         Release\ShaderShader.obj
+         Release\Source.obj
+         Release\textureClass.obj
+         Generating code
+         0 of 490 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+           0 functions were new in current compilation
+           0 functions had inline decision re-evaluated but remain unchanged
+         Finished generating code
+         RealTimeViewer.vcxproj -> C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\Release\RealTimeViewer.exe
+     1>Done Building Project "C:\Users\BTH\Desktop\Real-Time-Viewer-TextureNew\Real-Time-Viewer-TextureNew\RealTimeViewer OO\RealTimeViewer\RealTimeViewer.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:14.14

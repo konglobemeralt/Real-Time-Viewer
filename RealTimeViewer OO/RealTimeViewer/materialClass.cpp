@@ -76,7 +76,7 @@ bool MaterialClass::updateMaterial(void* cBuf)
 
 		memcpy(&tempPath, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int) + sizeof(DirectX::XMFLOAT4) + sizeof(DirectX::XMFLOAT4), (sizeof(char) * 500));
 		
-		std::string test = tempPath + '\0' + '\0';
+		std::string test = tempPath;
 		
 		//std::size_t found = test.find_last_of("/\\");
 		//std::string test2 = test.substr(found+1);
@@ -116,7 +116,9 @@ bool MaterialClass::updateMaterial(void* cBuf)
 		}
 		return true;
 	}
-	
+
+
+	wcscpy(m_texturePath, L"missy.dds\0");
 	memcpy(&m_matColor, (char*)cBuf + sizeof(int) + sizeof(int) + sizeof(int)  +sizeof(int), sizeof(DirectX::XMFLOAT4));
 	return true;
 }
